@@ -106,7 +106,7 @@ test.describe("the task page", () => {
     member: _member,
   }) => {
     await page.goto(`/tasks/${LOG_SESSIONS["tool-failed"] ?? ""}`);
-    await expect(page.getByText("✗ failed")).toBeVisible();
+    await expect(page.getByText("failed", { exact: true })).toBeVisible();
     await expect(page.getByText("reported by turn 1")).toBeVisible();
     await settled(page);
     await captureBoth(page, "task-tool-failed");

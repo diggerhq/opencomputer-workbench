@@ -1,3 +1,4 @@
+import { Archive, ArchiveRestore, CircleX, Square } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   AlertDialog,
@@ -45,14 +46,23 @@ export function Controls({ isRunning, activeTurnId, ended, archived, onStop, onA
           void onStop();
         }}
       >
+        <Square data-icon="inline-start" className="size-3.5 fill-current" />
         {stopping ? "Stopping…" : "Stop"}
       </Button>
       <Button type="button" variant="outline" size="lg" disabled={!onArchive} onClick={onArchive}>
+        {archived ? <ArchiveRestore data-icon="inline-start" /> : <Archive data-icon="inline-start" />}
         {archived ? "Unarchive" : "Archive"}
       </Button>
       <AlertDialog>
         <AlertDialogTrigger asChild>
-          <Button type="button" variant="outline" size="lg" disabled={ended || !onEnd} className="text-destructive">
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            disabled={ended || !onEnd}
+            className="text-destructive hover:text-destructive"
+          >
+            <CircleX data-icon="inline-start" />
             End
           </Button>
         </AlertDialogTrigger>
@@ -60,7 +70,8 @@ export function Controls({ isRunning, activeTurnId, ended, archived, onStop, onA
           <AlertDialogHeader>
             <AlertDialogTitle>End this task?</AlertDialogTitle>
             <AlertDialogDescription>
-              Queued work is cancelled and the conversation becomes read-only.
+              Queued work is cancelled and the conversation becomes read-only. The branch and the pull request stay on
+              GitHub.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

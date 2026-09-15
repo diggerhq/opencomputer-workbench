@@ -1,4 +1,5 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Check, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Report, ReportStage } from "../../lib/report";
 import { shortSha } from "./format";
 
@@ -11,6 +12,28 @@ function Row({ term, children }: { term: string; children: React.ReactNode }) {
   );
 }
 
+function Sha({ value }: { value: string }) {
+  return (
+    <span className="rounded-sm bg-muted px-1 py-0.5 font-mono text-xs" title={value}>
+      {shortSha(value)}
+    </span>
+  );
+}
+
+function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center gap-1 rounded-sm font-medium text-accent hover:underline"
+    >
+      {children}
+      <ArrowUpRight aria-hidden="true" className="size-3.5" />
+    </a>
+  );
+}
+
 /**
  * The reported fields as a definition list: only what the report carries,
  * absent fields are absent rows. The result card and the report tool's
@@ -20,47 +43,51 @@ function Row({ term, children }: { term: string; children: React.ReactNode }) {
 export function ResultFields({ report, repo, baseRef }: { report: Report; repo?: string; baseRef?: string }) {
   const compare = repo && report.baseSha && report.commit;
   return (
-    <dl className="grid grid-cols-[72px_minmax(0,1fr)] gap-x-3 gap-y-2 text-sm">
+    <dl className="grid grid-cols-[72px_minmax(0,1fr)] items-baseline gap-x-3 gap-y-2 text-sm">
       {report.baseSha ? (
         <Row term="base">
-          <span className="font-mono">{shortSha(report.baseSha)}</span>
-          {baseRef ? <span className="text-muted-foreground"> {baseRef}</span> : null}
+          <Sha value={report.baseSha} />
+          {baseRef ? <span className="ml-1.5 text-muted-foreground">{baseRef}</span> : null}
         </Row>
       ) : null}
       {report.branch ? (
         <Row term="branch">
-          <span className="font-mono">{report.branch}</span>
+          <span className="font-mono text-xs">{report.branch}</span>
         </Row>
       ) : null}
       {report.commit ? (
         <Row term="commit">
-          <span className="font-mono">{shortSha(report.commit)}</span>
+          <Sha value={report.commit} />
         </Row>
       ) : null}
       {report.pr ? (
         <Row term="PR">
-          <a
-            href={report.pr.url}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-accent hover:underline"
-          >
+          <ExternalLink href={report.pr.url}>
             #{String(report.pr.number)}
             {report.pr.draft ? " draft" : ""}
-            <ArrowUpRight aria-hidden className="size-3" />
-          </a>
+          </ExternalLink>
         </Row>
       ) : null}
       {report.checks?.length ? (
         <Row term="checks">
-          <ul className="space-y-1">
+          <ul className="space-y-1.5">
             {report.checks.map((check) => (
-              <li key={check.command}>
-                <span className="font-mono">{check.command}</span>{" "}
-                <span className={check.passed ? "text-status-ready-for-review" : "text-status-failed"}>
-                  {check.passed ? "✓" : "✗"}
-                </span>{" "}
-                {check.summary} <span className="text-muted-foreground">(reported)</span>
+              <li key={check.command} className="flex flex-wrap items-center gap-x-1.5">
+                <span className="font-mono text-xs">{check.command}</span>
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1",
+                    check.passed ? "text-status-ready-for-review" : "text-status-failed",
+                  )}
+                >
+                  {check.passed ? (
+                    <Check aria-label="passed" className="size-3.5" />
+                  ) : (
+                    <X aria-label="failed" className="size-3.5" />
+                  )}
+                  {check.summary}
+                </span>
+                <span className="text-xs text-muted-foreground">(reported)</span>
               </li>
             ))}
           </ul>
@@ -68,15 +95,9 @@ export function ResultFields({ report, repo, baseRef }: { report: Report; repo?:
       ) : null}
       {compare ? (
         <Row term="">
-          <a
-            href={`https://github.com/${repo}/compare/${report.baseSha}...${report.commit}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 text-accent hover:underline"
-          >
+          <ExternalLink href={`https://github.com/${repo}/compare/${report.baseSha}...${report.commit}`}>
             Compare {shortSha(report.baseSha ?? "")}…{shortSha(report.commit ?? "")}
-            <ArrowUpRight aria-hidden className="size-3" />
-          </a>
+          </ExternalLink>
         </Row>
       ) : null}
     </dl>
@@ -99,17 +120,27 @@ export function ResultCard({ report, stage, reportedBy, fromLastTurn, repo, base
   return (
     <section aria-label="Result">
       <div className="mb-2 flex items-baseline justify-between gap-2">
-        <h3 className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Result</h3>
+        <h3 className="text-sm font-medium">Result</h3>
         <span className="text-xs text-muted-foreground">reported by {reportedBy}</span>
       </div>
-      <div className="rounded-lg border border-border bg-card p-4">
-        {fromLastTurn ? (
-          <p className="mb-3 text-sm font-medium text-status-ready-for-review">{stage}</p>
-        ) : (
-          <p className="mb-3 text-sm text-muted-foreground">
-            Finished, no new changes reported · result from {reportedBy}
-          </p>
-        )}
+      <div className="rounded-xl border border-border bg-card p-4 shadow-card">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span
+            className={cn(
+              "inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium",
+              fromLastTurn
+                ? "bg-status-ready-for-review-bg text-status-ready-for-review"
+                : "bg-muted text-muted-foreground",
+            )}
+          >
+            {stage}
+          </span>
+          {fromLastTurn ? null : (
+            <p className="text-sm text-muted-foreground">
+              Finished, no new changes reported · result from {reportedBy}
+            </p>
+          )}
+        </div>
         <ResultFields report={report} repo={repo} baseRef={baseRef} />
       </div>
     </section>

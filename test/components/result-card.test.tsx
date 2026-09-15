@@ -30,7 +30,7 @@ describe("ResultCard", () => {
     const result = latestResult(reduce("ended"));
     if (!result) throw new Error("no result");
     const { container } = render(<ResultCard {...result} reportedBy="turn 1" repo="acme/service" />);
-    expect(container.querySelector("p.text-status-ready-for-review")?.textContent).toBe("base");
+    expect(container.querySelector("span.text-status-ready-for-review")?.textContent).toBe("base");
     expect(Array.from(container.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual(["base"]);
     expect(container.querySelector("a")).toBeNull();
   });

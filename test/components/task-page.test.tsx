@@ -98,7 +98,8 @@ describe("the task page", () => {
     await open(row.id);
     await waitFor(() => expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(row.title));
     const header = screen.getByRole("heading", { level: 2 }).closest("header") as HTMLElement;
-    expect(header.textContent).toContain("acme/service at v2.1.0");
+    expect(header.textContent).toContain("acme/service");
+    expect(header.textContent).toContain("v2.1.0");
     expect(header.textContent).toContain("mo");
     expect(screen.getByText("Ready for review")).toBeTruthy();
     await waitFor(() => expect(screen.getByText("reported by turn 1")).toBeTruthy(), { timeout: 3000 });
