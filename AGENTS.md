@@ -12,7 +12,8 @@ agents. The design that decides what is built lives outside this repository.
 - `src/server/oc.ts` the management API wrapper, marked `STOPGAP(C5)`; the only module that knows OpenComputer's paths and shapes
 - `src/server/task.ts` `toTask`: the only place OpenComputer facts become app facets (execution, archived, result); `scope.ts` the session check every session-scoped route runs first
 - `src/server/tasks.ts` the task routes (list, get, create with the submission envelope, title and archive labels, end, repositories); `session-proxy.ts` the three routes the React hook needs; `request.ts` what the first turn carries
-- `opencomputer/agents/worker/tools/report.ts` the report tool's schema: the one source of the result type the app validates against
+- `opencomputer/project.ts` the project and its one agent; `opencomputer/agents/worker/agent.ts` the worker: the GitHub connection, one model, one tool and its instructions
+- `opencomputer/agents/worker/tools/report.ts` the report tool: the one source of the result type the app validates against, the schema it declares to the model, and the GitHub verification of every field it is given
 - `fixtures/rows/` one session row per task state, authored to the design's seams until Development recordings replace them (its README says which)
 - `src/hosts/workers.ts` Cloudflare Workers entry; `api/index.ts` Vercel entry; `src/hosts/dev.ts` the Vite dev server entry
 - `src/app/` the React SPA: `routes/` (TanStack Router, file based), `components/` (the list: `Composer`, `TaskList`, `TaskRow`, `StatusBadge`), `lib/api.ts` the browser's view of the app's routes, `lib/submission.ts` the envelope held until the admission receipt, `lib/display.ts` the display state from the three facets, `vocabulary.ts` the words, `styles.css` the tokens
@@ -26,6 +27,7 @@ agents. The design that decides what is built lives outside this repository.
 - `npm run check` typecheck, lint, unit tests, build; what CI runs
 - `npx wrangler dev` the Worker with `dist/client` after `npm run build`, configuration from `.dev.vars`
 - `npm run membership-id -- team:<org>/<slug>` prints the `WORKBENCH_MEMBERSHIP` line
+- `npm run doctor` checks the agent directory; `npm run deploy:agents` deploys the worker to the linked project's Development environment (`npx opencomputer login` first)
 
 ## Invariants
 
@@ -33,6 +35,7 @@ agents. The design that decides what is built lives outside this repository.
 - Every `/api` route requires a member; every POST and PATCH requires the app's own origin.
 - Nothing depends on process-local state surviving a request; the hosts declare no persistence, queue or schedule (`test/stateless.test.ts`).
 - The workbench never substitutes a shipping path for a missing OpenComputer contract: stopgaps carry a `STOPGAP(Cn)` comment naming their deletion condition; development stubs run only with `WORKBENCH_DEV_STUBS=1`.
+- The agent is deployed with the OpenComputer CLI from `opencomputer/`; sessions pin the deployment they started on, so a redeploy changes new tasks only.
 - Never print or commit secrets; `.env.local` and `.dev.vars` hold them and are ignored.
 
 ## Where things are decided
