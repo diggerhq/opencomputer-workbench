@@ -39,17 +39,16 @@ export function Controls({ isRunning, activeTurnId, ended, archived, onStop, onA
       <Button
         type="button"
         variant="outline"
-        size="lg"
         disabled={!isRunning || stopping || ended}
         onClick={() => {
           setStopRequestedFor(key);
           void onStop();
         }}
       >
-        <Square data-icon="inline-start" className="size-3.5 fill-current" />
+        <Square data-icon="inline-start" />
         {stopping ? "Stopping…" : "Stop"}
       </Button>
-      <Button type="button" variant="outline" size="lg" disabled={!onArchive} onClick={onArchive}>
+      <Button type="button" variant="outline" disabled={!onArchive} onClick={onArchive}>
         {archived ? <ArchiveRestore data-icon="inline-start" /> : <Archive data-icon="inline-start" />}
         {archived ? "Unarchive" : "Archive"}
       </Button>
@@ -58,7 +57,6 @@ export function Controls({ isRunning, activeTurnId, ended, archived, onStop, onA
           <Button
             type="button"
             variant="outline"
-            size="lg"
             disabled={ended || !onEnd}
             className="text-destructive hover:text-destructive"
           >

@@ -3,7 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Composer } from "@/components/Composer";
 import { TaskList, useTasks } from "@/components/TaskList";
-import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { workspaceQuery } from "./__root";
 
 export const Route = createFileRoute("/")({
@@ -23,7 +24,7 @@ function TasksPage() {
   const loaded = query.data?.pages.reduce((count, page) => count + page.tasks.length, 0) ?? 0;
 
   return (
-    <main className="mx-auto flex w-full max-w-content flex-1 flex-col pt-6 pb-16">
+    <main className="flex flex-1 flex-col gap-6 py-6 pb-16">
       <h1 className="sr-only">Tasks</h1>
       <Composer
         workspace={workspace}
@@ -32,34 +33,21 @@ function TasksPage() {
           void navigate({ to: "/tasks/$id", params: { id: task.id } });
         }}
       />
-      <section aria-label="Tasks" className="mt-8 overflow-hidden rounded-xl border border-border bg-card shadow-card">
-        <nav
-          aria-label="Filter"
-          className="flex h-control items-center gap-1 border-b border-border bg-surface px-2 md:px-3"
-        >
-          {(["active", "archived"] as const).map((entry) => {
-            const selected = filter === entry;
-            return (
-              <button
-                key={entry}
-                type="button"
-                aria-pressed={selected}
-                title={selected ? `${String(loaded)} loaded` : undefined}
-                onClick={() => setFilter(entry)}
-                className={cn(
-                  "h-control-sm rounded-md px-2.5 text-sm font-medium",
-                  selected
-                    ? "bg-card text-foreground shadow-card"
-                    : "text-muted-foreground hover:bg-hover hover:text-foreground",
-                )}
-              >
-                {entry === "active" ? `Active${query.isSuccess ? ` (${String(loaded)})` : ""}` : "Archived"}
-              </button>
-            );
-          })}
-        </nav>
-        <TaskList query={query} archived={filter === "archived"} />
-      </section>
+      <Card data-slot="task-list" role="region" aria-label="Tasks" className="gap-0 py-0">
+        <Tabs value={filter} onValueChange={(value) => setFilter(value as Filter)} className="gap-0">
+          <div className="flex h-12 items-center border-b bg-surface px-4">
+            <TabsList variant="line" aria-label="Filter">
+              <TabsTrigger value="active" title={filter === "active" ? `${String(loaded)} loaded` : undefined}>
+                Active{query.isSuccess && filter === "active" ? ` (${String(loaded)})` : ""}
+              </TabsTrigger>
+              <TabsTrigger value="archived">Archived</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value={filter}>
+            <TaskList query={query} archived={filter === "archived"} />
+          </TabsContent>
+        </Tabs>
+      </Card>
     </main>
   );
 }

@@ -56,11 +56,11 @@ export function StatusBadge({
       {entry.dot !== "none" ? (
         <span
           aria-hidden="true"
-          className={cn("size-dot shrink-0 rounded-full", tone.dot, entry.dot === "pulse" && "status-dot-pulse")}
+          className={cn("size-2 shrink-0 rounded-full", tone.dot, entry.dot === "pulse" && "status-dot-pulse")}
         />
       ) : variant === "inline" ? (
         // Archived and Ended have no dot; in a row the space is kept so every label starts on the same edge.
-        <span aria-hidden="true" className="size-dot shrink-0" />
+        <span aria-hidden="true" className="size-2 shrink-0" />
       ) : null}
       {label}
     </span>
