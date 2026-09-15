@@ -39,7 +39,10 @@ into a component.
 - **Timestamps.** Relative ("4 min ago", "yesterday") in `--muted-foreground`
   with the absolute ISO time in the hover title.
 - **Motion.** Streaming text shows a caret (`--caret-duration`); the working
-  dot pulses. Nothing else animates, and `prefers-reduced-motion` stops both.
+  dot pulses. State transitions (hover, focus, an expander's chevron, a
+  dialog or menu opening) take `--duration-fast` on `--ease-out` and never
+  move layout; nothing animates on load. `prefers-reduced-motion` stops the
+  two animations and collapses every transition.
 - **Panels.** A region renders once its data is known: the list shows
   skeleton rows of `--row-height` while loading and never a partial row; the
   result card is absent until the task has loaded, then present with its
@@ -50,8 +53,16 @@ into a component.
   control that shows the rest.
 - **Focus.** Every focusable element shows the ring: `--ring-width` of
   `--ring` at `--ring-offset`.
-- **Theme.** Light on `:root`, dark under `.dark` from `next-themes` with the
-  system default; both themes use the same token names.
+- **Theme.** Light on `:root`, dark under `.dark`, chosen from the header's
+  appearance menu (light, dark, system) and applied to `<html>` before the
+  first paint by the app's own script, so the Content-Security-Policy stays
+  at `script-src 'self'`; both themes use the same token names.
+- **Surfaces.** Three neutral layers: the page (`--background`), a card on it
+  (`--card`, hairline `--border`, `--shadow-card`, `--radius-xl`) and the
+  surface a toolbar or panel header sits on (`--surface`). A hovered row or
+  menu item takes `--hover`. Section headings are `--text-sm` medium in
+  `--foreground`, sentence case, with the section's meta at `--text-xs` in
+  `--muted-foreground` on the same line.
 
 ## Task list
 
@@ -83,25 +94,37 @@ the page loader.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Header.** `--row-height` tall, "Workbench" left as the link to the
-  list; right, at `--text-sm` in `--muted-foreground`: the membership rule's
-  display name and the environment, the actor's login with the avatar
-  (`--avatar`) when GitHub provides one, and a ghost "Sign out" button. No
+- **Header.** Full width, `--row-height` tall, sticky, bottom border
+  `--border`, the content aligned to `--page-max`. Left: the mark (a
+  `--primary` square with the hammer) and "Workbench" as the link to the
+  list. Right: two outline badges at `--text-xs`, the membership rule's
+  display name with the members icon and the environment with a dot (the
+  attention tone for production), the appearance menu, and the actor's
+  avatar (initials when GitHub provides none) opening a menu with the login
+  and "Sign out". Below 640 px the badges move into the avatar menu. No
   other navigation: the list is the root.
-- **Composer.** A card (`--card`, `--border`, `--radius-lg`, padding
-  `--space-4`). Row one: the repository picker and the base ref input side by
+- **Composer.** A card (`--card`, `--border`, `--shadow-card`,
+  `--radius-xl`, padding `--space-4`). Row one: the repository picker with
+  the repository icon and the base ref input with the commit icon side by
   side, each `--control-height`, the picker taking 2/3. Row two: the request
-  textarea, three lines at `--text-base`, growing to eight. Row three: the
-  "Start task" button right-aligned, primary. The picker is a shadcn Select
-  listing the permitted repositories with their default branch as the ref
-  placeholder; the ref input takes a branch, tag or commit. Disabled until
-  the workspace bootstrap has answered; the button is disabled while the
-  request is empty and while a submission is in flight, and reads
-  "Starting…" then.
-- **Filter line.** Two text tabs, "Active (n)" and "Archived", `--text-sm`
-  medium, the active one in `--foreground` with a 2 px underline in
-  `--accent`, the other in `--muted-foreground`. The count comes from the
-  loaded rows and says so on hover ("12 loaded").
+  textarea, three lines at `--text-base`, growing to eight. Row three: one
+  line of `--text-xs` muted copy on what the agent will do with the ⌘↵
+  shortcut as keycaps, and the "Start task" button right-aligned, primary.
+  The picker is a shadcn Select listing the permitted repositories with their
+  default branch as the ref placeholder; the ref input takes a branch, tag
+  or commit. Disabled until the workspace bootstrap has answered; the button
+  is disabled while the request is empty and while a submission is in
+  flight, and reads "Starting…" then. A problem (conflict or refusal) is a
+  `--status-failed-bg` block between the textarea and the footer.
+- **The list panel.** The tabs, the rows and the page loader share one
+  card (`--card`, `--border`, `--shadow-card`, `--radius-xl`). The tab bar
+  is `--control-height` on `--surface` with a bottom border: two segmented
+  buttons, "Active (n)" and "Archived", `--text-sm` medium,
+  `--control-height-sm`, the selected one raised on `--card` with
+  `--shadow-card`, the other in `--muted-foreground` taking `--hover` on
+  hover. The count comes from the loaded rows and says so on hover ("12
+  loaded"). The page loader is a `--row-height` band on `--surface` under
+  the rows.
 - **Row.** `--row-height`, bottom border `--border`, three columns on a
   fixed template: status 176 px, title and actor flexible, result stage and
   archive 128 px, `--space-4` between them. Line one: the badge (dot and
@@ -113,11 +136,13 @@ the page loader.
   lines: the result stage word ("base", "changes", "published") at
   `--text-xs` when present, then the archive control (`--control-height-sm`,
   icon button, lucide `archive`, or `archive-restore` on an archived row)
-  which exists on every row and is visible on hover and focus. A Working row
-  with queued turns reads "Working, 2 queued". A row that needs attention
-  (failed, not started, or idle with an unanswered final message) carries a
-  3 px left border in `--attention`. The whole row is a link to the task
-  page; the archive control stops propagation.
+  which exists on every row and is visible on hover and focus, with a
+  tooltip naming it. The result stage is a `--muted` pill at `--text-xs`.
+  A Working row with queued turns reads "Working, 2 queued". A hovered or
+  focused row takes `--hover`. A row that needs attention (failed or not
+  started) is tinted `--attention-row` across its whole surface; nothing
+  is signalled by a side stripe. The whole row is a link to the task page;
+  the archive control stops propagation.
 - **Page loader.** A `--row-height` row holding a secondary "Load more"
   button while `nextCursor` is present; a `--text-sm` muted "That's every
   task" line when it is null; three skeleton rows while a page loads.
@@ -129,11 +154,11 @@ the avatar; the display name moves to the avatar's hover. The composer
 stacks: picker, ref, textarea, button full width. The row keeps its
 `--row-height` on a three-column template (status auto, title flexible,
 archive `--control-height-sm`): line one is the badge and the title; the
-result stage folds into the badge as a muted word after the label ("Ready
-for review · published"); line two spans the first two columns with the
-actor, the repository and ref in mono, and the age at `--text-xs`; the
-archive control stays reserved at the right edge, centered across both
-lines, and is always visible, since there is no hover.
+result stage is not shown below 768 px, the badge carries the state and the
+task page the stage; line two spans the first two columns with the actor,
+the repository and ref in mono, and the age at `--text-xs`; the archive
+control stays reserved at the right edge, centered across both lines, and is
+always visible, since there is no hover.
 
 ## Task page
 
@@ -181,59 +206,70 @@ the timeline takes the right.
 └──────────────────────────────┴───────────────────────────────────────┘
 ```
 
-- **Header.** "← Tasks" link left, avatar right, `--row-height`.
-- **Title row.** The title at `--text-lg` medium (the first line of the
-  request, editable on click as the `title` label), the full badge right.
-  Below at `--text-sm` in `--muted-foreground`: repository and ref (mono),
-  actor, started age, the task id (mono, truncated, full id on hover), and
-  "continues <predecessor title>" as a link when set.
+- **Header.** The app header as on the list. Below it a "← Tasks" link
+  with the arrow icon, `--text-sm` medium in `--muted-foreground`.
+- **Title row.** The title at `--text-xl` semibold (the first line of the
+  request), the full badge right. Below at `--text-sm` in
+  `--muted-foreground`, each item with its icon: repository and ref (mono,
+  the repository icon), the actor with the avatar, started age, the task id
+  (mono, eight characters, the full id on hover) and "continues <id>" as a
+  link when set.
 - **Columns.** From 1024 px: left 5/12, right 7/12, gap `--space-8`. The
   left column is the request, then the result card, then the conversation;
   the right column is the timeline, sticky to the viewport with its own
   scroll so a long timeline never pushes the conversation off screen.
 - **Request.** A card with the request text at `--text-md`, rendered as
-  Markdown, the label "Request" above at `--text-xs` medium uppercase in
-  `--muted-foreground`.
-- **Result card.** Label "Result" with "reported by turn n" right of it.
-  The stage as the card's first line in the ready tone's text color at
-  `--text-sm` medium ("base", "changes", "published"), or, when the result
-  came from an earlier turn than the last settled one, "Finished, no new
-  changes reported · result from turn n" in `--muted-foreground`. Then a
-  definition list, `--text-sm`, keys at `--muted-foreground` in a 72 px
-  column: base (SHA mono, ref), branch (mono), commit (SHA mono), PR
-  (number, "draft" when so, external link), checks (each command mono with
-  ✓ or ✗ and the summary, suffixed "(reported)" because it is the agent's
-  claim), and the compare link from base to commit. Absent fields are absent
-  rows, not dashes; the card is not shown at all when there is no result,
-  and in its place a `--text-sm` muted line says "No result reported yet".
-- **Timeline.** Label "Activity". Turn boundaries are `--text-xs` medium
-  rules "Turn n · age" with a leading dot in the turn's outcome tone
-  (completed neutral, failed red, cancelled amber, running working). Each
-  tool call is a `--row-height-compact` entry: an expander chevron, the
-  tool name at `--text-sm` medium, the title or command at `--text-sm` mono
-  ellipsized, and on the right the outcome (✓ or ✗ with the duration, a
-  pulsing dot while running, "timed out" in the failed tone when the
-  command hit its limit). Expanded, the output block follows: `--code`
-  background, `--code-foreground`, `--text-sm` mono, wrapped, `--radius-md`,
-  padding `--space-3`, at most 40 lines then the "…and n more lines" line
-  with "Show all". A `report` call shows its input as the definition list
-  the result card uses. Message deltas are not in the timeline; they are the
-  conversation.
-- **Conversation.** Label "Conversation". Messages alternate: the actor's
-  login as the speaker for user turns, "agent" for the assistant, `--text-xs`
-  medium in `--muted-foreground` above `--text-base` prose; the assistant's
-  Markdown rendered; a streaming message ends with the caret. A failed turn
-  renders the failure copy in the failed tone as a message-shaped block
-  with the code in mono after it; a cancelled turn a muted "Stopped" line.
-  Then the follow-up composer: a textarea of two lines growing to six and a
-  primary "Send" button; disabled and explained ("This task has ended")
-  when the session is ended.
-- **Controls.** One row, `--control-height`: "Send" left; "Stop" (secondary,
-  enabled while working or queued, reads "Stopping…" disabled while the
-  stop settles), "Archive" / "Unarchive" (secondary), "End" (destructive
+  Markdown, the heading "Request" above.
+- **Result card.** Heading "Result" with "reported by turn n" right of it.
+  The stage as a pill on the card's first line, the ready tone's text on
+  its background ("base", "changes", "published"), or, when the result came
+  from an earlier turn than the last settled one, a muted pill followed by
+  "Finished, no new changes reported · result from turn n" in
+  `--muted-foreground`. Then a definition list, `--text-sm`, keys at
+  `--muted-foreground` in a 72 px column: base (SHA as a `--muted` mono
+  chip, ref), branch (mono), commit (SHA chip), PR (number, "draft" when so,
+  external link), checks (each command mono with the check or cross icon
+  and the summary, suffixed "(reported)" because it is the agent's claim),
+  and the compare link from base to commit. Absent fields are absent rows,
+  not dashes; without a result the heading stays and a dashed `--border`
+  box says "No result reported yet".
+- **Timeline.** A panel (`--card`, `--border`, `--shadow-card`,
+  `--radius-xl`) whose `--control-height` header on `--surface` reads
+  "Activity" with "n turns · n calls" right. Turn groups are separated by
+  `--border`; each starts with a `--text-xs` rule: a dot in the turn's
+  outcome tone (completed neutral, failed red, stopped amber, running
+  working), "Turn n" in `--foreground`, the age, a hairline, and the
+  outcome word right ("completed", "in progress", "queued", "failed",
+  "stopped"). Each tool call is a `--row-height-compact` button row that
+  takes `--hover`: the chevron (turning when expanded), the tool name at
+  `--text-xs` medium muted in a fixed column, the command at `--text-xs`
+  mono ellipsized, and on the right the outcome: the check icon in the
+  ready tone with the duration and line count muted, the cross icon with
+  "exit n" in the failed tone, a pulsing dot with "running", the clock
+  icon with "timed out after …" in the failed tone. Expanded, the output
+  block follows: `--code` background, `--code-foreground`, `--text-xs`
+  mono, wrapped, `--radius-md`, at most 40 lines then the "…and n more
+  lines" line with "Show all". A `report` call shows its input as the
+  definition list the result card uses, on `--surface`. Message deltas are
+  not in the timeline; they are the conversation.
+- **Conversation.** Heading "Conversation". Messages alternate: the actor's
+  avatar and login as the speaker for user turns, the agent mark and
+  "agent" for the assistant, `--text-xs` medium in `--muted-foreground`
+  above the message; a user message sits on a `--surface` block, the
+  assistant's Markdown is rendered as prose; a streaming message ends with
+  the caret. A failed turn renders the failure copy in the failed tone as a
+  message-shaped block with the code in mono after it; a cancelled turn a
+  muted "Stopped" line with the stopping dot. Then the follow-up composer:
+  a textarea of two lines growing to six, a primary "Send" button with the
+  ⌘↵ keycaps beside it; disabled and explained ("This task has ended") when
+  the session is ended.
+- **Controls.** One row, `--control-height`: "Send" left; "Stop" with the
+  square icon (secondary, enabled while working or queued, reads
+  "Stopping…" disabled while the stop settles), "Archive" / "Unarchive"
+  with the archive icon (secondary), "End" with the cross icon (destructive
   outline, opens a confirm dialog: "End this task? Queued work is cancelled
-  and the conversation becomes read-only.") right. Every control keeps its
-  place when disabled.
+  and the conversation becomes read-only. The branch and the pull request
+  stay on GitHub.") right. Every control keeps its place when disabled.
 
 ### At 390
 

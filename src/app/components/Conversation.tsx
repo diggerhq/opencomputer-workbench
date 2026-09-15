@@ -1,7 +1,9 @@
 import type { AgentMessage } from "@opencomputer/react";
+import { Bot } from "lucide-react";
 import { type FormEvent, type KeyboardEvent, type ReactNode, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { Turn } from "@/reducer";
@@ -14,6 +16,8 @@ export interface ConversationProps {
   /** The reduced turns, for the failure and stopped markers after a turn's messages. */
   readonly turns: readonly Turn[];
   readonly actorLogin: string;
+  /** The actor's GitHub id, for the avatar beside their messages. */
+  readonly actorId?: number;
   readonly ended: boolean;
   readonly isReplaying: boolean;
   /** A request or poll failure the hook reports; shown once, not as a turn failure. */
@@ -24,16 +28,46 @@ export interface ConversationProps {
   readonly controls?: ReactNode;
 }
 
-function Message({ message, actorLogin }: { message: AgentMessage; actorLogin: string }) {
+function Speaker({ message, actorLogin, actorId }: { message: AgentMessage; actorLogin: string; actorId?: number }) {
+  if (message.role === "assistant") {
+    return (
+      <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        <span
+          aria-hidden="true"
+          className="grid size-4 place-items-center rounded-full bg-primary text-primary-foreground"
+        >
+          <Bot className="size-2.5" />
+        </span>
+        agent
+      </span>
+    );
+  }
   return (
-    <div>
-      <div className="mb-1 text-xs font-medium text-muted-foreground">
-        {message.role === "user" ? actorLogin : "agent"}
-      </div>
+    <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+      {actorId ? (
+        <img
+          src={`https://avatars.githubusercontent.com/u/${String(actorId)}?s=32`}
+          alt=""
+          width={16}
+          height={16}
+          className="size-4 rounded-full border border-border bg-muted"
+        />
+      ) : (
+        <span aria-hidden="true" className="size-4 rounded-full border border-border bg-muted" />
+      )}
+      {actorLogin}
+    </span>
+  );
+}
+
+function Message({ message, actorLogin, actorId }: { message: AgentMessage; actorLogin: string; actorId?: number }) {
+  return (
+    <div className="grid gap-1.5">
+      <Speaker message={message} actorLogin={actorLogin} actorId={actorId} />
       {message.role === "assistant" ? (
         <Markdown className={cn("text-base", message.streaming && "streaming-caret")}>{message.text}</Markdown>
       ) : (
-        <div className="text-base whitespace-pre-wrap">{message.text}</div>
+        <div className="rounded-lg bg-surface px-3 py-2 text-base whitespace-pre-wrap">{message.text}</div>
       )}
     </div>
   );
@@ -42,31 +76,43 @@ function Message({ message, actorLogin }: { message: AgentMessage; actorLogin: s
 function TurnMarker({ turn }: { turn: Turn }) {
   if (turn.failure) {
     return (
-      <div role="status" className="rounded-md bg-status-failed-bg p-3 text-sm text-status-failed">
-        {failureCopy(turn.failure.code)} <code className="font-mono text-xs">{turn.failure.code}</code>
+      <div role="status" className="rounded-md bg-status-failed-bg px-3 py-2 text-sm text-status-failed">
+        {failureCopy(turn.failure.code)} <code className="font-mono text-xs opacity-80">{turn.failure.code}</code>
       </div>
     );
   }
   if (turn.status === "cancelled" && turn.cancelReason !== "session_ended") {
-    return <p className="text-sm text-muted-foreground">Stopped</p>;
+    return (
+      <p className="flex items-center gap-2 text-xs text-muted-foreground">
+        <span aria-hidden="true" className="size-dot rounded-full bg-status-stopping-dot" />
+        Stopped
+      </p>
+    );
   }
   return null;
 }
 
 /** Messages in turn order with each turn's marker after them; messages the log has not placed yet follow. */
-function ordered(messages: readonly AgentMessage[], turns: readonly Turn[], actorLogin: string): ReactNode[] {
+function ordered(
+  messages: readonly AgentMessage[],
+  turns: readonly Turn[],
+  actorLogin: string,
+  actorId?: number,
+): ReactNode[] {
   const placed = new Set<string>();
   const items: ReactNode[] = [];
   for (const turn of turns) {
     for (const message of messages) {
       if (message.turnId !== turn.id) continue;
       placed.add(message.id);
-      items.push(<Message key={message.id} message={message} actorLogin={actorLogin} />);
+      items.push(<Message key={message.id} message={message} actorLogin={actorLogin} actorId={actorId} />);
     }
     items.push(<TurnMarker key={`marker:${turn.id}`} turn={turn} />);
   }
   for (const message of messages) {
-    if (!placed.has(message.id)) items.push(<Message key={message.id} message={message} actorLogin={actorLogin} />);
+    if (!placed.has(message.id)) {
+      items.push(<Message key={message.id} message={message} actorLogin={actorLogin} actorId={actorId} />);
+    }
   }
   return items;
 }
@@ -75,6 +121,7 @@ export function Conversation({
   messages,
   turns,
   actorLogin,
+  actorId,
   ended,
   isReplaying,
   connectionError,
@@ -106,26 +153,26 @@ export function Conversation({
     if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) void submit();
   }
 
-  const items = ordered(messages, turns, actorLogin);
+  const items = ordered(messages, turns, actorLogin, actorId);
 
   return (
     <section aria-label="Conversation">
-      <h3 className="mb-2 text-xs font-medium tracking-wider text-muted-foreground uppercase">Conversation</h3>
+      <h3 className="mb-3 text-sm font-medium">Conversation</h3>
       {connectionError ? (
-        <p role="alert" className="mb-3 text-xs text-status-failed">
+        <p role="alert" className="mb-3 rounded-md bg-status-failed-bg px-3 py-2 text-xs text-status-failed">
           {connectionError}
         </p>
       ) : null}
       {isReplaying && messages.length === 0 ? (
         <p className="text-sm text-muted-foreground">Loading the conversation…</p>
       ) : (
-        <div className="grid gap-4">{items}</div>
+        <div className="grid gap-5">{items}</div>
       )}
-      <form onSubmit={submit} className="mt-4 grid gap-3">
+      <form onSubmit={submit} className="mt-6 grid gap-3">
         {ended ? <p className="text-sm text-muted-foreground">This task has ended.</p> : null}
         <Textarea
           aria-label="Follow up"
-          placeholder="Follow up…"
+          placeholder={ended ? "" : "Follow up…"}
           value={draft}
           disabled={disabled}
           onChange={(event) => setDraft(event.target.value)}
@@ -136,7 +183,11 @@ export function Conversation({
           <Button type="submit" size="lg" disabled={disabled || !text} className="col-span-3 sm:col-auto">
             {sending ? "Sending…" : "Send"}
           </Button>
-          <span aria-hidden className="hidden flex-1 sm:block" />
+          <KbdGroup aria-label="Command Enter sends" className="hidden text-muted-foreground sm:inline-flex">
+            <Kbd>⌘</Kbd>
+            <Kbd>↵</Kbd>
+          </KbdGroup>
+          <span aria-hidden="true" className="hidden flex-1 sm:block" />
           {controls}
         </div>
       </form>

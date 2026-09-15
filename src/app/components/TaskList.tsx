@@ -3,6 +3,7 @@
 // never a partial row; an error replaces the rows with the code and a retry;
 // the last page says so.
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Inbox, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError, listTasks, patchTask, type Task } from "@/lib/api";
@@ -25,11 +26,11 @@ const SKELETON_ROWS = ["first", "second", "third"] as const;
 
 function SkeletonRows() {
   return (
-    <ul aria-hidden="true">
+    <ul aria-hidden="true" className="divide-y divide-border">
       {SKELETON_ROWS.map((row) => (
         <li
           key={row}
-          className="grid h-row grid-cols-[auto_minmax(0,1fr)_--spacing(7)] items-center gap-x-3 border-b border-border md:grid-cols-[--spacing(44)_minmax(0,1fr)_--spacing(32)] md:gap-x-4"
+          className="grid h-row grid-cols-[auto_minmax(0,1fr)_--spacing(7)] items-center gap-x-3 px-3 md:grid-cols-[--spacing(44)_minmax(0,1fr)_--spacing(32)] md:gap-x-4 md:px-4"
         >
           <Skeleton className="h-3 w-20" />
           <Skeleton className="h-3 w-2/3" />
@@ -52,11 +53,12 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
   if (query.isError) {
     const code = query.error instanceof ApiError ? query.error.code : "network_error";
     return (
-      <div className="flex min-h-40 flex-col items-center justify-center gap-3 text-center">
+      <div className="flex min-h-40 flex-col items-center justify-center gap-3 px-gutter text-center">
         <p className="text-sm text-muted-foreground" role="alert">
-          Couldn't load tasks. <span className="font-mono">{code}</span>
+          Couldn't load tasks. <span className="font-mono text-xs">{code}</span>
         </p>
         <Button type="button" variant="outline" size="sm" onClick={() => void query.refetch()}>
+          <RefreshCw data-icon="inline-start" />
           Retry
         </Button>
       </div>
@@ -66,15 +68,23 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
   const tasks = query.data.pages.flatMap((page) => page.tasks);
   if (tasks.length === 0) {
     return (
-      <p className="flex min-h-40 items-center justify-center text-center text-sm text-muted-foreground">
-        {archived ? "Nothing archived." : "No tasks yet. Describe one above to start."}
-      </p>
+      <div className="flex min-h-40 flex-col items-center justify-center gap-2 px-gutter text-center">
+        <span
+          aria-hidden="true"
+          className="grid size-9 place-items-center rounded-full bg-surface text-muted-foreground"
+        >
+          <Inbox className="size-4" />
+        </span>
+        <p className="text-sm text-muted-foreground">
+          {archived ? "Nothing archived." : "No tasks yet. Describe one above to start."}
+        </p>
+      </div>
     );
   }
 
   return (
     <>
-      <ul>
+      <ul className="divide-y divide-border">
         {tasks.map((task) => (
           <TaskRow
             key={task.id}
@@ -87,13 +97,13 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
       {query.isFetchingNextPage ? (
         <SkeletonRows />
       ) : (
-        <div className="flex h-row items-center justify-center">
+        <div className="flex h-row items-center justify-center border-t border-border bg-surface">
           {query.hasNextPage ? (
-            <Button type="button" variant="outline" onClick={() => void query.fetchNextPage()}>
+            <Button type="button" variant="outline" size="sm" onClick={() => void query.fetchNextPage()}>
               Load more
             </Button>
           ) : (
-            <p className="text-sm text-muted-foreground">That's every task</p>
+            <p className="text-xs text-muted-foreground">That's every task</p>
           )}
         </div>
       )}

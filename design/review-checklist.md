@@ -33,10 +33,12 @@ review; a new rule is added here when a bug shows the list missed it.
 8. **Lists keyed by stable identity.** Rows by session id, timeline entries
    by call id or event sequence, messages by their log id. Expand a tool
    call, wait for new events, confirm it stays expanded.
-9. **Motion limited to streaming text and the working dot.** No other
-   animation: skeletons do not pulse, dialogs and menus open without a fade
-   or zoom, nothing spins; `prefers-reduced-motion` stops both allowed
-   animations.
+9. **Motion conveys state.** Two animations exist: the streaming caret and
+   the working dot. State transitions (hover, focus, an expander's chevron,
+   a dialog or menu opening) run at `--duration-fast` on `--ease-out` and
+   never move layout; skeletons do not pulse, nothing spins, nothing
+   animates on page load. `prefers-reduced-motion` stops the two animations
+   and collapses every transition.
 10. **Both viewports, both themes.** The finding is reported with the
     capture it was seen in; a fix is confirmed on all four captures.
 

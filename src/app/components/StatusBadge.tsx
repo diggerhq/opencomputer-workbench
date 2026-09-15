@@ -48,7 +48,7 @@ export function StatusBadge({
       className={cn(
         "inline-flex items-center gap-2 whitespace-nowrap text-xs font-medium",
         tone.text,
-        variant === "full" && cn("h-6 rounded-full px-2", tone.bg),
+        variant === "full" && cn("h-6 rounded-full px-2.5", tone.bg),
         className,
       )}
       title={entry.description}
