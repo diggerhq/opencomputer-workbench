@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite dev --port 3200 --strictPort",
     "build": "vite build",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p opencomputer/tsconfig.json",
     "lint": "biome check .",
     "format": "biome format --write .",
     "test": "vitest run",
