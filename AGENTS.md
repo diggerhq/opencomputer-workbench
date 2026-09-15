@@ -24,7 +24,7 @@ agents. The design that decides what is built lives outside this repository.
 ## Commands
 
 - `npm run dev` port 3200, strict; the SPA and the routes in one process, configuration from `.env.local`
-- `npm run dev:fixtures` the real application over the recorded fixtures on the same port, a browser opened already signed in; for looking, not for tests
+- `npm run dev:fixtures` the real application over the recorded fixtures on the same port, a browser opened already signed in, or `-- --no-browser` for a sign-in snippet to paste into your own; for looking, not for tests
 - `npm run check` typecheck, lint, unit tests, build; what CI runs
 - `npx wrangler dev` the Worker with `dist/client` after `npm run build`, configuration from `.dev.vars`
 - `npm run membership-id -- team:<org>/<slug>` prints the `WORKBENCH_MEMBERSHIP` line
