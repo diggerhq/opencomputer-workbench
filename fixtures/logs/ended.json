@@ -1,0 +1,245 @@
+[
+  {
+    "id": "6fa1dc1b-f9d0-4788-844c-13220ac90d34",
+    "seq": 1,
+    "timestamp": "2026-09-15T20:41:07.000Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.created",
+    "data": {
+      "agentId": "worker",
+      "deploymentId": "dep_01J9Y0B7Q3M8N2K4R6T1V5W9XA"
+    }
+  },
+  {
+    "id": "4e3c26f4-3d45-43da-8353-6bf9c7b5639f",
+    "seq": 2,
+    "timestamp": "2026-09-15T20:41:07.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.status_changed",
+    "data": {
+      "from": "new",
+      "to": "idle"
+    }
+  },
+  {
+    "id": "d65dc158-559a-4b04-852f-b6d354760c3a",
+    "seq": 3,
+    "timestamp": "2026-09-15T20:41:09.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "message.received",
+    "data": {
+      "input": "Rename billing to invoicing across the service. Keep the public API paths stable and add a deprecation note for the old module name.\n\nRun the full test suite before you report.",
+      "mode": "queue"
+    }
+  },
+  {
+    "id": "3cc0ee1a-6a29-4fd5-80b8-7b88254d1592",
+    "seq": 4,
+    "timestamp": "2026-09-15T20:41:09.270Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "session.status_changed",
+    "data": {
+      "from": "idle",
+      "to": "running"
+    }
+  },
+  {
+    "id": "d12b2fb5-6e98-42a1-8613-006312f4de87",
+    "seq": 5,
+    "timestamp": "2026-09-15T20:41:09.320Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "turn.started",
+    "data": {}
+  },
+  {
+    "id": "be82f1da-59cf-4bd7-845d-aa95c7c70359",
+    "seq": 6,
+    "timestamp": "2026-09-15T20:41:11.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "runtime.connected",
+    "data": {}
+  },
+  {
+    "id": "384f5995-cd68-417b-88f4-1254e7af99df",
+    "seq": 7,
+    "timestamp": "2026-09-15T20:41:11.180Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "agent.rendered",
+    "data": {
+      "renderId": "8f32c544-1c40-43db-8699-22cc70694a2d",
+      "model": "anthropic/claude-sonnet-4.6",
+      "enabledTools": ["report"],
+      "enabledSubagents": [],
+      "enabledMcpServers": [],
+      "requiredConnections": ["github"],
+      "input": {
+        "source": "user",
+        "text": "Rename billing to invoicing across the service. Keep the public API paths stable and add a deprecation note for the old module name.\n\nRun the full test suite before you report."
+      },
+      "renderedAt": "2026-09-15T21:47:13.784Z"
+    }
+  },
+  {
+    "id": "788d4429-26a7-4d1e-80d1-dea1225308c0",
+    "seq": 8,
+    "timestamp": "2026-09-15T20:41:11.220Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "model.route_resolved",
+    "data": {
+      "providerCallId": "1a329703-6639-4dd3-88d5-d2f1ff9c2881",
+      "requested": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4.6"
+      },
+      "effective": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4.6"
+      },
+      "runtime": "workerd",
+      "access": "managed"
+    }
+  },
+  {
+    "id": "befb3883-ea90-4a23-847d-dcb2c2146900",
+    "seq": 9,
+    "timestamp": "2026-09-15T20:41:11.520Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.started",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_01clone",
+      "title": "git clone https://github.com/acme/service.git && git -C service switch -c task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+      "input": {
+        "command": "git clone https://github.com/acme/service.git && git -C service switch -c task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT"
+      }
+    }
+  },
+  {
+    "id": "9f569af3-2ca2-41b2-83e4-512f69adf39c",
+    "seq": 10,
+    "timestamp": "2026-09-15T20:41:17.620Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.completed",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_01clone",
+      "title": "git clone https://github.com/acme/service.git && git -C service switch -c task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+      "output": {
+        "stdout": "Cloning into 'service'...\nremote: Enumerating objects: 2412, done.\nremote: Counting objects: 100% (2412/2412), done.\nremote: Compressing objects: 100% (1180/1180), done.\nremote: Total 2412 (delta 1189), reused 2301 (delta 1102)\nReceiving objects: 100% (2412/2412), 1.84 MiB | 9.20 MiB/s, done.\nResolving deltas: 100% (1189/1189), done.\nSwitched to a new branch 'task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT'\n",
+        "stderr": "",
+        "exitCode": 0,
+        "durationMs": 6100
+      }
+    }
+  },
+  {
+    "id": "db90fb97-e4f9-4832-8505-a2f8567f8d2e",
+    "seq": 11,
+    "timestamp": "2026-09-15T20:41:17.920Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.started",
+    "data": {
+      "tool": "report",
+      "callId": "toolu_02report",
+      "title": "report",
+      "input": {
+        "baseSha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678"
+      }
+    }
+  },
+  {
+    "id": "dd33e4a8-b0ce-48f6-82d7-7e2e2b33e25c",
+    "seq": 12,
+    "timestamp": "2026-09-15T20:41:18.520Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.completed",
+    "data": {
+      "tool": "report",
+      "callId": "toolu_02report",
+      "title": "report",
+      "output": {
+        "baseSha": "a1b2c3d4e5f60718293a4b5c6d7e8f9012345678"
+      },
+      "result": true
+    }
+  },
+  {
+    "id": "0d3608f2-2432-4907-844a-9fc36212a3c5",
+    "seq": 13,
+    "timestamp": "2026-09-15T20:41:18.620Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "message.completed",
+    "data": {
+      "text": "Cloned at main (a1b2c3d). Which of the two billing modules should be renamed, `billing` or `billing-legacy`?"
+    }
+  },
+  {
+    "id": "1710ba3c-a576-457c-8fc3-6f82f569c3c7",
+    "seq": 14,
+    "timestamp": "2026-09-15T20:41:18.650Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "usage.recorded",
+    "data": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-4.6",
+      "inputTokens": 18422,
+      "outputTokens": 1210,
+      "reasoningTokens": 0,
+      "cachedTokens": 16000,
+      "cacheWriteTokens": 0,
+      "costUsd": 0.0471,
+      "payer": "organization"
+    }
+  },
+  {
+    "id": "5293fa71-d08e-43d5-8c87-9eee35f59c4a",
+    "seq": 15,
+    "timestamp": "2026-09-15T20:41:18.700Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "turn.completed",
+    "data": {}
+  },
+  {
+    "id": "c2273454-ae51-42da-8bd8-e77f3123c5ab",
+    "seq": 16,
+    "timestamp": "2026-09-15T20:41:18.720Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.status_changed",
+    "data": {
+      "from": "running",
+      "to": "idle"
+    }
+  },
+  {
+    "id": "1ac487e5-46bb-4dcc-81ad-73b302bacd9c",
+    "seq": 17,
+    "timestamp": "2026-09-15T20:51:18.720Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.status_changed",
+    "data": {
+      "from": "idle",
+      "to": "ended"
+    }
+  },
+  {
+    "id": "35d92dda-61ee-472a-8b18-51c3e62daf72",
+    "seq": 18,
+    "timestamp": "2026-09-15T20:51:18.730Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.ended",
+    "data": {}
+  }
+]
