@@ -5,9 +5,13 @@ the captures the screenshot suite writes to `design/screens/app/` at 390 and
 1440 pixels in both themes, worst finding first. The list does not change per
 review; a new rule is added here when a bug shows the list missed it.
 
-1. **Alignment to the grid.** Every edge sits on a multiple of `--space-2`;
-   rows are exactly `--row-height`; controls are `--control-height`; text
-   baselines in a row share one line. Compare the row above and below.
+1. **One sizing system.** Every edge sits on Tailwind's 4 px scale; rows are
+   `h-14`; controls are shadcn's `h-8`, `h-7` or `h-6`; every visible border
+   is one hairline in `--border` (`--input` on fields); the header, the
+   composer and the list share a left edge and the task page's two columns
+   share a top edge. `npx playwright test e2e/measure.spec.ts` reads the
+   rendered page and fails on any of these; the review confirms what the
+   gate cannot see (text baselines in a row on one line, optical centering).
 2. **No layout shift between states.** Loading, empty, streaming, error and
    terminal renderings of a component occupy the same box. Space for the
    archive control, the result stage and the queued count is reserved on
@@ -17,7 +21,8 @@ review; a new rule is added here when a bug shows the list missed it.
 3. **Focus rings from tokens.** Tab through the screen: every focusable
    element shows the `--ring` outline at `--ring-width` and `--ring-offset`,
    nothing shows a browser default, nothing hides it, and no primitive
-   carries a ring of its own (`src/app/components/ui/` has none).
+   carries a focus ring of its own (`src/app/components/ui/` has none; the
+   Card's hairline ring is its frame, not a focus state).
 4. **Contrast in both themes.** Text at or above 4.5:1, status dots at or
    above 3:1 against the page. `node design/contrast.mjs` checks the tokens;
    the review checks that components use them and nothing else.
@@ -57,7 +62,10 @@ npx playwright test -g "the task page"       # one group
 ```
 
 Captures land in `design/screens/app/<name>-<viewport>-<theme>.png`, 56
-files under 300 KB each. `.github/workflows/screenshots.yml` runs the same
+files under 300 KB each, and `e2e/measure.spec.ts` runs beside the
+captures. `APP_PORT` and `FIXTURE_PORT` move the replay's ports when a
+walkthrough (`npm run dev:fixtures`) already holds the defaults.
+`.github/workflows/screenshots.yml` runs the same
 command on every pull request and uploads the folder as the `screens`
 artifact; a state that does not render fails the job.
 

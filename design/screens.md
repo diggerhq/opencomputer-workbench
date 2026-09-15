@@ -12,27 +12,33 @@ and those captures are what every UI change is reviewed against with the
 the specification, the [last section](#what-the-built-screens-changed) says
 what and why.
 
-Every measure below names a token. A value that is not a token does not go
-into a component.
+Every measure below names a token or a step of Tailwind's 4 px scale, and
+every control size is one of shadcn's (default `h-8`, small `h-7`, extra
+small `h-6`). A value that is neither does not go into a component;
+`e2e/measure.spec.ts` reads the rendered page and fails when one does.
 
 ## Shared rules
 
-- **Grid.** 8 px grid (`--space-2`), 4 px half-step for text-internal
-  spacing only. Side gutter `--gutter` (16 px) below 768 px, `--gutter-wide`
-  (32 px) from 768 px. Content is centered with a maximum of `--content-max`
-  (960 px) on the list and `--page-max` (1280 px) on the task page.
+- **Grid.** Tailwind's 4 px scale, one system with the shadcn primitives:
+  `gap-2` (8 px) within a control group, `gap-4` (16 px) between groups,
+  `gap-6` (24 px) between sections. Side gutter `px-4` (16 px) below 768 px,
+  `px-8` (32 px) from 768 px. One container, `max-w-6xl` (1152 px), shared
+  by the header, the list and the task page, so their left edges coincide.
 - **Type.** Inter everywhere; Geist Mono only for commands, output, commit
   SHAs and branch names. The scale is `--text-xs` through `--text-xl`; body
   is `--text-base` (14 px). Weights: regular for prose, medium for titles and
   labels, semibold for the page heading only.
-- **Rows and controls.** A task row is exactly `--row-height` (56 px)
-  whatever it holds; a timeline entry is `--row-height-compact` (48 px)
-  collapsed. Controls are `--control-height` (36 px), row-level controls
-  `--control-height-sm` (28 px). Space for a control only some rows have is
-  reserved on every row.
-- **Status.** A badge is the dot (`--dot`, 8 px) and the label in the tone's
-  text color on the tone's background, `--radius-full`, `--text-xs` medium,
-  padding `--space-1` by `--space-2`. In a row the badge shows only the dot
+- **Rows and controls.** A task row is exactly `h-14` (56 px) whatever it
+  holds; a timeline entry is `h-8` (32 px) collapsed. Controls are shadcn's
+  default `h-8` (32 px), row-level controls `size="sm"` (28 px), icon
+  buttons `size-8` and `size-7`. Corners are shadcn's family from
+  `--radius` (10 px): controls `rounded-lg`, cards `rounded-xl`. Borders are
+  one hairline in `--border` (`--input` on fields); cards are framed by the
+  library's ring. Space for a control only some rows have is reserved on
+  every row.
+- **Status.** A badge is the dot (`size-2`, 8 px) and the label in the tone's
+  text color on the tone's background, `rounded-full`, `h-6`, `--text-xs`
+  medium, `px-2.5`. In a row the badge shows only the dot
   and the label without background; on the task page it shows both. The
   working dot pulses (`--pulse-duration`); no other dot moves; Archived and
   Ended show no dot.
@@ -44,7 +50,7 @@ into a component.
   move layout; nothing animates on load. `prefers-reduced-motion` stops the
   two animations and collapses every transition.
 - **Panels.** A region renders once its data is known: the list shows
-  skeleton rows of `--row-height` while loading and never a partial row; the
+  skeleton rows of `h-14` (56 px) while loading and never a partial row; the
   result card is absent until the task has loaded, then present with its
   stage, never a spinner inside a card.
 - **Tool output.** Collapsed by default behind an expander that states the
@@ -58,7 +64,7 @@ into a component.
   first paint by the app's own script, so the Content-Security-Policy stays
   at `script-src 'self'`; both themes use the same token names.
 - **Surfaces.** Three neutral layers: the page (`--background`), a card on it
-  (`--card`, hairline `--border`, `--shadow-card`, `--radius-xl`) and the
+  (shadcn Card: `--card`, the library's hairline ring, `rounded-xl`) and the
   surface a toolbar or panel header sits on (`--surface`). A hovered row or
   menu item takes `--hover`. Section headings are `--text-sm` medium in
   `--foreground`, sentence case, with the section's meta at `--text-xs` in
@@ -94,8 +100,8 @@ the page loader.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Header.** Full width, `--row-height` tall, sticky, bottom border
-  `--border`, the content aligned to `--page-max`. Left: the mark (a
+- **Header.** Full width, `h-14` tall, sticky, bottom border `--border`,
+  the content in the one container (`max-w-6xl`). Left: the mark (a
   `--primary` square with the hammer) and "Workbench" as the link to the
   list. Right: two outline badges at `--text-xs`, the membership rule's
   display name with the members icon and the environment with a dot (the
@@ -103,10 +109,10 @@ the page loader.
   avatar (initials when GitHub provides none) opening a menu with the login
   and "Sign out". Below 640 px the badges move into the avatar menu. No
   other navigation: the list is the root.
-- **Composer.** A card (`--card`, `--border`, `--shadow-card`,
-  `--radius-xl`, padding `--space-4`). Row one: the repository picker with
+- **Composer.** A card (`--card`, `--border`, the library's ring,
+  a shadcn Card, `rounded-xl`, content `p-4`). Row one: the repository picker with
   the repository icon and the base ref input with the commit icon side by
-  side, each `--control-height`, the picker taking 2/3. Row two: the request
+  side, each `h-8`, the picker taking 2/3. Row two: the request
   textarea, three lines at `--text-base`, growing to eight. Row three: one
   line of `--text-xs` muted copy on what the agent will do with the ⌘↵
   shortcut as keycaps, and the "Start task" button right-aligned, primary.
@@ -117,24 +123,24 @@ the page loader.
   flight, and reads "Starting…" then. A problem (conflict or refusal) is a
   `--status-failed-bg` block between the textarea and the footer.
 - **The list panel.** The tabs, the rows and the page loader share one
-  card (`--card`, `--border`, `--shadow-card`, `--radius-xl`). The tab bar
-  is `--control-height` on `--surface` with a bottom border: two segmented
+  card (shadcn Card, `rounded-xl`). The tab bar is `h-12` on `--surface`
+  with a bottom border: shadcn Tabs in the line variant, two
   buttons, "Active (n)" and "Archived", `--text-sm` medium,
-  `--control-height-sm`, the selected one raised on `--card` with
-  `--shadow-card`, the other in `--muted-foreground` taking `--hover` on
+  the library's trigger height, the selected one underlined with
+  the library's ring, the other in `--muted-foreground` taking `--hover` on
   hover. The count comes from the loaded rows and says so on hover ("12
-  loaded"). The page loader is a `--row-height` band on `--surface` under
+  loaded"). The page loader is a `h-14` (56 px) band on `--surface` under
   the rows.
-- **Row.** `--row-height`, bottom border `--border`, three columns on a
-  fixed template: status 176 px, title and actor flexible, result stage and
-  archive 128 px, `--space-4` between them. Line one: the badge (dot and
+- **Row.** `h-14` (56 px), bottom border `--border`, three columns on a
+  fixed template: status `w-32` (128 px), title and actor flexible, result
+  stage and archive `w-32` (128 px), `gap-4` between them. Line one: the badge (dot and
   label) in the first column; the title at `--text-base` medium, ellipsized
   at one line, with the repository and ref at `--text-sm` mono in
   `--muted-foreground` right of it. Line two, under the title: the actor's
-  avatar (16 px) and login, then the relative age, at `--text-xs` in
+  avatar (`size-5`, 20 px) and login, then the relative age, at `--text-xs` in
   `--muted-foreground`. The third column, vertically centered across both
   lines: the result stage word ("base", "changes", "published") at
-  `--text-xs` when present, then the archive control (`--control-height-sm`,
+  `--text-xs` when present, then the archive control (`size="sm"` (28 px),
   icon button, lucide `archive`, or `archive-restore` on an archived row)
   which exists on every row and is visible on hover and focus, with a
   tooltip naming it. The result stage is a `--muted` pill at `--text-xs`.
@@ -143,17 +149,17 @@ the page loader.
   started) is tinted `--attention-row` across its whole surface; nothing
   is signalled by a side stripe. The whole row is a link to the task page;
   the archive control stops propagation.
-- **Page loader.** A `--row-height` row holding a secondary "Load more"
+- **Page loader.** A `h-14` (56 px) row holding a secondary "Load more"
   button while `nextCursor` is present; a `--text-sm` muted "That's every
   task" line when it is null; three skeleton rows while a page loads.
 
 ### At 390
 
-Same order, one column, gutter `--gutter`. The header keeps the title and
+Same order, one column, gutter `px-4`. The header keeps the title and
 the avatar; the display name moves to the avatar's hover. The composer
 stacks: picker, ref, textarea, button full width. The row keeps its
-`--row-height` on a three-column template (status auto, title flexible,
-archive `--control-height-sm`): line one is the badge and the title; the
+`h-14` (56 px) on a three-column template (status auto, title flexible,
+archive `size="sm"` (28 px)): line one is the badge and the title; the
 result stage is not shown below 768 px, the badge carries the state and the
 task page the stage; line two spans the first two columns with the actor,
 the repository and ref in mono, and the age at `--text-xs`; the archive
@@ -214,7 +220,7 @@ the timeline takes the right.
   the repository icon), the actor with the avatar, started age, the task id
   (mono, eight characters, the full id on hover) and "continues <id>" as a
   link when set.
-- **Columns.** From 1024 px: left 5/12, right 7/12, gap `--space-8`. The
+- **Columns.** From 1024 px: left 5/12, right 7/12, gap `gap-8` (32 px). The
   left column is the request, then the result card, then the conversation;
   the right column is the timeline, sticky to the viewport with its own
   scroll so a long timeline never pushes the conversation off screen.
@@ -226,21 +232,21 @@ the timeline takes the right.
   from an earlier turn than the last settled one, a muted pill followed by
   "Finished, no new changes reported · result from turn n" in
   `--muted-foreground`. Then a definition list, `--text-sm`, keys at
-  `--muted-foreground` in a 72 px column: base (SHA as a `--muted` mono
+  `--muted-foreground` in a `w-16` (64 px) column: base (SHA as a `--muted` mono
   chip, ref), branch (mono), commit (SHA chip), PR (number, "draft" when so,
   external link), checks (each command mono with the check or cross icon
   and the summary, suffixed "(reported)" because it is the agent's claim),
   and the compare link from base to commit. Absent fields are absent rows,
   not dashes; without a result the heading stays and a dashed `--border`
   box says "No result reported yet".
-- **Timeline.** A panel (`--card`, `--border`, `--shadow-card`,
-  `--radius-xl`) whose `--control-height` header on `--surface` reads
+- **Timeline.** A panel (`--card`, `--border`, the library's ring,
+  shadcn Card) whose `h-12` header on `--surface` reads
   "Activity" with "n turns · n calls" right. Turn groups are separated by
   `--border`; each starts with a `--text-xs` rule: a dot in the turn's
   outcome tone (completed neutral, failed red, stopped amber, running
   working), "Turn n" in `--foreground`, the age, a hairline, and the
   outcome word right ("completed", "in progress", "queued", "failed",
-  "stopped"). Each tool call is a `--row-height-compact` button row that
+  "stopped"). Each tool call is a `h-8` (32 px) button row that
   takes `--hover`: the chevron (turning when expanded), the tool name at
   `--text-xs` medium muted in a fixed column, the command at `--text-xs`
   mono ellipsized, and on the right the outcome: the check icon in the
@@ -248,7 +254,7 @@ the timeline takes the right.
   "exit n" in the failed tone, a pulsing dot with "running", the clock
   icon with "timed out after …" in the failed tone. Expanded, the output
   block follows: `--code` background, `--code-foreground`, `--text-xs`
-  mono, wrapped, `--radius-md`, at most 40 lines then the "…and n more
+  mono, wrapped, `rounded-md`, at most 40 lines then the "…and n more
   lines" line with "Show all". A `report` call shows its input as the
   definition list the result card uses, on `--surface`. Message deltas are
   not in the timeline; they are the conversation.
@@ -263,7 +269,7 @@ the timeline takes the right.
   a textarea of two lines growing to six, a primary "Send" button with the
   ⌘↵ keycaps beside it; disabled and explained ("This task has ended") when
   the session is ended.
-- **Controls.** One row, `--control-height`: "Send" left; "Stop" with the
+- **Controls.** One row, `h-8`: "Send" left; "Stop" with the
   square icon (secondary, enabled while working or queued, reads
   "Stopping…" disabled while the stop settles), "Archive" / "Unarchive"
   with the archive icon (secondary), "End" with the cross icon (destructive
@@ -275,7 +281,7 @@ the timeline takes the right.
 
 One column: header, title row (badge below the title, meta wrapping), the
 request, the result card, the timeline, the conversation, the composer, the
-controls. The timeline is not sticky. Tool entries keep `--row-height-compact`
+controls. The timeline is not sticky. Tool entries keep `h-8` (32 px)
 on one line at both widths: the command is ellipsized with the full text in
 its hover title, and the outcome stays on the right. Controls wrap to two
 rows of full-width buttons: Send alone, then Stop, Archive, End in thirds.
@@ -291,8 +297,8 @@ the timeline agree on every task-page capture.
 
 | Component | State | Shows | Fixture |
 | --- | --- | --- | --- |
-| TaskList | loading | Three skeleton rows of `--row-height`, no text | (none: rendered before data) |
-| TaskList | empty | "No tasks yet. Describe one above to start." in `--muted-foreground`, centered in a `--space-16` tall box | `rows/empty.json` |
+| TaskList | loading | Three skeleton rows of `h-14` (56 px), no text | (none: rendered before data) |
+| TaskList | empty | "No tasks yet. Describe one above to start." in `--muted-foreground`, centered in a 64 px tall box | `rows/empty.json` |
 | TaskList | empty, archived filter | "Nothing archived." | `rows/empty.json` |
 | TaskList | page | Rows, then "Load more" while `nextCursor` | `rows/page-1.json`, `rows/page-2.json` |
 | TaskList | last page | Rows, then "That's every task" | `rows/page-last.json` |
@@ -314,7 +320,7 @@ the timeline agree on every task-page capture.
 | Composer | refused | Inline problem from `failureCopy` (for example insufficient credits). Draft kept | (none; `test/submission.test.ts` fakes the refusal) |
 | Composer | no repositories | Picker disabled with "No repositories are connected" | (none; `test/submission.test.ts` fakes the empty list) |
 | StatusBadge | each state | The dot rule and the label from `DISPLAY` | (derived from the row fixtures) |
-| ActivityTimeline | loading | Three `--row-height-compact` skeleton entries | (rendered while replaying) |
+| ActivityTimeline | loading | Three `h-8` (32 px) skeleton entries | (rendered while replaying) |
 | ActivityTimeline | empty | "Nothing has run yet." | `logs/created-only.json` |
 | ActivityTimeline | streaming | A running entry with the pulsing dot, earlier entries settled | `logs/working.json` |
 | ActivityTimeline | error | Failed turn rule in the failed tone; entries before it intact | `logs/turn-failed-runtime-lost.json` |
@@ -370,9 +376,10 @@ Recorded after the first screenshot suite ran over the application (`design/scre
 
 - **Header.** Shows the environment beside the membership display and a Sign out control; the avatar appears only when GitHub returns one. The app needs a way out of the session, and the environment is the one configuration fact a member should see.
 - **Task page title.** The h2 is the task's title label (the first line of the request) at `--text-lg`, wrapping when long; there is no clamp. A clamp would hide the words that identify the task; the list is where titles are cut to one line.
-- **Tool entries at 390.** One line at both widths with the command ellipsized (full text in the hover title), not a second line. One entry shape keeps `--row-height-compact` true everywhere.
+- **Tool entries at 390.** One line at both widths with the command ellipsized (full text in the hover title), not a second line. One entry shape keeps `h-8` (32 px) true everywhere.
 - **Timeline while thinking.** A running turn with no tool call yet shows a "Thinking" row with the working dot, so the timeline is never empty while the badge says Working.
 - **Failure in two places.** A failed turn's copy appears under its turn in the timeline and as the marker after its messages in the conversation, both from `failureCopy`. The timeline reader and the conversation reader each see it where they are.
 - **Composer.** The repository picker starts empty with "Repository" as its placeholder and the base-ref input shows the chosen repository's default branch as its placeholder; the button is disabled until both a repository and a request exist.
 - **Skeletons and dialogs do not move.** Loading rows are still blocks and the End dialog opens without a fade or zoom, so streaming text and the working dot remain the only motion.
 - **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `design/tokens.css`.
+- **One sizing system.** The measures the specification first named as its own tokens (a row height, two control heights, gutters, two container widths, a dot and an avatar size, a spacing scale, a radius family) were a second system beside the shadcn primitives' own; wherever the two met, heights, corners and border weights disagreed and the interface read rough. They are gone: the application is on Tailwind's 4 px scale and shadcn's sizes, radii and border lightness (`--border` at shadcn's default with the neutral tint; `--ring` stays the accent because a focus indicator needs 3:1). Cards are shadcn's Card, the filter is Tabs, the composer, the request, the result and the timeline are Cards, task rows are three fixed columns so their edges align down the list, and `e2e/measure.spec.ts` asserts all of it on the rendered page. The mockups keep the old measures in their own stylesheet.
