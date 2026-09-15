@@ -76,6 +76,7 @@ Vercel they are the project's environment variables. Neither file is committed.
 
 - `npm run check` runs the typecheck of the application and of the agent directory, the linter, the unit tests and the build. CI runs the same on every pull request and builds preview deployments on both hosts when the host tokens are configured as repository secrets.
 - `npm run doctor` checks the agent directory with the OpenComputer CLI; `npm run deploy:agents` deploys the worker to the linked project's development environment.
+- `npm run dev:fixtures` runs the application over the recorded fixtures and opens a browser already signed in, so every screen and state can be looked at without an OpenComputer project or a GitHub app (`npx playwright install chromium` once).
 - `fixtures/rows/` holds one session row per task state and `fixtures/logs/` one event log per scenario. The projection, the reducer and the components are tested over them, so every state renders without a live run; each directory's README says what its files are and how they are refreshed.
 
 ## Access
