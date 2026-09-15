@@ -43,10 +43,16 @@
   --container-content: var(--content-max);
   --container-page: var(--page-max);
 
+  --ease-out: var(--ease-out);
+  --shadow-card: var(--shadow-card);
+  --shadow-popover: var(--shadow-popover);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-hover: var(--hover);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
@@ -70,6 +76,7 @@
 
   --color-attention: var(--attention);
   --color-attention-bg: var(--attention-bg);
+  --color-attention-row: var(--attention-row);
 
   --color-status-starting: var(--status-starting);
   --color-status-starting-bg: var(--status-starting-bg);
@@ -114,6 +121,11 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
@@ -121,6 +133,19 @@
   :focus-visible {
     outline: var(--ring-width) solid var(--ring);
     outline-offset: var(--ring-offset);
+  }
+  /* State transitions: color, background, border, opacity, transform. Layout never. */
+  a,
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea,
+  [data-slot="badge"],
+  [data-slot="dropdown-menu-item"] {
+    transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+    transition-duration: var(--duration-fast);
+    transition-timing-function: var(--ease-out);
   }
 }
 
@@ -154,9 +179,23 @@
   animation: caret var(--caret-duration) steps(1) infinite;
 }
 
+/* An expander's chevron turns; the output it reveals does not animate its height. */
+.chevron {
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+[aria-expanded="true"] > .chevron {
+  transform: rotate(90deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .status-dot-pulse,
   .streaming-caret > :last-child::after {
     animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
   }
 }

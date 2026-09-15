@@ -95,14 +95,37 @@
   --ring-width: 2px;
   --ring-offset: 2px;
 
-  /* Motion: streaming text and the working dot are the only animations. */
+  /* Motion. Two animations, the working dot and the streaming caret; state
+     transitions (hover, focus, expanders, dialogs) run at --duration-fast
+     on --ease-out and stop under prefers-reduced-motion. */
   --pulse-duration: 1.6s;
   --caret-duration: 1s;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Surfaces and ink */
-  --background: oklch(0.985 0.002 250);
+  /* Layers: dropdown < sticky < backdrop < modal < toast < tooltip. */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-backdrop: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-tooltip: 60;
+
+  /* Elevation: a card sits on the page by a hairline and a soft shadow; a
+     popover floats. */
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 260 / 0.05), 0 1px 1px oklch(0.2 0.01 260 / 0.03);
+  --shadow-popover: 0 8px 24px oklch(0.2 0.01 260 / 0.12), 0 2px 6px oklch(0.2 0.01 260 / 0.08);
+
+  /* Surfaces and ink. Three neutral layers: the page, the card on it, and
+     the surface a toolbar or panel header sits on; hover is one step of ink
+     mixed into the card. */
+  --background: oklch(0.98 0.003 250);
   --foreground: oklch(0.2 0.01 260);
   --card: oklch(1 0 0);
+  --surface: oklch(0.97 0.004 250);
+  --hover: oklch(0.96 0.005 250);
+  --attention-row: oklch(0.985 0.014 85);
   --card-foreground: oklch(0.2 0.01 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.01 260);
@@ -186,7 +209,12 @@
 .dark {
   --background: oklch(0.17 0.008 260);
   --foreground: oklch(0.93 0.006 250);
-  --card: oklch(0.21 0.008 260);
+  --card: oklch(0.205 0.008 260);
+  --surface: oklch(0.19 0.008 260);
+  --hover: oklch(0.24 0.009 260);
+  --attention-row: oklch(0.225 0.018 80);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 1px oklch(0 0 0 / 0.2);
+  --shadow-popover: 0 8px 24px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.35);
   --card-foreground: oklch(0.93 0.006 250);
   --popover: oklch(0.22 0.008 260);
   --popover-foreground: oklch(0.93 0.006 250);
