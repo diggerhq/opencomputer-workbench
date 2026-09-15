@@ -6,35 +6,42 @@ agents. The design that decides what is built lives outside this repository.
 
 ## Map
 
-- `src/server/app.ts` `createApp(config)`: the one Fetch handler every host runs; `routes.ts` the route table; `problem.ts` the one error shape
+- `src/server/app.ts` `createApp(config)`: the one Fetch handler every host runs; `routes.ts` the route table and the error mapping; `problem.ts` the one error shape
 - `src/server/env.ts` typed configuration from a host's own source; a missing key names itself
 - `src/server/auth.ts` GitHub sign-in and the cookie; `membership.ts` the org, team or user rule with pinned numeric ids
 - `src/server/oc.ts` the management API wrapper, marked `STOPGAP(C5)`; the only module that knows OpenComputer's paths and shapes
 - `src/server/task.ts` `toTask`: the only place OpenComputer facts become app facets (execution, archived, result); `scope.ts` the session check every session-scoped route runs first
 - `src/server/tasks.ts` the task routes (list, get, create with the submission envelope, title and archive labels, end, repositories); `session-proxy.ts` the three routes the React hook needs; `request.ts` what the first turn carries
-- `opencomputer/project.ts` the project and its one agent; `opencomputer/agents/worker/agent.ts` the worker: the GitHub connection, one model, one tool and its instructions
-- `opencomputer/agents/worker/tools/report.ts` the report tool: the one source of the result type the app validates against, the schema it declares to the model, and the GitHub verification of every field it is given
-- `fixtures/rows/` one session row per task state, authored to the design's seams until Development recordings replace them (its README says which)
+- `src/lib/report.ts` the app's parser for the report, built from the schema the report tool declares
+- `opencomputer/project.ts` the project and its one agent; `opencomputer/agents/worker/agent.ts` the worker: the GitHub connection, one model, one tool and its instructions; `read-task.ts` what the agent knows about its task
+- `opencomputer/agents/worker/tools/report.ts` the report tool: the one source of the result type, the schema it declares to the model, and the GitHub verification of every field it is given
+- `.opencomputer/project.json` the linked project and agent ids the CLI wrote
 - `src/hosts/workers.ts` Cloudflare Workers entry; `api/index.ts` Vercel entry; `src/hosts/dev.ts` the Vite dev server entry
-- `src/app/` the React SPA: `routes/` (TanStack Router, file based), `components/` (the list: `Composer`, `TaskList`, `TaskRow`, `StatusBadge`), `lib/api.ts` the browser's view of the app's routes, `lib/submission.ts` the envelope held until the admission receipt, `lib/display.ts` the display state from the three facets, `vocabulary.ts` the words, `styles.css` the tokens
+- `src/app/routes/` the two screens (TanStack Router, file based): `index.tsx` the list, `tasks.$id.tsx` the task page
+- `src/app/components/` the list (`Composer`, `TaskList`, `TaskRow`, `StatusBadge`), the page (`TaskPage`, `ActivityTimeline`, `ToolCall`, `ResultCard`, `Conversation`, `Controls`, `Markdown`, `RelativeTime`, `format.ts`), `SignIn`, and the shadcn primitives under `ui/`
+- `src/app/reducer.ts` the event log reduced into turns, tool calls and results, marked `STOPGAP(C5)`; `hooks/use-activity.ts` feeds it from `useAgent`
+- `src/app/lib/api.ts` the browser's view of the app's routes; `lib/submission.ts` the envelope held until the admission receipt; `lib/display.ts` the display state from the three facets; `lib/ulid.ts`
+- `src/app/vocabulary.ts` the words and the failure copy; `styles.css` maps `design/tokens.css` into Tailwind; `design/` the tokens, the two screens, the mockups, the captures and the review checklist
+- `fixtures/rows/` one session row per task state; `fixtures/logs/` one event log per scenario; each README says which are authored and which are recorded
 - `wrangler.jsonc`, `vercel.json` host configuration: static assets and the handler, nothing that keeps state
 - `scripts/membership-id.mjs` resolves the membership rule to pinned ids once, at setup
-- `test/` Vitest over the server and the pure client modules: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, both host entries, statelessness
+- `test/` Vitest over the server, the pure client modules and the components: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, the reducer over every log fixture, the page through the route tree, both host entries, statelessness
 
 ## Commands
 
 - `npm run dev` port 3200, strict; the SPA and the routes in one process, configuration from `.env.local`
-- `npm run check` typecheck, lint, unit tests, build; what CI runs
+- `npm run check` typecheck of the application and the agent directory, lint, unit tests, build; what CI runs
 - `npx wrangler dev` the Worker with `dist/client` after `npm run build`, configuration from `.dev.vars`
 - `npm run membership-id -- team:<org>/<slug>` prints the `WORKBENCH_MEMBERSHIP` line
-- `npm run doctor` checks the agent directory; `npm run deploy:agents` deploys the worker to the linked project's Development environment (`npx opencomputer login` first)
+- `npm run doctor` checks the agent directory; `npm run deploy:agents` deploys the worker to the linked project's development environment (`npx opencomputer login` first)
 
 ## Invariants
 
 - The server routes are the only holder of the OpenComputer key; the browser gets a cookie and the app's own routes.
-- Every `/api` route requires a member; every POST and PATCH requires the app's own origin.
+- Every `/api` route requires a member; every POST and PATCH requires the app's own origin; every session-scoped route checks the session's project, environment and agent before forwarding.
 - Nothing depends on process-local state surviving a request; the hosts declare no persistence, queue or schedule (`test/stateless.test.ts`).
-- The workbench never substitutes a shipping path for a missing OpenComputer contract: stopgaps carry a `STOPGAP(Cn)` comment naming their deletion condition; development stubs run only with `WORKBENCH_DEV_STUBS=1`.
+- The workbench never substitutes a shipping path for a missing OpenComputer contract; stopgaps carry a `STOPGAP(Cn)` comment naming their deletion condition.
+- Agent code imports nothing from outside its own directory; the report schema lives with the tool and the app derives its type and parser from it.
 - The agent is deployed with the OpenComputer CLI from `opencomputer/`; sessions pin the deployment they started on, so a redeploy changes new tasks only.
 - Never print or commit secrets; `.env.local` and `.dev.vars` hold them and are ignored.
 

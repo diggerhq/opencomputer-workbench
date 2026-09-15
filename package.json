@@ -7,6 +7,37 @@
   "engines": {
     "node": "22.x"
   },
+  "cloudflare": {
+    "bindings": {
+      "OPENCOMPUTER_API_KEY": {
+        "description": "Your OpenComputer organization API key (`npx opencomputer login` stores one in `~/.opencomputer/config.json`). Server only."
+      },
+      "OPENCOMPUTER_PROJECT_ID": {
+        "description": "The OpenComputer project id `npm run deploy:agents` recorded in `.opencomputer/project.json`."
+      },
+      "OPENCOMPUTER_ENVIRONMENT": {
+        "description": "`development` or `production`: the environment of that project the workbench uses."
+      },
+      "OPENCOMPUTER_AGENT_ID": {
+        "description": "The worker agent's id in that project, from `.opencomputer/project.json`."
+      },
+      "GITHUB_CLIENT_ID": {
+        "description": "The client id of the GitHub OAuth app used for sign-in; its callback URL is `<origin>/auth/callback`."
+      },
+      "GITHUB_CLIENT_SECRET": {
+        "description": "The client secret of that OAuth app. Server only."
+      },
+      "WORKBENCH_COOKIE_KEY": {
+        "description": "Base64 of 32 random bytes (`openssl rand -base64 32`) that encrypts the session cookie; rotating it signs everyone out."
+      },
+      "WORKBENCH_MEMBERSHIP": {
+        "description": "Who may sign in: `org:<id>`, `team:<org id>/<team id>` or `user:<id>` with numeric GitHub ids; `npm run membership-id -- team:<org>/<slug>` prints it."
+      },
+      "WORKBENCH_ORIGIN": {
+        "description": "The Worker's public origin, for the OAuth callback and the origin check on every POST and PATCH."
+      }
+    }
+  },
   "scripts": {
     "dev": "vite dev --port 3200 --strictPort",
     "build": "vite build",
