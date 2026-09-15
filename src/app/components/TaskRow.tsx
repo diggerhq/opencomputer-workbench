@@ -7,18 +7,16 @@ import { Link } from "@tanstack/react-router";
 import { Archive, ArchiveRestore } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/lib/api";
-import { absoluteTime, relativeTime } from "@/lib/time";
 import { cn } from "@/lib/utils";
+import { RelativeTime } from "./RelativeTime";
 import { displayStateOf, needsAttention, StatusBadge } from "./StatusBadge";
 
 export function TaskRow({
   task,
-  now,
   onArchive,
   archiving = false,
 }: {
   task: Task;
-  now: number;
   onArchive: (task: Task) => void;
   archiving?: boolean;
 }) {
@@ -68,9 +66,7 @@ export function TaskRow({
           · {task.repo} · {task.ref}
         </span>
         <span>·</span>
-        <time dateTime={absoluteTime(task.createdAt)} title={absoluteTime(task.createdAt)}>
-          {relativeTime(task.createdAt, now)}
-        </time>
+        <RelativeTime iso={task.createdAt} />
       </span>
       <span className="col-start-3 row-span-2 row-start-1 flex items-center justify-center gap-3 text-xs text-muted-foreground md:justify-end">
         {stage ? <span className="hidden md:inline">{stage}</span> : null}

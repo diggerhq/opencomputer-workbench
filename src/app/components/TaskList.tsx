@@ -3,7 +3,6 @@
 // never a partial row; an error replaces the rows with the code and a retry;
 // the last page says so.
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ApiError, listTasks, patchTask, type Task } from "@/lib/api";
@@ -21,16 +20,6 @@ export function useTasks(archived: boolean) {
 }
 
 export type TasksQuery = ReturnType<typeof useTasks>;
-
-/** A clock that ticks once a minute so relative ages stay honest. */
-function useNow(): number {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const timer = setInterval(() => setNow(Date.now()), 60_000);
-    return () => clearInterval(timer);
-  }, []);
-  return now;
-}
 
 const SKELETON_ROWS = ["first", "second", "third"] as const;
 
@@ -52,7 +41,6 @@ function SkeletonRows() {
 }
 
 export function TaskList({ query, archived }: { query: TasksQuery; archived: boolean }) {
-  const now = useNow();
   const client = useQueryClient();
   const archive = useMutation({
     mutationFn: (task: Task) => patchTask(task.id, { archived: !task.archived }),
@@ -91,7 +79,6 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
           <TaskRow
             key={task.id}
             task={task}
-            now={now}
             onArchive={(target) => archive.mutate(target)}
             archiving={archive.isPending && archive.variables?.id === task.id}
           />

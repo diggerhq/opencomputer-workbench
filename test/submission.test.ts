@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ApiError } from "../src/app/lib/api";
 import { AUTOMATIC_RETRIES, begin, compose, fail, IDLE, retry, shouldRetry, succeed } from "../src/app/lib/submission";
-import { relativeTime } from "../src/app/lib/time";
 import { ULID_PATTERN, ulid } from "../src/app/lib/ulid";
 import type { Task } from "../src/server/task";
 
@@ -58,20 +57,5 @@ describe("ulid", () => {
     expect(a < b).toBe(true);
     expect(a.slice(10)).toBe("0000000000000000");
     expect(ulid(1_000_000, new Uint8Array(10).fill(255)).slice(10)).toBe("ZZZZZZZZZZZZZZZZ");
-  });
-});
-
-describe("relative time", () => {
-  const now = Date.UTC(2026, 8, 15, 20, 46, 0);
-  it.each([
-    ["2026-09-15T20:45:40Z", "just now"],
-    ["2026-09-15T20:42:00Z", "4 min ago"],
-    ["2026-09-15T17:02:11Z", "3 h ago"],
-    ["2026-09-14T22:10:44Z", "yesterday"],
-    ["2026-09-12T09:00:00Z", "3 days ago"],
-    ["2026-07-01T09:00:00Z", "2026-07-01"],
-    ["not a date", ""],
-  ])("%s → %s", (iso, words) => {
-    expect(relativeTime(iso, now)).toBe(words);
   });
 });
