@@ -140,7 +140,9 @@
     opacity: 0;
   }
 }
-.streaming-caret::after {
+/* The caret sits at the end of the message's last block; on the container
+   it would fall on a line of its own below the text. */
+.streaming-caret > :last-child::after {
   content: "";
   display: inline-block;
   width: 2px;
@@ -154,7 +156,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .status-dot-pulse,
-  .streaming-caret::after {
+  .streaming-caret > :last-child::after {
     animation: none;
   }
 }

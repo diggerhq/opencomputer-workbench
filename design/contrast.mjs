@@ -89,7 +89,7 @@ const dark = { ...light, ...block(".dark") };
 console.log(`${"pair".padEnd(34)} light   dark`);
 for (const [label, a, b, floor] of [...TEXT_PAIRS.map((p) => [...p, 4.5]), ...DOT_PAIRS.map((p) => [...p, 3])]) {
   const values = [light, dark].map((vars) => ratio(parse(resolve(vars, a)), parse(resolve(vars, b))));
-  const flag = values.some((v) => v < floor) ? "  BELOW " + String(floor) : "";
+  const flag = values.some((v) => v < floor) ? `  BELOW ${String(floor)}` : "";
   if (flag) failed = true;
   console.log(`${label.padEnd(34)} ${values.map((v) => v.toFixed(2).padStart(5)).join("   ")}${flag}`);
 }

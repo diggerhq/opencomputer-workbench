@@ -4,9 +4,13 @@ The workbench has a task list and a task page, no sidebar, no panels. Both
 are designed here at 390 and 1440 pixels before any component exists, in the
 tokens of [`tokens.css`](tokens.css) and the words of
 [`src/app/vocabulary.ts`](../src/app/vocabulary.ts). The static mockups under
-[`mockups/`](mockups/) render this specification; their captures under
-[`screens/`](screens/) are the reference the first components are reviewed
-against with the [review checklist](review-checklist.md).
+[`mockups/`](mockups/) were the first rendering of this specification; the
+screenshot suite (`e2e/screens.spec.ts`) now captures the application itself
+into [`screens/app/`](screens/app/) from the recordings under `fixtures/`,
+and those captures are what every UI change is reviewed against with the
+[review checklist](review-checklist.md). Where building the screens changed
+the specification, the [last section](#what-the-built-screens-changed) says
+what and why.
 
 Every measure below names a token. A value that is not a token does not go
 into a component.
@@ -79,9 +83,11 @@ the page loader.
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Header.** `--row-height` tall, `--text-xl` semibold "Workbench" left;
-  the membership rule's display name and the actor's avatar (`--avatar`)
-  right. No navigation: the list is the root.
+- **Header.** `--row-height` tall, "Workbench" left as the link to the
+  list; right, at `--text-sm` in `--muted-foreground`: the membership rule's
+  display name and the environment, the actor's login with the avatar
+  (`--avatar`) when GitHub provides one, and a ghost "Sign out" button. No
+  other navigation: the list is the root.
 - **Composer.** A card (`--card`, `--border`, `--radius-lg`, padding
   `--space-4`). Row one: the repository picker and the base ref input side by
   side, each `--control-height`, the picker taking 2/3. Row two: the request
@@ -234,14 +240,18 @@ the timeline takes the right.
 One column: header, title row (badge below the title, meta wrapping), the
 request, the result card, the timeline, the conversation, the composer, the
 controls. The timeline is not sticky. Tool entries keep `--row-height-compact`
-with the command on its own second line if it does not fit; the outcome stays
-on line one. Controls wrap to two rows of full-width buttons: Send alone,
-then Stop, Archive, End in thirds.
+on one line at both widths: the command is ellipsized with the full text in
+its hover title, and the outcome stays on the right. Controls wrap to two
+rows of full-width buttons: Send alone, then Stop, Archive, End in thirds.
 
 ## States
 
-Every state has a fixture that renders it without a live run. Fixture names
-are fixed here; W2 records the rows and W3 the event logs into `fixtures/`.
+Every state has a fixture that renders it without a live run: rows under
+`fixtures/rows/`, event logs under `fixtures/logs/`, both authored to the
+design's seams until Development recordings replace them (their READMEs say
+which). The screenshot suite opens each log fixture as a session of its own
+whose status, activity and result are derived from the log, so the badge and
+the timeline agree on every task-page capture.
 
 | Component | State | Shows | Fixture |
 | --- | --- | --- | --- |
@@ -317,3 +327,16 @@ are shown as "The turn failed with code <code>."
 A timed-out or non-zero command is not in this table: it is a tool error
 inside a running turn and is rendered in the timeline entry, never as the
 task's failure.
+
+## What the built screens changed
+
+Recorded after the first screenshot suite ran over the application (`design/screens/app/`), with the reason for each departure from the sections above.
+
+- **Header.** Shows the environment beside the membership display and a Sign out control; the avatar appears only when GitHub returns one. The app needs a way out of the session, and the environment is the one configuration fact a member should see.
+- **Task page title.** The h2 is the task's title label (the first line of the request) at `--text-lg`, wrapping when long; there is no clamp. A clamp would hide the words that identify the task; the list is where titles are cut to one line.
+- **Tool entries at 390.** One line at both widths with the command ellipsized (full text in the hover title), not a second line. One entry shape keeps `--row-height-compact` true everywhere.
+- **Timeline while thinking.** A running turn with no tool call yet shows a "Thinking" row with the working dot, so the timeline is never empty while the badge says Working.
+- **Failure in two places.** A failed turn's copy appears under its turn in the timeline and as the marker after its messages in the conversation, both from `failureCopy`. The timeline reader and the conversation reader each see it where they are.
+- **Composer.** The repository picker starts empty with "Repository" as its placeholder and the base-ref input shows the chosen repository's default branch as its placeholder; the button is disabled until both a repository and a request exist.
+- **Skeletons and dialogs do not move.** Loading rows are still blocks and the End dialog opens without a fade or zoom, so streaming text and the working dot remain the only motion.
+- **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `design/tokens.css`.
