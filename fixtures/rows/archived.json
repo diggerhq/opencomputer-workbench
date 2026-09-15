@@ -1,0 +1,45 @@
+{
+  "id": "10000000-0000-4000-8000-000000000012",
+  "projectId": "proj_1",
+  "agentId": "worker",
+  "deploymentId": "dep_dev",
+  "environment": "development",
+  "source": "api",
+  "status": "running",
+  "labels": {
+    "request": "01J9Y0C6R4V3M2K7Q8N5P1H9ZC",
+    "title": "Spike: try the new bundler",
+    "repo": "acme/web",
+    "ref": "main",
+    "actor_id": "2",
+    "actor_login": "mo",
+    "archived": "true"
+  },
+  "createdAt": "2026-09-12T20:45:00.000Z",
+  "updatedAt": "2026-09-15T20:44:00.000Z",
+  "revision": 14,
+  "activity": {
+    "activeTurnId": "turn_12c",
+    "queued": 0,
+    "lastSettledTurn": {
+      "id": "turn_12b",
+      "status": "completed",
+      "at": "2026-09-15T19:45:00.000Z"
+    }
+  },
+  "result": {
+    "turnId": "turn_12b",
+    "callId": "call_turn_12b",
+    "reportedAt": "2026-09-15T19:44:00.000Z",
+    "data": {
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "branch": "task/01J9Y0C6R4V3M2K7Q8N5P1H9ZC",
+      "commit": "9999999999999999999999999999999999999999",
+      "pr": {
+        "number": 470,
+        "url": "https://github.com/acme/web/pull/470",
+        "draft": true
+      }
+    }
+  }
+}

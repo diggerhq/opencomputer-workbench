@@ -9,12 +9,16 @@ agents. The design that decides what is built lives outside this repository.
 - `src/server/app.ts` `createApp(config)`: the one Fetch handler every host runs; `routes.ts` the route table; `problem.ts` the one error shape
 - `src/server/env.ts` typed configuration from a host's own source; a missing key names itself
 - `src/server/auth.ts` GitHub sign-in and the cookie; `membership.ts` the org, team or user rule with pinned numeric ids
-- `src/server/oc.ts` the management API wrapper, marked `STOPGAP(C5)`; the only module that knows OpenComputer's paths
+- `src/server/oc.ts` the management API wrapper, marked `STOPGAP(C5)`; the only module that knows OpenComputer's paths and shapes
+- `src/server/task.ts` `toTask`: the only place OpenComputer facts become app facets (execution, archived, result); `scope.ts` the session check every session-scoped route runs first
+- `src/server/tasks.ts` the task routes (list, get, create with the submission envelope, title and archive labels, end, repositories); `session-proxy.ts` the three routes the React hook needs; `request.ts` what the first turn carries
+- `opencomputer/agents/worker/tools/report.ts` the report tool's schema: the one source of the result type the app validates against
+- `fixtures/rows/` one session row per task state, authored to the design's seams until Development recordings replace them (its README says which)
 - `src/hosts/workers.ts` Cloudflare Workers entry; `api/index.ts` Vercel entry; `src/hosts/dev.ts` the Vite dev server entry
-- `src/app/` the React SPA: `routes/` (TanStack Router, file based), `components/`, `lib/api.ts` the browser's view of the app's routes, `styles.css` the tokens
+- `src/app/` the React SPA: `routes/` (TanStack Router, file based), `components/` (the list: `Composer`, `TaskList`, `TaskRow`, `StatusBadge`), `lib/api.ts` the browser's view of the app's routes, `lib/submission.ts` the envelope held until the admission receipt, `lib/display.ts` the display state from the three facets, `vocabulary.ts` the words, `styles.css` the tokens
 - `wrangler.jsonc`, `vercel.json` host configuration: static assets and the handler, nothing that keeps state
 - `scripts/membership-id.mjs` resolves the membership rule to pinned ids once, at setup
-- `test/` Vitest over the server: configuration, cookie, membership, routes, both host entries, statelessness
+- `test/` Vitest over the server and the pure client modules: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, both host entries, statelessness
 
 ## Commands
 

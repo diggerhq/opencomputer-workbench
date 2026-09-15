@@ -6,6 +6,10 @@ import { type AuthDeps, callback, clearSessionCookie, defaultDeps, type Identity
 import type { Config } from "./env";
 import { createOC, OCError } from "./oc";
 import { problem } from "./problem";
+import { ScopeError } from "./scope";
+import { sessionProxy } from "./session-proxy";
+import { LabelError } from "./task";
+import { taskRoutes } from "./tasks";
 
 export interface Variables {
   identity: Identity;
@@ -87,9 +91,19 @@ export function routes(config: Config, deps: AuthDeps = defaultDeps): App {
     });
   });
 
+  app.route("/", taskRoutes(config, oc, { now: deps.now }));
+  app.route("/", sessionProxy(config, oc));
+
   app.notFound((c) => problem(c, 404, "not_found", "No such route."));
   app.onError((cause, c) => {
-    if (cause instanceof OCError) return problem(c, 502, cause.code, cause.message);
+    if (cause instanceof ScopeError) return problem(c, 404, "not_found", cause.message);
+    if (cause instanceof LabelError) return problem(c, 400, "invalid_labels", cause.message);
+    if (cause instanceof OCError) {
+      // Admission refusals and conflicts keep their status; anything else
+      // from upstream is a bad gateway carrying the upstream code.
+      const status = cause.status === 402 || cause.status === 409 ? cause.status : 502;
+      return problem(c, status, cause.code, cause.message);
+    }
     console.error(cause);
     return problem(c, 500, "internal_error", "Something went wrong.");
   });

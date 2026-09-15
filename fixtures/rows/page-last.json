@@ -1,0 +1,50 @@
+{
+  "sessions": [
+    {
+      "id": "10000000-0000-4000-8000-000000000013",
+      "projectId": "proj_1",
+      "agentId": "worker",
+      "deploymentId": "dep_dev",
+      "environment": "development",
+      "source": "api",
+      "status": "ended",
+      "labels": {
+        "request": "01J9Y0C6R4V3M2K7Q8N5P1H9ZD",
+        "title": "Remove the legacy export job",
+        "repo": "acme/service",
+        "ref": "main",
+        "actor_id": "3",
+        "actor_login": "ari",
+        "archived": "false"
+      },
+      "createdAt": "2026-09-11T20:45:00.000Z",
+      "updatedAt": "2026-09-11T21:45:00.000Z",
+      "revision": 12,
+      "activity": {
+        "activeTurnId": null,
+        "queued": 0,
+        "lastSettledTurn": {
+          "id": "turn_13a",
+          "status": "completed",
+          "at": "2026-09-11T21:45:00.000Z"
+        }
+      },
+      "result": {
+        "turnId": "turn_13a",
+        "callId": "call_turn_13a",
+        "reportedAt": "2026-09-11T21:44:00.000Z",
+        "data": {
+          "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "branch": "task/01J9Y0C6R4V3M2K7Q8N5P1H9ZD",
+          "commit": "8888888888888888888888888888888888888888",
+          "pr": {
+            "number": 455,
+            "url": "https://github.com/acme/service/pull/455",
+            "draft": false
+          }
+        }
+      }
+    }
+  ],
+  "nextCursor": null
+}
