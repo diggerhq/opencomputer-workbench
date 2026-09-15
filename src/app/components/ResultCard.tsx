@@ -1,6 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import type { LatestResult } from "@/reducer";
-import type { Report } from "../../../opencomputer/agents/worker/tools/report";
+import type { Report, ReportStage } from "../../../opencomputer/agents/worker/tools/report";
 import { shortSha } from "./format";
 
 function Row({ term, children }: { term: string; children: React.ReactNode }) {
@@ -84,23 +83,34 @@ export function ResultFields({ report, repo, baseRef }: { report: Report; repo?:
   );
 }
 
+export interface ResultCardProps {
+  readonly report: Report;
+  readonly stage: ReportStage;
+  /** "turn 1" from the log, or the row's turn until the log has replayed. */
+  readonly reportedBy: string;
+  /** The reporting turn is the last settled one; otherwise the card says which turn it came from. */
+  readonly fromLastTurn: boolean;
+  readonly repo?: string;
+  readonly baseRef?: string;
+}
+
 /** The session's result with its provenance. Rendered only when there is one; the page says "No result reported yet" otherwise. */
-export function ResultCard({ result, repo, baseRef }: { result: LatestResult; repo?: string; baseRef?: string }) {
+export function ResultCard({ report, stage, reportedBy, fromLastTurn, repo, baseRef }: ResultCardProps) {
   return (
     <section aria-label="Result">
       <div className="mb-2 flex items-baseline justify-between gap-2">
         <h3 className="text-xs font-medium tracking-wider text-muted-foreground uppercase">Result</h3>
-        <span className="text-xs text-muted-foreground">reported by turn {String(result.turnNumber)}</span>
+        <span className="text-xs text-muted-foreground">reported by {reportedBy}</span>
       </div>
       <div className="rounded-lg border border-border bg-card p-4">
-        {result.fromLastTurn ? (
-          <p className="mb-3 text-sm font-medium text-status-ready-for-review">{result.stage}</p>
+        {fromLastTurn ? (
+          <p className="mb-3 text-sm font-medium text-status-ready-for-review">{stage}</p>
         ) : (
           <p className="mb-3 text-sm text-muted-foreground">
-            Finished, no new changes reported · result from turn {String(result.turnNumber)}
+            Finished, no new changes reported · result from {reportedBy}
           </p>
         )}
-        <ResultFields report={result.report} repo={repo} baseRef={baseRef} />
+        <ResultFields report={report} repo={repo} baseRef={baseRef} />
       </div>
     </section>
   );

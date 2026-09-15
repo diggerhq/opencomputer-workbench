@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { Turn } from "@/reducer";
 import { failureCopy } from "@/vocabulary";
+import { Markdown } from "./Markdown";
 
 export interface ConversationProps {
   /** The hook's messages, in log order. */
@@ -29,7 +30,11 @@ function Message({ message, actorLogin }: { message: AgentMessage; actorLogin: s
       <div className="mb-1 text-xs font-medium text-muted-foreground">
         {message.role === "user" ? actorLogin : "agent"}
       </div>
-      <div className={cn("text-base whitespace-pre-wrap", message.streaming && "streaming-caret")}>{message.text}</div>
+      {message.role === "assistant" ? (
+        <Markdown className={cn("text-base", message.streaming && "streaming-caret")}>{message.text}</Markdown>
+      ) : (
+        <div className="text-base whitespace-pre-wrap">{message.text}</div>
+      )}
     </div>
   );
 }
