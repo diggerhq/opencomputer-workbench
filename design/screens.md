@@ -261,34 +261,34 @@ are fixed here; W2 records the rows and W3 the event logs into `fixtures/`.
 | TaskRow | failed | Red dot, "Failed", attention border | `rows/failed.json` |
 | TaskRow | archived | No dot, "Archived", muted title | `rows/archived.json` |
 | TaskRow | ended | No dot, "Ended" | `rows/ended.json` |
-| Composer | idle | Picker, ref, empty textarea, disabled button | `workspace/ready.json`, `repos/two.json` |
+| Composer | idle | Picker, ref, empty textarea, disabled button | (none; `test/submission.test.ts` fakes the workspace and repository answers) |
 | Composer | bootstrapping | Every control disabled, no text change | (rendered before `workspace` answers) |
 | Composer | submitting | Button "Starting…" disabled, fields read-only | (interaction) |
-| Composer | conflict | Inline problem above the button: "A task with this id already exists with a different request. Keep editing or start over." Draft kept | `problems/idempotency-conflict.json` |
-| Composer | refused | Inline problem from `failureCopy` (for example insufficient credits). Draft kept | `problems/insufficient-credits.json` |
-| Composer | no repositories | Picker disabled with "No repositories are connected" | `repos/none.json` |
+| Composer | conflict | Inline problem above the button: "A task with this id already exists with a different request. Keep editing or start over." Draft kept | (none; `test/submission.test.ts` fakes the conflict) |
+| Composer | refused | Inline problem from `failureCopy` (for example insufficient credits). Draft kept | (none; `test/submission.test.ts` fakes the refusal) |
+| Composer | no repositories | Picker disabled with "No repositories are connected" | (none; `test/submission.test.ts` fakes the empty list) |
 | StatusBadge | each state | The dot rule and the label from `DISPLAY` | (derived from the row fixtures) |
 | ActivityTimeline | loading | Three `--row-height-compact` skeleton entries | (rendered while replaying) |
-| ActivityTimeline | empty | "Nothing has run yet." | `events/created-only.json` |
-| ActivityTimeline | streaming | A running entry with the pulsing dot, earlier entries settled | `events/working.json` |
-| ActivityTimeline | error | Failed turn rule in the failed tone; entries before it intact | `events/turn-failed-runtime-lost.json` |
-| ActivityTimeline | terminal | Every turn settled, the last rule completed or cancelled | `events/completed.json`, `events/cancelled.json` |
-| ToolCall | running | Chevron, name, command, pulsing dot | `events/working.json` |
-| ToolCall | succeeded, collapsed | ✓ and duration, "n lines" on the chevron | `events/completed.json` |
-| ToolCall | succeeded, expanded | The output block | (interaction on `events/completed.json`) |
-| ToolCall | failed | ✗, the tool's message in the failed tone; the turn continues | `events/tool-failed.json` |
-| ToolCall | timed out | "timed out after 120 s" in the failed tone; the turn continues | `events/tool-timed-out.json` |
-| ToolCall | report | The definition list of the reported fields | `events/completed.json` |
+| ActivityTimeline | empty | "Nothing has run yet." | `logs/created-only.json` |
+| ActivityTimeline | streaming | A running entry with the pulsing dot, earlier entries settled | `logs/working.json` |
+| ActivityTimeline | error | Failed turn rule in the failed tone; entries before it intact | `logs/turn-failed-runtime-lost.json` |
+| ActivityTimeline | terminal | Every turn settled, the last rule completed or cancelled | `logs/completed.json`, `logs/cancelled.json` |
+| ToolCall | running | Chevron, name, command, pulsing dot | `logs/working.json` |
+| ToolCall | succeeded, collapsed | ✓ and duration, "n lines" on the chevron | `logs/completed.json` |
+| ToolCall | succeeded, expanded | The output block | (interaction on `logs/completed.json`) |
+| ToolCall | failed | ✗, the tool's message in the failed tone; the turn continues | `logs/tool-failed.json` |
+| ToolCall | timed out | "timed out after 120 s" in the failed tone; the turn continues | `logs/tool-timed-out.json` |
+| ToolCall | report | The definition list of the reported fields | `logs/completed.json` |
 | ResultCard | none | "No result reported yet" line, no card | `rows/idle.json` |
 | ResultCard | base | Stage "base", one row | `rows/result-base.json` |
 | ResultCard | changes | Stage "changes", base, branch, commit, checks, compare link | `rows/ready-changes.json` |
 | ResultCard | published | Stage "published", plus the PR row | `rows/ready-published.json` |
 | ResultCard | older turn | "Finished, no new changes reported · result from turn n" | `rows/idle-old-result.json` |
 | Conversation | replaying | "Loading the conversation…" | (rendered while replaying) |
-| Conversation | streaming | The last assistant message with the caret | `events/working.json` |
-| Conversation | failed turn | The failure copy block with the code | `events/turn-failed-runtime-lost.json` |
-| Conversation | stopped turn | The "Stopped" line | `events/cancelled.json` |
-| Conversation | ended | Composer disabled, "This task has ended" | `events/ended.json` |
+| Conversation | streaming | The last assistant message with the caret | `logs/working.json` |
+| Conversation | failed turn | The failure copy block with the code | `logs/turn-failed-runtime-lost.json` |
+| Conversation | stopped turn | The "Stopped" line | `logs/cancelled.json` |
+| Conversation | ended | Composer disabled, "This task has ended" | `logs/ended.json` |
 | Conversation | send rejected | Toast with the `SendError` message; draft kept | (interaction) |
 | Controls | working | Stop enabled, Archive enabled, End enabled | `rows/working.json` |
 | Controls | stopping | Stop reads "Stopping…" disabled | `rows/stopping.json` |

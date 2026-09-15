@@ -11,7 +11,7 @@ describe("ResultCard", () => {
   it("renders the published stage with the PR, the checks and the compare link", () => {
     const result = latestResult(reduce("completed"));
     if (!result) throw new Error("no result");
-    render(<ResultCard result={result} repo="acme/service" baseRef="main" />);
+    render(<ResultCard {...result} reportedBy="turn 1" repo="acme/service" baseRef="main" />);
     expect(screen.getByText("published").className).toContain("text-status-ready-for-review");
     expect(screen.getByText("reported by turn 1")).toBeTruthy();
     expect(screen.getByText("#482 draft").closest("a")?.getAttribute("href")).toBe(
@@ -29,7 +29,7 @@ describe("ResultCard", () => {
   it("renders a base-only report as one row and no compare link", () => {
     const result = latestResult(reduce("ended"));
     if (!result) throw new Error("no result");
-    const { container } = render(<ResultCard result={result} repo="acme/service" />);
+    const { container } = render(<ResultCard {...result} reportedBy="turn 1" repo="acme/service" />);
     expect(container.querySelector("p.text-status-ready-for-review")?.textContent).toBe("base");
     expect(Array.from(container.querySelectorAll("dt")).map((dt) => dt.textContent)).toEqual(["base"]);
     expect(container.querySelector("a")).toBeNull();
@@ -38,7 +38,7 @@ describe("ResultCard", () => {
   it("says which turn an older result came from", () => {
     const result = latestResult(reduce("completed"));
     if (!result) throw new Error("no result");
-    render(<ResultCard result={{ ...result, fromLastTurn: false, turnNumber: 1 }} />);
+    render(<ResultCard {...result} fromLastTurn={false} reportedBy="turn 1" />);
     expect(screen.getByText("Finished, no new changes reported · result from turn 1")).toBeTruthy();
   });
 
