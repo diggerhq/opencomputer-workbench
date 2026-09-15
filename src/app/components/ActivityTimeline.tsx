@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { Turn, TurnStatus } from "@/reducer";
 import { failureCopy } from "@/vocabulary";
@@ -34,9 +36,9 @@ function TurnGroup({
 }) {
   const rule = RULE_WORD[turn.status];
   return (
-    <section aria-label={`Turn ${String(number)}`} className="px-2 pt-3 pb-1 first:pt-2">
-      <h4 className="mb-1 flex h-6 items-center gap-2 px-2 text-xs font-medium text-muted-foreground">
-        <span aria-hidden="true" className={cn("size-dot rounded-full", RULE_DOT[turn.status])} />
+    <section aria-label={`Turn ${String(number)}`} className="px-2 py-2">
+      <h4 className="flex h-8 items-center gap-2 px-2 text-xs font-medium text-muted-foreground">
+        <span aria-hidden="true" className={cn("size-2 rounded-full", RULE_DOT[turn.status])} />
         <span className="text-foreground">Turn {String(number)}</span>
         <span aria-hidden="true">·</span>
         <RelativeTime iso={turn.createdAt} />
@@ -44,7 +46,7 @@ function TurnGroup({
         <span className={rule.tone}>{rule.word}</span>
       </h4>
       {turn.toolCalls.length ? (
-        <ul className="px-2">
+        <ul>
           {turn.toolCalls.map((call) => (
             <ToolCallRow
               key={call.callId}
@@ -55,13 +57,13 @@ function TurnGroup({
           ))}
         </ul>
       ) : turn.status === "running" ? (
-        <p className="flex h-row-compact items-center gap-2 px-2 text-sm text-muted-foreground">
-          <span aria-hidden="true" className="size-dot rounded-full bg-status-working-dot status-dot-pulse" />
+        <p className="flex h-8 items-center gap-2 px-2 text-sm text-muted-foreground">
+          <span aria-hidden="true" className="size-2 rounded-full bg-status-working-dot status-dot-pulse" />
           Thinking
         </p>
       ) : null}
       {turn.failure ? (
-        <p role="status" className="mx-2 mt-2 mb-1 rounded-md bg-status-failed-bg px-3 py-2 text-sm text-status-failed">
+        <p role="status" className="mx-2 mt-2 rounded-md bg-status-failed-bg px-3 py-2 text-sm text-status-failed">
           {failureCopy(turn.failure.code)} <code className="font-mono text-xs opacity-80">{turn.failure.code}</code>
         </p>
       ) : null}
@@ -81,8 +83,8 @@ export function ActivityTimeline({ turns, isReplaying }: { turns: readonly Turn[
     });
   const calls = turns.reduce((count, turn) => count + turn.toolCalls.length, 0);
   return (
-    <section aria-label="Activity" className="overflow-hidden rounded-xl border border-border bg-card shadow-card">
-      <div className="flex h-control items-center justify-between gap-3 border-b border-border bg-surface px-4">
+    <Card data-slot="activity" role="region" aria-label="Activity" className="gap-0 py-0">
+      <div className="flex h-12 items-center justify-between gap-4 border-b bg-surface px-4">
         <h3 className="text-sm font-medium">Activity</h3>
         {turns.length ? (
           <span className="text-xs text-muted-foreground">
@@ -92,16 +94,16 @@ export function ActivityTimeline({ turns, isReplaying }: { turns: readonly Turn[
         ) : null}
       </div>
       {turns.length ? (
-        <div className="divide-y divide-border">
+        <div className="divide-y">
           {turns.map((turn, index) => (
             <TurnGroup key={turn.id} turn={turn} number={index + 1} expanded={expanded} onToggle={toggle} />
           ))}
         </div>
       ) : isReplaying ? (
-        <div role="status" aria-busy="true" aria-label="Loading activity" className="px-4">
+        <div role="status" aria-busy="true" aria-label="Loading activity" className="divide-y px-4">
           {[0, 1, 2].map((row) => (
-            <div key={row} className="flex h-row-compact items-center border-b border-border last:border-b-0">
-              <span className="h-3 w-1/2 rounded-sm bg-muted" />
+            <div key={row} className="flex h-8 items-center">
+              <Skeleton className="h-3 w-1/2" />
             </div>
           ))}
         </div>
@@ -110,6 +112,6 @@ export function ActivityTimeline({ turns, isReplaying }: { turns: readonly Turn[
           Nothing has run yet.
         </p>
       )}
-    </section>
+    </Card>
   );
 }

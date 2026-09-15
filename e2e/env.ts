@@ -6,8 +6,9 @@
 // project and environment, which must be the deployed workbench's own.
 import { type Config, readConfig } from "../src/server/env";
 
-export const APP_PORT = 3201;
-export const FIXTURE_PORT = 3202;
+/** The replay's two ports; APP_PORT and FIXTURE_PORT in the environment move them, so a second run can sit beside a walkthrough. */
+export const APP_PORT = Number(process.env.APP_PORT ?? 3201);
+export const FIXTURE_PORT = Number(process.env.FIXTURE_PORT ?? 3202);
 
 export const LIVE = Boolean(process.env.BASE_URL);
 export const BASE_URL = process.env.BASE_URL ?? `http://localhost:${String(APP_PORT)}`;

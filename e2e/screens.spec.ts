@@ -27,17 +27,17 @@ test.describe("the sign-in screen", () => {
 test.describe("the task list", () => {
   test("every row state", async ({ page, member: _member }) => {
     await page.goto("/");
-    await expect(page.getByRole("button", { name: /^Active \(\d+\)$/ })).toBeVisible();
+    await expect(page.getByRole("tab", { name: /^Active \(\d+\)$/ })).toBeVisible();
     await expect(page.getByText("That's every task")).toBeVisible();
-    await expect(page.getByText("Working, 2 queued")).toBeVisible();
-    await expect(page.getByText("Ready for review").first()).toBeVisible();
-    await expect(page.getByText("Not started")).toBeVisible();
-    await expect(page.getByText("Stopping")).toBeVisible();
-    await expect(page.getByText("Starting")).toBeVisible();
-    await expect(page.getByText("Ended")).toBeVisible();
+    await expect(page.getByText("Working, 2 queued").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("Ready for review").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("Not started").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("Stopping").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("Starting").filter({ visible: true }).first()).toBeVisible();
+    await expect(page.getByText("Ended").filter({ visible: true }).first()).toBeVisible();
     await page.evaluate(() => document.fonts.ready);
     await captureBoth(page, "list");
-    await page.getByRole("button", { name: "Archived" }).click();
+    await page.getByRole("tab", { name: "Archived" }).click();
     await expect(page.getByText("Spike: try the new bundler")).toBeVisible();
     await expect(page.getByText("That's every task")).toBeVisible();
     await captureBoth(page, "list-archived");

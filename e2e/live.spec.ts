@@ -16,7 +16,7 @@ test("signs in, lists the workspace's tasks, opens one, follows up and stops", a
   await page.goto("/");
   await expect(page.getByRole("link", { name: "Workbench" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Sign in with GitHub" })).toBeHidden();
-  await expect(page.getByRole("button", { name: /^Active/ })).toBeVisible();
+  await expect(page.getByRole("tab", { name: /^Active/ })).toBeVisible();
   await expect(page.getByText("That's every task").or(page.getByRole("button", { name: "Load more" }))).toBeVisible();
 
   const rows = page.getByRole("list").getByRole("listitem");

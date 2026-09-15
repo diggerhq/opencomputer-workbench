@@ -32,17 +32,6 @@
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
 
-  --spacing-gutter: var(--gutter);
-  --spacing-gutter-wide: var(--gutter-wide);
-  --spacing-row: var(--row-height);
-  --spacing-row-compact: var(--row-height-compact);
-  --spacing-control: var(--control-height);
-  --spacing-control-sm: var(--control-height-sm);
-  --spacing-dot: var(--dot);
-  --spacing-avatar: var(--avatar);
-  --container-content: var(--content-max);
-  --container-page: var(--page-max);
-
   --ease-out: var(--ease-out);
   --shadow-card: var(--shadow-card);
   --shadow-popover: var(--shadow-popover);
@@ -147,6 +136,13 @@
     transition-duration: var(--duration-fast);
     transition-timing-function: var(--ease-out);
   }
+}
+
+/* A link that covers its positioned row: the title is the link, the row is its target. */
+.stretched::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 
 /* The working dot: the one pulsing element in the product. */

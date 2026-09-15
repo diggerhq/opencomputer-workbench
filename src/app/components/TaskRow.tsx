@@ -1,15 +1,18 @@
-// One row of the list: exactly one row height whatever it holds, the badge,
-// the title with the repository and base, the actor and age, the result
-// stage when present, and the archive control reserved on every row. The
-// title is the link; it covers the row, and the archive control sits above
-// it so the two never nest. A row that needs attention carries the
-// attention tint across its whole surface.
+// One row of the list: one row height whatever it holds, three columns that
+// every row renders (status, title with its meta line, stage with the
+// archive control), so their edges line up down the list. The title is the
+// link; it covers the row, and the archive control sits above it so the two
+// never nest. A row that needs attention carries the attention tint across
+// its whole surface, never a border. Below md the status column folds into
+// the meta line and the stage word is dropped.
 import { Link } from "@tanstack/react-router";
 import { Archive, ArchiveRestore } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Task } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { ActorAvatar } from "./ActorAvatar";
 import { RelativeTime } from "./RelativeTime";
 import { displayStateOf, needsAttention, StatusBadge } from "./StatusBadge";
 
@@ -28,56 +31,51 @@ export function TaskRow({
   const attention = needsAttention(task);
   return (
     <li
+      data-slot="task-row"
       className={cn(
-        "group relative grid h-row grid-cols-[auto_minmax(0,1fr)_--spacing(7)] grid-rows-2 items-center gap-x-3 px-3 md:grid-cols-[--spacing(44)_minmax(0,1fr)_--spacing(32)] md:gap-x-4 md:px-4",
-        attention ? "bg-attention-row hover:bg-hover" : "hover:bg-hover",
-        "focus-within:bg-hover",
+        "group relative flex h-14 items-center gap-4 px-4 hover:bg-hover focus-within:bg-hover",
+        attention && "bg-attention-row",
       )}
     >
-      <span className="col-start-1 row-start-1 flex min-w-0 items-center gap-1">
+      <span data-col="status" className="hidden w-32 shrink-0 md:block">
         <StatusBadge state={state} queued={task.queued} />
       </span>
-      <span className="col-start-2 row-start-1 flex min-w-0 items-baseline gap-3">
-        <Link
-          to="/tasks/$id"
-          params={{ id: task.id }}
-          className={cn(
-            "min-w-0 truncate rounded-sm font-medium outline-offset-0 after:absolute after:inset-0 after:content-['']",
-            muted && "text-muted-foreground",
-          )}
-        >
-          {task.title}
-        </Link>
-        <span className="hidden shrink-0 font-mono text-xs text-muted-foreground md:inline">
-          {task.repo}
-          <span className="mx-1 text-border">/</span>
-          {task.ref}
-        </span>
-      </span>
-      <span className="col-span-2 col-start-1 row-start-2 flex min-w-0 items-center gap-2 whitespace-nowrap text-xs text-muted-foreground md:col-span-1 md:col-start-2">
-        {task.actor.id ? (
-          <img
-            src={`https://avatars.githubusercontent.com/u/${String(task.actor.id)}?s=32`}
-            alt=""
-            width={16}
-            height={16}
-            className="size-4 rounded-full border border-border bg-muted"
-          />
-        ) : (
-          <span aria-hidden="true" className="size-4 rounded-full border border-border bg-muted" />
-        )}
-        <span>{task.actor.login || "unknown"}</span>
-        <span className="truncate font-mono md:hidden">
-          · {task.repo} · {task.ref}
-        </span>
-        <span aria-hidden="true">·</span>
-        <RelativeTime iso={task.createdAt} />
-      </span>
-      <span className="col-start-3 row-span-2 row-start-1 flex items-center justify-center gap-3 md:justify-end">
-        {stage ? (
-          <span className="hidden rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground md:inline">
-            {stage}
+      <span data-col="title" className="flex min-w-0 flex-1 flex-col justify-center gap-1">
+        <span className="flex min-w-0 items-baseline gap-3">
+          <Link
+            to="/tasks/$id"
+            params={{ id: task.id }}
+            className={cn(
+              "stretched min-w-0 truncate rounded-sm text-base font-medium outline-offset-0",
+              muted && "text-muted-foreground",
+            )}
+          >
+            {task.title}
+          </Link>
+          <span className="hidden shrink-0 font-mono text-xs text-muted-foreground md:inline">
+            {task.repo}
+            <span className="mx-1 text-border">/</span>
+            {task.ref}
           </span>
+        </span>
+        <span className="flex min-w-0 items-center gap-2 text-xs whitespace-nowrap text-muted-foreground">
+          <span className="md:hidden">
+            <StatusBadge state={state} queued={task.queued} />
+          </span>
+          <ActorAvatar id={task.actor.id} />
+          <span>{task.actor.login || "unknown"}</span>
+          <span className="truncate font-mono md:hidden">
+            · {task.repo} · {task.ref}
+          </span>
+          <span aria-hidden="true">·</span>
+          <RelativeTime iso={task.createdAt} />
+        </span>
+      </span>
+      <span data-col="stage" className="flex w-8 shrink-0 items-center justify-end gap-2 md:w-32">
+        {stage ? (
+          <Badge variant="secondary" className="hidden text-muted-foreground md:inline-flex">
+            {stage}
+          </Badge>
         ) : null}
         <Tooltip>
           <TooltipTrigger asChild>

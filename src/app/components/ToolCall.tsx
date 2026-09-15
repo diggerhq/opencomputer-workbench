@@ -1,6 +1,5 @@
 import { Check, ChevronRight, Clock, X } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { type CommandOutcome, commandOf, commandOutcome, type ToolCall } from "@/reducer";
 import { reportSchema } from "../../lib/report";
 import { formatDuration } from "./format";
@@ -17,7 +16,7 @@ function Outcome({ outcome }: { outcome: CommandOutcome }) {
     case "running":
       return (
         <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-          <span aria-hidden="true" className="size-dot rounded-full bg-status-working-dot status-dot-pulse" />
+          <span aria-hidden="true" className="size-2 rounded-full bg-status-working-dot status-dot-pulse" />
           running
         </span>
       );
@@ -61,10 +60,11 @@ function OutputBlock({ text }: { text: string }) {
   const hidden = showAll ? 0 : Math.max(0, lines.length - PREVIEW_LINES);
   const shown = hidden ? lines.slice(0, PREVIEW_LINES) : lines;
   return (
-    <pre className="mt-2 mb-1 overflow-hidden rounded-md border border-code-border bg-code px-3 py-2.5 font-mono text-xs leading-5 whitespace-pre-wrap text-code-foreground [overflow-wrap:anywhere]">
+    <pre className="my-2 overflow-hidden rounded-md bg-code px-3 py-2 font-mono text-xs leading-5 wrap-anywhere whitespace-pre-wrap text-code-foreground">
       {shown.join("\n")}
       {hidden ? (
-        <span className="mt-2 block border-t border-code-border pt-2 text-muted-foreground">
+        <span className="mt-2 block pt-2 text-muted-foreground">
+          <span aria-hidden="true" className="mb-2 block h-px bg-code-border" />
           …and {String(hidden)} more lines ·{" "}
           <button
             type="button"
@@ -83,7 +83,7 @@ function ReportBody({ call }: { call: ToolCall }) {
   const parsed = reportSchema.safeParse(call.output ?? call.input);
   if (!parsed.success) return <OutputBlock text={JSON.stringify(call.output ?? call.input ?? {}, null, 2)} />;
   return (
-    <div className="mt-2 mb-1 rounded-md border border-border bg-surface p-3">
+    <div className="my-2 rounded-md bg-surface p-3">
       <ResultFields report={parsed.data} />
     </div>
   );
@@ -95,32 +95,31 @@ export function ToolCallRow({ call, expanded, onToggle }: { call: ToolCall; expa
   const command = call.tool === "report" ? "" : commandOf(call);
   const hasBody = call.tool === "report" || outcome.text.length > 0;
   return (
-    <li data-call-id={call.callId} className="min-h-row-compact text-sm">
+    <li data-call-id={call.callId} className="text-sm">
       <button
         type="button"
         aria-expanded={expanded}
         aria-label={expanded ? "Hide output" : "Show output"}
         onClick={onToggle}
-        className={cn(
-          "grid h-row-compact w-full grid-cols-[1rem_--spacing(14)_minmax(0,1fr)_auto] items-center gap-x-2 rounded-md px-2 text-left hover:bg-hover",
-          "-mx-2 w-[calc(100%+--spacing(4))]",
-        )}
+        className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left hover:bg-hover"
       >
-        <ChevronRight aria-hidden="true" className="chevron size-4 text-muted-foreground" />
-        <span className="truncate text-xs font-medium text-muted-foreground">{call.tool}</span>
-        <span className="truncate font-mono text-xs text-foreground" title={command || undefined}>
+        <ChevronRight aria-hidden="true" className="chevron size-4 shrink-0 text-muted-foreground" />
+        <span className="w-14 shrink-0 truncate text-xs font-medium text-muted-foreground">{call.tool}</span>
+        <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground" title={command || undefined}>
           {command}
         </span>
-        <Outcome outcome={outcome} />
+        <span className="shrink-0">
+          <Outcome outcome={outcome} />
+        </span>
       </button>
       {expanded ? (
-        <div className="pl-6">
+        <div className="pl-8">
           {call.tool === "report" ? (
             <ReportBody call={call} />
           ) : hasBody ? (
             <OutputBlock text={outcome.text} />
           ) : (
-            <p className="mt-1 mb-2 text-xs text-muted-foreground">
+            <p className="my-2 text-xs text-muted-foreground">
               {outcome.kind === "running" ? "No output yet." : "No output."}
             </p>
           )}

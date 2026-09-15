@@ -1,14 +1,16 @@
 import { ArrowUpRight, Check, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import type { Report, ReportStage } from "../../lib/report";
 import { shortSha } from "./format";
 
 function Row({ term, children }: { term: string; children: React.ReactNode }) {
   return (
-    <>
-      <dt className="text-muted-foreground">{term}</dt>
-      <dd className="min-w-0 [overflow-wrap:anywhere]">{children}</dd>
-    </>
+    <div className="flex items-baseline gap-3">
+      <dt className="w-16 shrink-0 text-muted-foreground">{term}</dt>
+      <dd className="min-w-0 wrap-anywhere">{children}</dd>
+    </div>
   );
 }
 
@@ -43,7 +45,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
 export function ResultFields({ report, repo, baseRef }: { report: Report; repo?: string; baseRef?: string }) {
   const compare = repo && report.baseSha && report.commit;
   return (
-    <dl className="grid grid-cols-[72px_minmax(0,1fr)] items-baseline gap-x-3 gap-y-2 text-sm">
+    <dl className="grid gap-2 text-sm">
       {report.baseSha ? (
         <Row term="base">
           <Sha value={report.baseSha} />
@@ -70,7 +72,7 @@ export function ResultFields({ report, repo, baseRef }: { report: Report; repo?:
       ) : null}
       {report.checks?.length ? (
         <Row term="checks">
-          <ul className="space-y-1.5">
+          <ul className="grid gap-1.5">
             {report.checks.map((check) => (
               <li key={check.command} className="flex flex-wrap items-center gap-x-1.5">
                 <span className="font-mono text-xs">{check.command}</span>
@@ -118,31 +120,29 @@ export interface ResultCardProps {
 /** The session's result with its provenance. Rendered only when there is one; the page says "No result reported yet" otherwise. */
 export function ResultCard({ report, stage, reportedBy, fromLastTurn, repo, baseRef }: ResultCardProps) {
   return (
-    <section aria-label="Result">
-      <div className="mb-2 flex items-baseline justify-between gap-2">
+    <section aria-label="Result" className="grid gap-2">
+      <div className="flex h-5 items-baseline justify-between gap-2">
         <h3 className="text-sm font-medium">Result</h3>
         <span className="text-xs text-muted-foreground">reported by {reportedBy}</span>
       </div>
-      <div className="rounded-xl border border-border bg-card p-4 shadow-card">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <span
-            className={cn(
-              "inline-flex h-6 items-center rounded-full px-2.5 text-xs font-medium",
-              fromLastTurn
-                ? "bg-status-ready-for-review-bg text-status-ready-for-review"
-                : "bg-muted text-muted-foreground",
+      <Card>
+        <CardContent className="grid gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge
+              variant="secondary"
+              className={cn(fromLastTurn && "bg-status-ready-for-review-bg text-status-ready-for-review")}
+            >
+              {stage}
+            </Badge>
+            {fromLastTurn ? null : (
+              <p className="text-sm text-muted-foreground">
+                Finished, no new changes reported · result from {reportedBy}
+              </p>
             )}
-          >
-            {stage}
-          </span>
-          {fromLastTurn ? null : (
-            <p className="text-sm text-muted-foreground">
-              Finished, no new changes reported · result from {reportedBy}
-            </p>
-          )}
-        </div>
-        <ResultFields report={report} repo={repo} baseRef={baseRef} />
-      </div>
+          </div>
+          <ResultFields report={report} repo={repo} baseRef={baseRef} />
+        </CardContent>
+      </Card>
     </section>
   );
 }
