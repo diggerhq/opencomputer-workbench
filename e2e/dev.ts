@@ -11,7 +11,9 @@
 // three are used, so a real sign-in through GitHub works in any browser at
 // the same URL.
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { parseEnv } from "node:util";
 import { chromium } from "@playwright/test";
 import { SESSION_COOKIE, type SessionClaims, seal } from "../src/server/auth";
@@ -23,6 +25,8 @@ import { fixtureApp, initialState, listen } from "./fixture-server";
 const ORIGIN = `http://localhost:${String(APP_PORT)}`;
 const REAL_SIGN_IN = ["GITHUB_CLIENT_ID", "GITHUB_CLIENT_SECRET", "WORKBENCH_MEMBERSHIP"] as const;
 const MEMBER = { id: 1, login: "jdoe", display: "acme/platform" };
+/** `--no-browser`: keep the servers up and hand the sign-in to a browser you already have open. */
+const NO_BROWSER = process.argv.includes("--no-browser") || process.env.WALKTHROUGH_BROWSER === "0";
 
 function environment(): { env: Record<string, string>; realSignIn: boolean } {
   const env = { ...FIXTURE_ENV };
@@ -95,6 +99,21 @@ async function main(): Promise<void> {
   console.log(
     `List states: curl -X POST localhost:${String(FIXTURE_PORT)}/__scenario -H 'content-type: application/json' -d '{"list":"empty"}'  (all | empty | error)`,
   );
+  if (NO_BROWSER) {
+    // The cookie is sealed against fixture values only; a file keeps it out of the terminal scrollback.
+    const snippet = join(tmpdir(), "opencomputer-workbench-sign-in.js");
+    writeFileSync(
+      snippet,
+      `document.cookie = ${JSON.stringify(`${SESSION_COOKIE}=${session}; Path=/; SameSite=Lax`)}; location.reload();\n`,
+      { mode: 0o600 },
+    );
+    console.log(
+      `No browser opened. Open ${ORIGIN} in yours, paste the contents of ${snippet} into its DevTools console:`,
+    );
+    console.log(`  pbcopy < ${snippet}`);
+    console.log("Press Ctrl-C to stop.\n");
+    return;
+  }
   console.log("Close the browser window or press Ctrl-C to stop.\n");
 
   let browser: Awaited<ReturnType<typeof chromium.launch>>;
