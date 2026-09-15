@@ -4,15 +4,7 @@
 // one definition; nothing else spells a state or a failure.
 
 /** The execution facet of a task, projected from the session by task.ts. */
-export type Execution =
-  | "starting"
-  | "not_started"
-  | "queued"
-  | "working"
-  | "stopping"
-  | "idle"
-  | "failed"
-  | "ended";
+export type Execution = "starting" | "not_started" | "queued" | "working" | "stopping" | "idle" | "failed" | "ended";
 
 /**
  * What the badge can show. `ready_for_review` is idle with a result from the
@@ -117,12 +109,16 @@ export function workingLabel(queued: number): string {
  * at admission. Anything not listed is shown with its code.
  */
 export const FAILURE_COPY: Record<string, string> = {
-  runtime_lost: "The agent's runtime stopped responding and this turn was abandoned. Send a follow-up to continue; it may need a fresh computer.",
+  runtime_lost:
+    "The agent's runtime stopped responding and this turn was abandoned. Send a follow-up to continue; it may need a fresh computer.",
   runtime_failed: "The agent's runtime failed before the turn finished. Send a follow-up to continue.",
-  sandbox_failed: "The task's computer could not run this turn. Send a follow-up to continue; it may need a fresh computer.",
-  model_rejected: "The model provider rejected the request. Check the account's credentials, rate limit or quota, then send a follow-up.",
+  sandbox_failed:
+    "The task's computer could not run this turn. Send a follow-up to continue; it may need a fresh computer.",
+  model_rejected:
+    "The model provider rejected the request. Check the account's credentials, rate limit or quota, then send a follow-up.",
   insufficient_credits: "The workspace is out of credits. Add credits before starting or continuing a task.",
-  context_too_long: "This conversation exceeds the model's context window. Start a fresh task and name this one as its predecessor.",
+  context_too_long:
+    "This conversation exceeds the model's context window. Start a fresh task and name this one as its predecessor.",
   interrupted: "The turn was stopped before it finished.",
   session_ended: "The session ended while the turn ran.",
 };

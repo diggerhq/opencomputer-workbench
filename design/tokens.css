@@ -38,20 +38,21 @@
 
 :root {
   /* Type. Inter for everything; Geist Mono only for commands and output. */
-  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-sans:
+    "Inter Variable", Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "Geist Mono Variable", "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --text-xs: 0.75rem;      /* 12px  captions, timestamps, badge labels */
+  --text-xs: 0.75rem; /* 12px  captions, timestamps, badge labels */
   --leading-xs: 1rem;
-  --text-sm: 0.8125rem;    /* 13px  row metadata, tool titles, code */
+  --text-sm: 0.8125rem; /* 13px  row metadata, tool titles, code */
   --leading-sm: 1.25rem;
-  --text-base: 0.875rem;   /* 14px  body, rows, conversation */
+  --text-base: 0.875rem; /* 14px  body, rows, conversation */
   --leading-base: 1.375rem;
-  --text-md: 1rem;         /* 16px  the request, card headings */
+  --text-md: 1rem; /* 16px  the request, card headings */
   --leading-md: 1.5rem;
-  --text-lg: 1.125rem;     /* 18px  task title on the task page */
+  --text-lg: 1.125rem; /* 18px  task title on the task page */
   --leading-lg: 1.625rem;
-  --text-xl: 1.375rem;     /* 22px  page heading */
+  --text-xl: 1.375rem; /* 22px  page heading */
   --leading-xl: 1.75rem;
 
   --weight-regular: 400;
@@ -79,16 +80,16 @@
   --radius-full: 9999px;
 
   /* Layout measures */
-  --gutter: var(--space-4);          /* 16px side gutter under 768px */
-  --gutter-wide: var(--space-8);     /* 32px side gutter from 768px */
-  --content-max: 60rem;              /* 960px: the task list column */
-  --page-max: 80rem;                 /* 1280px: the task page at two columns */
-  --row-height: 3.5rem;              /* 56px: every task row, whatever it holds */
-  --row-height-compact: 3rem;        /* 48px: timeline entries */
-  --control-height: 2.25rem;         /* 36px: buttons, inputs, pickers */
-  --control-height-sm: 1.75rem;      /* 28px: row-level controls */
-  --dot: 0.5rem;                     /* 8px status dot */
-  --avatar: 1.25rem;                 /* 20px actor avatar in rows */
+  --gutter: var(--space-4); /* 16px side gutter under 768px */
+  --gutter-wide: var(--space-8); /* 32px side gutter from 768px */
+  --content-max: 60rem; /* 960px: the task list column */
+  --page-max: 80rem; /* 1280px: the task page at two columns */
+  --row-height: 3.5rem; /* 56px: every task row, whatever it holds */
+  --row-height-compact: 3rem; /* 48px: timeline entries */
+  --control-height: 2.25rem; /* 36px: buttons, inputs, pickers */
+  --control-height-sm: 1.75rem; /* 28px: row-level controls */
+  --dot: 0.5rem; /* 8px status dot */
+  --avatar: 1.25rem; /* 20px actor avatar in rows */
 
   /* Focus ring: two pixels of the accent, offset by two, on every focusable. */
   --ring-width: 2px;
