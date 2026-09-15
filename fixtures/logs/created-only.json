@@ -1,0 +1,24 @@
+[
+  {
+    "id": "9d53d0c5-00bf-4be2-87d7-7e57b020a103",
+    "seq": 1,
+    "timestamp": "2026-09-15T20:41:07.000Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.created",
+    "data": {
+      "agentId": "worker",
+      "deploymentId": "dep_01J9Y0B7Q3M8N2K4R6T1V5W9XA"
+    }
+  },
+  {
+    "id": "156c74bd-b21a-4d53-8c31-f61fb5fb7631",
+    "seq": 2,
+    "timestamp": "2026-09-15T20:41:07.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.status_changed",
+    "data": {
+      "from": "new",
+      "to": "idle"
+    }
+  }
+]
