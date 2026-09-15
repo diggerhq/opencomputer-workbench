@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "vite dev --port 3200 --strictPort",
+    "dev:fixtures": "tsx e2e/dev.ts",
     "build": "vite build",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p opencomputer/tsconfig.json",
     "lint": "biome check .",
@@ -60,6 +61,7 @@
     "json-schema-to-ts": "3.1.1",
     "shadcn": "4.21.0",
     "tailwindcss": "4.3.3",
+    "tsx": "4.23.13",
     "typescript": "6.0.3",
     "vite": "8.3.0",
     "vitest": "5.0.1",
