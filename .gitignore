@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.wrangler/
+.vercel/
+.env
+.env.*
+!.env.example
+.dev.vars*
+.opencomputer/dev.json
+opencomputer/agents/*/.opencomputer/
+opencomputer/agents/*/workspace/
+playwright-report/
+test-results/
+*.log
+.DS_Store
+*.tsbuildinfo
