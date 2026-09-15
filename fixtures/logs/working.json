@@ -1,0 +1,262 @@
+[
+  {
+    "id": "1af050bd-3241-4e8e-824f-21d22e8e3e2c",
+    "seq": 1,
+    "timestamp": "2026-09-15T20:41:07.000Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.created",
+    "data": {
+      "agentId": "worker",
+      "deploymentId": "dep_01J9Y0B7Q3M8N2K4R6T1V5W9XA"
+    }
+  },
+  {
+    "id": "79a8f9d0-2b81-45f1-8b0c-97f3543e1b0a",
+    "seq": 2,
+    "timestamp": "2026-09-15T20:41:07.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "type": "session.status_changed",
+    "data": {
+      "from": "new",
+      "to": "idle"
+    }
+  },
+  {
+    "id": "a7b6bc82-5ceb-4e3d-8250-ffaa49fe2742",
+    "seq": 3,
+    "timestamp": "2026-09-15T20:41:09.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "message.received",
+    "data": {
+      "input": "Rename billing to invoicing across the service. Keep the public API paths stable and add a deprecation note for the old module name.\n\nRun the full test suite before you report.",
+      "mode": "queue"
+    }
+  },
+  {
+    "id": "67664cac-6a28-446f-8fd5-077989d6adf5",
+    "seq": 4,
+    "timestamp": "2026-09-15T20:41:09.270Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "session.status_changed",
+    "data": {
+      "from": "idle",
+      "to": "running"
+    }
+  },
+  {
+    "id": "a3fc53f3-4d38-4769-8b61-a4c8c9cc0f20",
+    "seq": 5,
+    "timestamp": "2026-09-15T20:41:09.320Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "turn.started",
+    "data": {}
+  },
+  {
+    "id": "d9db73ed-5910-4c76-89f3-350c3d42629e",
+    "seq": 6,
+    "timestamp": "2026-09-15T20:41:11.120Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "runtime.connected",
+    "data": {}
+  },
+  {
+    "id": "c9a0820b-d789-4ad1-8de9-5682fa6fa261",
+    "seq": 7,
+    "timestamp": "2026-09-15T20:41:11.180Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "agent.rendered",
+    "data": {
+      "renderId": "8f32c544-1c40-43db-8699-22cc70694a2d",
+      "model": "anthropic/claude-sonnet-4.6",
+      "enabledTools": ["report"],
+      "enabledSubagents": [],
+      "enabledMcpServers": [],
+      "requiredConnections": ["github"],
+      "input": {
+        "source": "user",
+        "text": "Rename billing to invoicing across the service. Keep the public API paths stable and add a deprecation note for the old module name.\n\nRun the full test suite before you report."
+      },
+      "renderedAt": "2026-09-15T21:47:13.780Z"
+    }
+  },
+  {
+    "id": "9517dd3d-a41f-4258-809e-9020e4596ab7",
+    "seq": 8,
+    "timestamp": "2026-09-15T20:41:11.220Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "model.route_resolved",
+    "data": {
+      "providerCallId": "1a329703-6639-4dd3-88d5-d2f1ff9c2881",
+      "requested": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4.6"
+      },
+      "effective": {
+        "provider": "anthropic",
+        "model": "claude-sonnet-4.6"
+      },
+      "runtime": "workerd",
+      "access": "managed"
+    }
+  },
+  {
+    "id": "a425479f-44ec-4d67-829e-37af66902142",
+    "seq": 9,
+    "timestamp": "2026-09-15T20:41:11.520Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.started",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_01clone",
+      "title": "git clone https://github.com/acme/service.git && git -C service switch -c task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+      "input": {
+        "command": "git clone https://github.com/acme/service.git && git -C service switch -c task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT"
+      }
+    }
+  },
+  {
+    "id": "a9239bf1-1b28-49d1-85d1-bd69cd89688c",
+    "seq": 10,
+    "timestamp": "2026-09-15T20:41:17.620Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.completed",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_01clone",
+      "title": "git clone https://github.com/acme/service.git && git -C service switch -c task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+      "output": {
+        "stdout": "Cloning into 'service'...\nremote: Enumerating objects: 2412, done.\nremote: Counting objects: 100% (2412/2412), done.\nremote: Compressing objects: 100% (1180/1180), done.\nremote: Total 2412 (delta 1189), reused 2301 (delta 1102)\nReceiving objects: 100% (2412/2412), 1.84 MiB | 9.20 MiB/s, done.\nResolving deltas: 100% (1189/1189), done.\nSwitched to a new branch 'task/01J9Y0C6R4V3M2K7Q8N5P1H9ZT'\n",
+        "stderr": "",
+        "exitCode": 0,
+        "durationMs": 6100
+      }
+    }
+  },
+  {
+    "id": "caa00f8d-f1b4-43af-826e-14288bebd087",
+    "seq": 11,
+    "timestamp": "2026-09-15T20:41:17.920Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.started",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_02ci",
+      "title": "npm ci",
+      "input": {
+        "command": "npm ci"
+      }
+    }
+  },
+  {
+    "id": "d2f43706-1301-47e5-890f-dac841e2102f",
+    "seq": 12,
+    "timestamp": "2026-09-15T20:41:55.920Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.completed",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_02ci",
+      "title": "npm ci",
+      "output": {
+        "stdout": "npm http fetch GET 200 https://registry.npmjs.org/package-0 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-1 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-2 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-3 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-4 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-5 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-6 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-7 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-8 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-9 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-10 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-11 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-12 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-13 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-14 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-15 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-16 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-17 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-18 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-19 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-20 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-21 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-22 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-23 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-24 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-25 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-26 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-27 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-28 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-29 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-30 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-31 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-32 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-33 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-34 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-35 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-36 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-37 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-38 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-39 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-40 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-41 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-42 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-43 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-44 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-45 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-46 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-47 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-48 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-49 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-50 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-51 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-52 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-53 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-54 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-55 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-56 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-57 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-58 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-59 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-60 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-61 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-62 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-63 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-64 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-65 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-66 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-67 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-68 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-69 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-70 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-71 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-72 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-73 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-74 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-75 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-76 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-77 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-78 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-79 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-80 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-81 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-82 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-83 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-84 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-85 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-86 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-87 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-88 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-89 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-90 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-91 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-92 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-93 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-94 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-95 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-96 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-97 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-98 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-99 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-100 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-101 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-102 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-103 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-104 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-105 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-106 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-107 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-108 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-109 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-110 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-111 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-112 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-113 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-114 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-115 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-116 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-117 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-118 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-119 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-120 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-121 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-122 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-123 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-124 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-125 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-126 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-127 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-128 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-129 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-130 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-131 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-132 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-133 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-134 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-135 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-136 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-137 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-138 12ms (cache hit)\nnpm http fetch GET 200 https://registry.npmjs.org/package-139 12ms (cache hit)\n\nadded 612 packages in 38s\n",
+        "stderr": "",
+        "exitCode": 0,
+        "durationMs": 38000
+      }
+    }
+  },
+  {
+    "id": "781629a5-706a-43af-8097-7ed5ad9065ed",
+    "seq": 13,
+    "timestamp": "2026-09-15T20:41:56.220Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.started",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_03lint",
+      "title": "npm run lint",
+      "input": {
+        "command": "npm run lint"
+      }
+    }
+  },
+  {
+    "id": "37c1a1da-11e4-4697-8467-0e09d6b02c61",
+    "seq": 14,
+    "timestamp": "2026-09-15T20:41:57.320Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.completed",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_03lint",
+      "title": "npm run lint",
+      "output": {
+        "stdout": "\n> service@2.1.0 lint\n> eslint .\n\n",
+        "stderr": "src/invoicing/index.ts:12:3\n  error  'legacyFormat' is defined but never used  no-unused-vars\n\n✖ 1 problem (1 error, 0 warnings)\n\nnpm error Lifecycle script `lint` failed with error:\nnpm error code 1\nnpm error command sh -c eslint .\n",
+        "exitCode": 1,
+        "durationMs": 1100
+      }
+    }
+  },
+  {
+    "id": "24f8bb13-e721-4a59-80ce-714dede8a9d5",
+    "seq": 15,
+    "timestamp": "2026-09-15T20:41:57.570Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "message.delta",
+    "data": {
+      "text": "Lint flagged an unused import in "
+    }
+  },
+  {
+    "id": "b833acbb-edec-4e69-8511-5f0b60c5a5e9",
+    "seq": 16,
+    "timestamp": "2026-09-15T20:41:57.820Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "message.delta",
+    "data": {
+      "text": "`src/invoicing/index.ts`; removing it and "
+    }
+  },
+  {
+    "id": "0c840843-4a5e-4992-89a6-5a77d8a54879",
+    "seq": 17,
+    "timestamp": "2026-09-15T20:41:58.070Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "message.delta",
+    "data": {
+      "text": "running the tests"
+    }
+  },
+  {
+    "id": "3278fe92-0910-4367-8163-b3bd4d24d671",
+    "seq": 18,
+    "timestamp": "2026-09-15T20:41:58.370Z",
+    "sessionId": "6f1c2b8e-3d4a-4c5b-9e7f-0a1b2c3d4e5f",
+    "turnId": "8c2f4e6a-1b3d-4f5a-8c9e-2d4f6a8b0c1e",
+    "type": "tool.started",
+    "data": {
+      "tool": "shell",
+      "callId": "toolu_04test",
+      "title": "npm test",
+      "input": {
+        "command": "npm test"
+      }
+    }
+  }
+]
