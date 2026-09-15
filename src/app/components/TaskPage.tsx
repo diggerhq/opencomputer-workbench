@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useActivity } from "@/hooks/use-activity";
 import { ApiError, endTask, getTask, patchTask, type Task } from "@/lib/api";
 import { type Activity, activeTurn, isSettled, latestResult } from "@/reducer";
-import { type Report, type ReportStage, reportStage } from "../../../opencomputer/agents/worker/tools/report";
+import { type Report, type ReportStage, reportStage } from "../../lib/report";
 
 export const taskQueryKey = (id: string) => ["task", id] as const;
 

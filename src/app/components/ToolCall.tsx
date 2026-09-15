@@ -2,7 +2,7 @@ import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { type CommandOutcome, commandOf, commandOutcome, type ToolCall } from "@/reducer";
-import { reportSchema } from "../../../opencomputer/agents/worker/tools/report";
+import { reportSchema } from "../../lib/report";
 import { formatDuration } from "./format";
 import { ResultFields } from "./ResultCard";
 
