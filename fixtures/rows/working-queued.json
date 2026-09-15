@@ -1,0 +1,40 @@
+{
+  "id": "10000000-0000-4000-8000-000000000005",
+  "projectId": "proj_1",
+  "agentId": "worker",
+  "deploymentId": "dep_dev",
+  "environment": "development",
+  "source": "api",
+  "status": "running",
+  "labels": {
+    "request": "01J9Y0C6R4V3M2K7Q8N5P1H9Z5",
+    "title": "Rename the billing module to invoicing",
+    "repo": "acme/service",
+    "ref": "main",
+    "actor_id": "1",
+    "actor_login": "jdoe",
+    "archived": "false"
+  },
+  "createdAt": "2026-09-15T20:41:00.000Z",
+  "updatedAt": "2026-09-15T20:44:48.000Z",
+  "revision": 9,
+  "activity": {
+    "activeTurnId": "turn_5b",
+    "queued": 2,
+    "lastSettledTurn": {
+      "id": "turn_5a",
+      "status": "completed",
+      "at": "2026-09-15T20:44:00.000Z"
+    }
+  },
+  "result": {
+    "turnId": "turn_5a",
+    "callId": "call_turn_5a",
+    "reportedAt": "2026-09-15T20:43:30.000Z",
+    "data": {
+      "baseSha": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "branch": "task/01J9Y0C6R4V3M2K7Q8N5P1H9Z5",
+      "commit": "dddddddddddddddddddddddddddddddddddddddd"
+    }
+  }
+}

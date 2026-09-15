@@ -1,0 +1,31 @@
+{
+  "id": "10000000-0000-4000-8000-000000000007",
+  "projectId": "proj_1",
+  "agentId": "worker",
+  "deploymentId": "dep_dev",
+  "environment": "development",
+  "source": "api",
+  "status": "idle",
+  "labels": {
+    "request": "01J9Y0C6R4V3M2K7Q8N5P1H9Z7",
+    "title": "Investigate slow cold starts",
+    "repo": "acme/service",
+    "ref": "main",
+    "actor_id": "2",
+    "actor_login": "mo",
+    "archived": "false"
+  },
+  "createdAt": "2026-09-15T17:45:00.000Z",
+  "updatedAt": "2026-09-15T17:55:00.000Z",
+  "revision": 4,
+  "activity": {
+    "activeTurnId": null,
+    "queued": 0,
+    "lastSettledTurn": {
+      "id": "turn_7a",
+      "status": "completed",
+      "at": "2026-09-15T17:55:00.000Z"
+    }
+  },
+  "result": null
+}
