@@ -5,7 +5,7 @@
 // API's paths and shapes. Every response is parsed at this boundary and the
 // types are inferred from the schemas; unknown extra fields pass through.
 import { z } from "zod";
-import { type Report, reportSchema } from "../../opencomputer/agents/worker/tools/report";
+import { type Report, reportSchema } from "../lib/report";
 import type { Config, Environment } from "./env";
 
 export class OCError extends Error {

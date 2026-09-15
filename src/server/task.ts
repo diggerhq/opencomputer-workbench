@@ -2,7 +2,7 @@
 // session; its three facets, execution, archived and result, are projected
 // independently from the row (the design's Task lifecycle) and never stored.
 // Pure: a row and a clock in, a task out; unit-tested over the row fixtures.
-import { type Report, type ReportStage, reportStage } from "../../opencomputer/agents/worker/tools/report";
+import { type Report, type ReportStage, reportStage } from "../lib/report";
 import type { Session, SessionSummary, Turn } from "./oc";
 
 export type Execution = "starting" | "not_started" | "queued" | "working" | "stopping" | "idle" | "failed" | "ended";

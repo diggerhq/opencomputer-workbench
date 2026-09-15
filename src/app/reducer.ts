@@ -4,12 +4,7 @@
 // `useAgent` exposes `turns` with `toolCalls` and `result` (design C5); until
 // then this is the only module that reads tool and turn events. No React and
 // no network here.
-import {
-  type Report,
-  type ReportStage,
-  reportSchema,
-  reportStage,
-} from "../../opencomputer/agents/worker/tools/report";
+import { type Report, type ReportStage, reportSchema, reportStage } from "../lib/report";
 
 /** One entry of the session log, as `GET /sessions/<id>/events` returns it. */
 export interface ActivityEvent {

@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
-import type { Report, ReportStage } from "../../../opencomputer/agents/worker/tools/report";
+import type { Report, ReportStage } from "../../lib/report";
 import { shortSha } from "./format";
 
 function Row({ term, children }: { term: string; children: React.ReactNode }) {
