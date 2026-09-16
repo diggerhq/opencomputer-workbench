@@ -3,8 +3,8 @@
 // project, environment and agent check before forwarding.
 import { Hono, type MiddlewareHandler } from "hono";
 import { type AuthDeps, callback, clearSessionCookie, defaultDeps, type Identity, identity, login } from "./auth";
+import { activeDeployment, createClient, OpenComputerError } from "./client";
 import type { Config } from "./env";
-import { createOC, OCError } from "./oc";
 import { problem } from "./problem";
 import { ScopeError } from "./scope";
 import { sessionProxy } from "./session-proxy";
@@ -66,7 +66,7 @@ export function requireMember(config: Config, deps: AuthDeps): MiddlewareHandler
 
 export function routes(config: Config, deps: AuthDeps = defaultDeps): App {
   const app: App = new Hono();
-  const oc = createOC(config, deps.fetch);
+  const oc = createClient(config, deps.fetch);
 
   app.get("/auth/login", () => login(config));
   app.get("/auth/callback", (c) => callback(c.req.raw, config, deps));
@@ -78,7 +78,7 @@ export function routes(config: Config, deps: AuthDeps = defaultDeps): App {
   app.use("/api/*", requireSameOrigin(config), requireMember(config, deps));
 
   app.get("/api/workspace", async (c) => {
-    const deploymentId = await oc.agents.activeDeployment(config.oc.agentId, config.oc.environment);
+    const deploymentId = await activeDeployment(oc, config, config.oc.agentId, config.oc.environment);
     if (!deploymentId) {
       return problem(
         c,
@@ -96,13 +96,13 @@ export function routes(config: Config, deps: AuthDeps = defaultDeps): App {
   });
 
   app.route("/", taskRoutes(config, oc, { now: deps.now }));
-  app.route("/", sessionProxy(config, oc));
+  app.route("/", sessionProxy(config, oc, deps.fetch));
 
   app.notFound((c) => problem(c, 404, "not_found", "No such route."));
   app.onError((cause, c) => {
     if (cause instanceof ScopeError) return problem(c, 404, "not_found", cause.message);
     if (cause instanceof LabelError) return problem(c, 400, "invalid_labels", cause.message);
-    if (cause instanceof OCError) {
+    if (cause instanceof OpenComputerError) {
       // The API's own answer about this request keeps its status and code:
       // refusals, conflicts, an unconfirmed publication, the environment
       // without a GitHub installation. A 401, a 403 or a missing project or

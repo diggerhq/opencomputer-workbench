@@ -9,7 +9,7 @@ const payload = {
 };
 
 describe("readTask", () => {
-  it("reads the structured payload when the turn carries one", () => {
+  it("reads the structured payload the first turn carries", () => {
     const read = readTask({ source: "user", text: "Rename billing to invoicing.", payload });
     expect(read).toEqual({
       task: { taskId: payload.taskId, repo: "acme/service", ref: "main", actor: { login: "jdoe" } },
@@ -17,19 +17,10 @@ describe("readTask", () => {
     });
   });
 
-  it("parses the preamble line the app folds into the text under the stub", () => {
-    const text = `[workbench] task=${payload.taskId} repo=acme/service ref=v2.1.0 actor=jdoe\nRename billing to invoicing.\nRun the tests.`;
-    expect(readTask({ source: "user", text })).toEqual({
-      task: { taskId: payload.taskId, repo: "acme/service", ref: "v2.1.0", actor: { login: "jdoe" } },
-      text: "Rename billing to invoicing.\nRun the tests.",
-    });
-  });
-
-  it("prefers the payload over a preamble and yields nothing for plain text", () => {
-    const text = "[workbench] task=x repo=y/z ref=main actor=someone\nHello";
-    expect(readTask({ source: "user", text, payload })?.task.repo).toBe("acme/service");
+  it("yields nothing for a follow-up, which carries no payload, or a payload of another shape", () => {
     expect(readTask({ source: "user", text: "Just a follow-up." })).toBeUndefined();
     expect(readTask({ source: "user" })).toBeUndefined();
-    expect(readTask({ source: "user", text: "[workbench] task=only", payload: { taskId: 1 } })).toBeUndefined();
+    expect(readTask({ source: "user", text: "x", payload: { taskId: 1 } })).toBeUndefined();
+    expect(readTask({ source: "user", text: "x", payload: [payload] })).toBeUndefined();
   });
 });
