@@ -2,7 +2,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { clearSessionCookie } from "@/server/auth";
 import { config } from "@/server/env";
-import { sameOrigin } from "../-middleware";
+import { sameOrigin } from "../-guards";
 
 export const Route = createFileRoute("/auth/logout")({
   server: {

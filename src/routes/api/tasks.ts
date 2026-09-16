@@ -3,14 +3,13 @@
 // two calls under the task id the composer minted.
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { createClient, type Deployment, OpenComputerError, untilPublished } from "@/server/client";
-import { config, deps } from "@/server/env";
+import { type Deployment, OpenComputerError, untilPublished } from "@/server/client";
 import { handle, problem } from "@/server/problem";
 import { taskRequest } from "@/server/request";
 import { workbenchSession } from "@/server/scope";
 import { boundLabels, summarize, titleOf, toTask } from "@/server/task";
 import { LABELS } from "@/shared/task";
-import { type Handled, member } from "../-middleware";
+import { type Handled, member } from "../-guards";
 
 const ULID = /^[0-9A-HJKMNP-TV-Z]{26}$/;
 const REPO = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/[A-Za-z0-9._-]{1,100}$/;
@@ -33,10 +32,8 @@ export const Route = createFileRoute("/api/tasks")({
   server: {
     middleware: [member],
     handlers: {
-      GET: handle(async ({ request }: Handled) => {
-        const settings = config();
-        const { fetch, now } = deps();
-        const oc = createClient(settings, fetch);
+      GET: handle(async ({ request, context }: Handled) => {
+        const { config: settings, client: oc, now } = context;
         const search = new URL(request.url).searchParams;
         const archived = search.get("archived") === "true";
         const cursor = search.get("cursor");
@@ -55,9 +52,7 @@ export const Route = createFileRoute("/api/tasks")({
         return Response.json({ tasks: rows.map((row) => toTask(row, now())), nextCursor: page.nextCursor });
       }),
       POST: handle(async ({ request, context }: Handled) => {
-        const settings = config();
-        const { fetch, now } = deps();
-        const oc = createClient(settings, fetch);
+        const { config: settings, client: oc, now } = context;
         const parsed = createBody.safeParse(await request.json().catch(() => undefined));
         if (!parsed.success) {
           return problem(400, "invalid_task", parsed.error.issues[0]?.message ?? "Invalid task");
