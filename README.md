@@ -53,8 +53,10 @@ the branch, commit, reported checks and PR as the session's typed result.
 That becomes the [result card](src/components/ResultCard.tsx) in the UI.
 
 Change the model, tools or instructions in the worker, run `npm run check`,
-then `npm run deploy:agents` to publish a new version to Development.
-Existing tasks keep their original version. Agent deployments are independent
+then `npm run deploy:agents` to publish a new version to Development. The
+app addresses the agent by name and environment; which version runs a task
+is the platform's choice, recorded on the session, so tasks already started
+keep theirs and new tasks get the new one. Agent deployments are independent
 of web app releases.
 
 ### Web app

@@ -35,7 +35,7 @@ repository.
 - Nothing depends on process-local state surviving a request; the Worker declares no persistence, queue or schedule (`dev/test/stateless.test.ts`).
 - The workbench never substitutes a shipping path for a missing OpenComputer contract; stopgaps carry a `STOPGAP(Cn)` comment naming their deletion condition.
 - Agent code imports nothing from outside its own directory; the report schema lives with the tool and the app derives its type and parser from it.
-- The agent is deployed with the OpenComputer CLI from `opencomputer/`; sessions pin the deployment they started on, so a redeploy changes new tasks only.
+- The agent is deployed with the OpenComputer CLI from `opencomputer/`. The app addresses it as `<agent>@<environment>` and never handles deployment ids; the platform chooses the deployment and records it on the session, so a redeploy changes new tasks only.
 - Never print or commit secrets; `.env.local` and `.dev.vars` hold them and are ignored.
 
 ## Where things are decided

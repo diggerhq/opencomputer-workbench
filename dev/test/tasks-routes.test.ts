@@ -38,14 +38,8 @@ function session(over: Partial<Session> = {}): Session {
   };
 }
 
-const deployment = {
-  [`${OC}/deployments/dep_dev`]: () =>
-    json({ id: "dep_dev", agentId: "worker", alias: "development", createdAt: "2026-09-15T18:00:00Z" }),
-};
-
 const envelope = {
   taskId: TASK_ID,
-  deploymentId: "dep_dev",
   repo: "acme/service",
   ref: "main",
   text: "Add a health endpoint\n\nGET /healthz.",
@@ -126,49 +120,16 @@ describe("GET /api/tasks/:id", () => {
 });
 
 describe("POST /api/tasks", () => {
-  /** The session as `GET /sessions/<id>` returns it once the first turn is admitted: the labels the create call sent, one queued turn. */
-  function createdSession(over: Partial<Session> = {}): Session {
-    return session({
-      id: "ses_new",
-      projectId: "proj_1",
-      status: "idle",
-      labels: {
-        request: TASK_ID,
-        title: "Add a health endpoint",
-        repo: "acme/service",
-        ref: "main",
-        actor_id: "1",
-        actor_login: "octocat",
-        archived: "false",
-      },
-      turns: [
-        {
-          id: "turn_1",
-          input: "Add a health endpoint\n\nGET /healthz.",
-          mode: "queue",
-          status: "queued",
-          createdAt: "2026-09-15T20:46:01Z",
-          updatedAt: "2026-09-15T20:46:01Z",
-        },
-      ],
-      createdAt: "2026-09-15T20:46:00Z",
-      updatedAt: "2026-09-15T20:46:01Z",
-      ...over,
-    });
-  }
-
   function creating(overrides: Record<string, (url: URL, init?: RequestInit) => Response> = {}) {
     return fakeFetch({
-      ...deployment,
       [`${OC}/sessions/ses_new/turns`]: () => json({ turnId: "turn_1", status: "queued", duplicate: false }, 202),
-      [`${OC}/sessions/ses_new`]: () => json(createdSession()),
       [`${OC}/sessions`]: () =>
         json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" } }, 201),
       ...overrides,
     });
   }
 
-  it("creates the session and admits the first turn under the task id, pinned to the composer's deployment", async () => {
+  it("creates the session by agent and environment, admits the first turn under the task id, and reads nothing back", async () => {
     const fetch = creating();
     configure({ config: cfg, fetch, now: () => T0 });
     const response = await serve(
@@ -179,24 +140,17 @@ describe("POST /api/tasks", () => {
       }),
     );
     expect(response.status).toBe(201);
-    const body = await response.json();
-    expect(body.receipt).toEqual({ turnId: "turn_1", status: "queued", duplicate: false });
-    expect(body.task).toMatchObject({
+    expect(await response.json()).toEqual({
       id: "ses_new",
-      execution: "queued",
-      queued: 1,
-      title: "Add a health endpoint",
-      repo: "acme/service",
-      ref: "main",
-      actor: { id: 1, login: "octocat" },
-      archived: false,
+      receipt: { turnId: "turn_1", status: "queued", duplicate: false },
     });
-    const [, create, turn, readBack] = fetch.calls;
-    expect(readBack?.url).toBe(`${OC}/sessions/ses_new`);
+    expect(fetch.calls.map((call) => call.url)).toEqual([`${OC}/sessions`, `${OC}/sessions/ses_new/turns`]);
+    const [create, turn] = fetch.calls;
     expect(create?.init?.headers).toMatchObject({ "idempotency-key": TASK_ID });
+    // No deployment id anywhere: the agent is addressed by name and
+    // environment, and the platform records which deployment it chose.
     expect(JSON.parse(String(create?.init?.body))).toEqual({
-      deploymentId: "dep_dev",
-      environment: "development",
+      agentId: "worker@development",
       source: "api",
       labels: {
         request: TASK_ID,
@@ -234,24 +188,9 @@ describe("POST /api/tasks", () => {
     expect((await response.json()).receipt.duplicate).toBe(true);
   });
 
-  it("reads the task back for a duplicate receipt whose turn has already settled", async () => {
+  it("answers a duplicate receipt whose turn has already settled the same way, without a read-back", async () => {
     const fetch = creating({
       [`${OC}/sessions/ses_new/turns`]: () => json({ turnId: "turn_1", status: "completed", duplicate: true }, 200),
-      [`${OC}/sessions/ses_new`]: () =>
-        json(
-          createdSession({
-            turns: [
-              {
-                id: "turn_1",
-                input: "Add a health endpoint",
-                mode: "queue",
-                status: "completed",
-                createdAt: "2026-09-15T20:46:01Z",
-                updatedAt: "2026-09-15T20:50:00Z",
-              },
-            ],
-          }),
-        ),
     });
     configure({ config: cfg, fetch, now: () => T0 });
     const response = await serve(
@@ -262,9 +201,11 @@ describe("POST /api/tasks", () => {
       }),
     );
     expect(response.status).toBe(201);
-    const body = await response.json();
-    expect(body.receipt).toEqual({ turnId: "turn_1", status: "completed", duplicate: true });
-    expect(body.task).toMatchObject({ id: "ses_new", execution: "idle", queued: 0 });
+    expect(await response.json()).toEqual({
+      id: "ses_new",
+      receipt: { turnId: "turn_1", status: "completed", duplicate: true },
+    });
+    expect(fetch.calls).toHaveLength(2);
   });
 
   it("repeats a create whose row was not confirmed in the list, then forwards the problem", async () => {
@@ -373,11 +314,26 @@ describe("POST /api/tasks", () => {
     expect((await answer.json()).error.code).toBe("insufficient_credits");
   });
 
-  it("refuses a deployment that is not the workbench agent's without creating anything", async () => {
-    const fetch = fakeFetch({
-      [`${OC}/deployments/dep_x`]: () =>
-        json({ id: "dep_x", agentId: "other", alias: "development", createdAt: "2026-09-15T18:00:00Z" }),
+  it("reports an agent that is not deployed to the environment when the platform says so", async () => {
+    const fetch = creating({
+      [`${OC}/sessions`]: () =>
+        json({ error: { code: "deployment_not_found", message: "No deployment for worker@development." } }, 404),
     });
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
+      new Request("https://workbench.example/api/tasks", {
+        method: "POST",
+        headers: await memberPost(cfg),
+        body: JSON.stringify(envelope),
+      }),
+    );
+    expect(response.status).toBe(409);
+    expect((await response.json()).error.code).toBe("agent_not_deployed");
+    expect(fetch.calls).toHaveLength(1);
+  });
+
+  it("ignores a deployment id a client still sends, so no request can pin a version", async () => {
+    const fetch = creating();
     configure({ config: cfg, fetch, now: () => T0 });
     const response = await serve(
       new Request("https://workbench.example/api/tasks", {
@@ -386,9 +342,8 @@ describe("POST /api/tasks", () => {
         body: JSON.stringify({ ...envelope, deploymentId: "dep_x" }),
       }),
     );
-    expect(response.status).toBe(409);
-    expect((await response.json()).error.code).toBe("deployment_mismatch");
-    expect(fetch.calls).toHaveLength(1);
+    expect(response.status).toBe(201);
+    expect(JSON.parse(String(fetch.calls[0]?.init?.body))).not.toHaveProperty("deploymentId");
   });
 
   it("validates the envelope", async () => {

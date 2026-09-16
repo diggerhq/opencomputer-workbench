@@ -7,7 +7,6 @@ export type { Task };
 
 export interface Workspace {
   readonly identity: { readonly id: number; readonly login: string; readonly avatarUrl: string };
-  readonly deploymentId: string;
   readonly environment: "development" | "production";
   readonly membership: { readonly kind: string; readonly display: string };
 }
@@ -82,7 +81,8 @@ export function getTask(id: string): Promise<Task> {
   return request<{ task: Task }>(`/api/tasks/${encodeURIComponent(id)}`).then((body) => body.task);
 }
 
-export function createTask(envelope: Envelope): Promise<{ task: Task; receipt: Receipt }> {
+/** Starts a task; resolves with the session id to navigate to and the first turn's admission receipt. */
+export function createTask(envelope: Envelope): Promise<{ id: string; receipt: Receipt }> {
   return request("/api/tasks", { method: "POST", body: JSON.stringify(envelope) });
 }
 

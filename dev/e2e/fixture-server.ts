@@ -197,6 +197,8 @@ function sessionOf(stored: Stored): Json {
 export interface FixtureState {
   scenario: ListScenario;
   sessions: Map<string, Stored>;
+  /** Session-creation idempotency keys, each to the session it created. */
+  keys: Map<string, Stored>;
 }
 
 export function initialState(): FixtureState {
@@ -208,7 +210,7 @@ export function initialState(): FixtureState {
   );
   if (!base) throw new Error("dev/fixtures/rows/working.json is the base row for the log sessions");
   for (const [name, id] of Object.entries(LOG_SESSIONS)) sessions.set(id, sessionFromLog(name, id, base));
-  return { scenario: "all", sessions };
+  return { scenario: "all", sessions, keys: new Map() };
 }
 
 const project = {
@@ -252,6 +254,7 @@ export function fixtureApp(state: FixtureState): Hono {
     const fresh = initialState();
     state.scenario = fresh.scenario;
     state.sessions = fresh.sessions;
+    state.keys = fresh.keys;
     return c.json({ ok: true });
   });
 
@@ -262,12 +265,6 @@ export function fixtureApp(state: FixtureState): Hono {
   );
 
   api.get("/projects/:project/github/repositories", (c) => c.json({ repositories, nextCursor: null }));
-
-  api.get("/deployments/:id", (c) =>
-    c.req.param("id") === "dep_dev"
-      ? c.json({ id: "dep_dev", agentId: "worker", alias: "development", createdAt: "2026-09-15T18:00:00.000Z" })
-      : c.json(problem("deployment_not_found", "No such deployment."), 404),
-  );
 
   api.get("/sessions", (c) => {
     if (state.scenario === "error") return c.json(problem("upstream_error", "OpenComputer answered 503"), 503);
@@ -292,26 +289,31 @@ export function fixtureApp(state: FixtureState): Hono {
     return c.json({ sessions: page.map(serve), nextCursor });
   });
 
+  // Sessions are created by `agentId: "<agent>@<environment>"`; the fixture
+  // plays the platform, which chooses the environment's active deployment
+  // and records it on the session. The same key replays the session it
+  // created, whatever the active deployment has become since.
   api.post("/sessions", async (c) => {
-    const body = (await c.req.json()) as {
-      deploymentId?: string;
-      environment?: string;
-      labels?: Record<string, string>;
-    };
+    const body = (await c.req.json()) as { agentId?: string; labels?: Record<string, string> };
+    const [agentId = "", environment = "production"] = (body.agentId ?? "").split("@");
+    const active = project.environments.find((env) => env.name === environment && env.agentId === agentId);
     const key = c.req.header("idempotency-key") ?? crypto.randomUUID();
-    const existing = [...state.sessions.values()].find((stored) => stored.row.labels.request === key);
+    const existing = state.keys.get(key);
     if (existing) {
       const { id, status, createdAt } = existing.row;
       return c.json({ session: { id, status, createdAt } }, 200);
+    }
+    if (!active?.activeDeploymentId) {
+      return c.json(problem("deployment_not_found", `No deployment for ${body.agentId ?? "?"}.`), 404);
     }
     const id = crypto.randomUUID();
     const createdAt = now();
     const row: Row = {
       id,
       projectId: project.id,
-      agentId: "worker",
-      deploymentId: body.deploymentId ?? "dep_dev",
-      environment: body.environment ?? "development",
+      agentId,
+      deploymentId: active.activeDeploymentId,
+      environment,
       source: "api",
       status: "new",
       labels: { ...(body.labels ?? {}) },
@@ -324,6 +326,7 @@ export function fixtureApp(state: FixtureState): Hono {
     const stored: Stored = { row, events: [], keys: new Map() };
     stored.events = createdOnly(row).map((event) => ({ ...event, timestamp: createdAt }));
     state.sessions.set(id, stored);
+    state.keys.set(key, stored);
     return c.json({ session: { id, status: row.status, createdAt } }, 201);
   });
 

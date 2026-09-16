@@ -1,17 +1,18 @@
 // The submission envelope and what happens to it: identity belongs to a
 // submission, never to a page's view of the world. The composer mints the
-// task id and holds `{ taskId, deploymentId, repo, ref, text }` until the
-// first turn's admission receipt arrives, a duplicate receipt included. A
-// lost reply is retried with the same envelope; a conflict or a refusal
-// keeps the draft with the problem shown. Pure and unit-tested; the Composer
-// only drives it.
-import type { Task } from "../server/task";
+// task id and holds `{ taskId, repo, ref, text }` until the first turn's
+// admission receipt arrives, a duplicate receipt included. A lost reply is
+// retried with the same envelope and the same key, and while that outcome
+// is uncertain the primary action is that retry, never a fresh submission;
+// a conflict or a refusal keeps the draft with the problem shown. Which
+// deployment runs the task is the platform's choice, so the envelope
+// carries nothing about it. Pure and unit-tested; the Composer only drives
+// it.
 import type { ApiError } from "./api";
 import { ulid } from "./ulid";
 
 export interface Envelope {
   readonly taskId: string;
-  readonly deploymentId: string;
   readonly repo: string;
   readonly ref: string;
   readonly text: string;
@@ -34,19 +35,15 @@ export type Submission =
   | { readonly status: "idle" }
   | { readonly status: "submitting"; readonly envelope: Envelope; readonly attempt: number }
   | { readonly status: "failed"; readonly envelope: Envelope; readonly attempt: number; readonly problem: Problem }
-  | { readonly status: "done"; readonly envelope: Envelope; readonly task: Task; readonly receipt: Receipt };
+  | { readonly status: "done"; readonly envelope: Envelope; readonly id: string; readonly receipt: Receipt };
 
 export const IDLE: Submission = { status: "idle" };
 
 /** Retries a lost reply this many times before showing the problem. */
 export const AUTOMATIC_RETRIES = 2;
 
-export function compose(
-  fields: { repo: string; ref: string; text: string },
-  deploymentId: string,
-  taskId: string = ulid(),
-): Envelope {
-  return { taskId, deploymentId, repo: fields.repo, ref: fields.ref.trim(), text: fields.text.trim() };
+export function compose(fields: { repo: string; ref: string; text: string }, taskId: string = ulid()): Envelope {
+  return { taskId, repo: fields.repo, ref: fields.ref.trim(), text: fields.text.trim() };
 }
 
 export function begin(envelope: Envelope): Submission {
@@ -59,9 +56,9 @@ export function retry(state: Submission): Submission {
   return { status: "submitting", envelope: state.envelope, attempt: state.attempt + 1 };
 }
 
-export function succeed(state: Submission, outcome: { task: Task; receipt: Receipt }): Submission {
+export function succeed(state: Submission, outcome: { id: string; receipt: Receipt }): Submission {
   if (state.status !== "submitting") return state;
-  return { status: "done", envelope: state.envelope, task: outcome.task, receipt: outcome.receipt };
+  return { status: "done", envelope: state.envelope, id: outcome.id, receipt: outcome.receipt };
 }
 
 export function fail(state: Submission, cause: unknown): Submission {
@@ -72,6 +69,15 @@ export function fail(state: Submission, cause: unknown): Submission {
 /** Whether a failed submission should be sent again without asking. */
 export function shouldRetry(state: Submission): boolean {
   return state.status === "failed" && state.problem.retryable && state.attempt <= AUTOMATIC_RETRIES;
+}
+
+/**
+ * Whether the submission's outcome is still unknown: the request was sent
+ * and a lost reply or an outage came back. The platform may have admitted
+ * it, so the only honest next action is the same envelope again.
+ */
+export function isUncertain(state: Submission): boolean {
+  return state.status === "submitting" || (state.status === "failed" && state.problem.retryable);
 }
 
 export function problemOf(cause: unknown): Problem {

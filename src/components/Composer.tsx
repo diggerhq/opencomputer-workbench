@@ -1,8 +1,9 @@
 // The composer: pick a repository, name a base revision, describe the task.
 // It mints the task id, holds the envelope until the first turn's admission
 // receipt arrives, retries a lost reply with the same envelope, and keeps
-// the draft with the problem shown on a conflict or a refusal. Disabled
-// until the workspace bootstrap has answered.
+// the draft with the problem shown on a conflict or a refusal. While an
+// outcome is uncertain the primary action is that retry, so a second click
+// never mints a second task. Disabled until the workspace has answered.
 import { useQuery } from "@tanstack/react-query";
 import { FolderGit2, GitCommitHorizontal } from "lucide-react";
 import { useState } from "react";
@@ -12,12 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createTask, listRepos, type Task, type Workspace } from "@/lib/api";
+import { createTask, listRepos, type Workspace } from "@/lib/api";
 import {
   begin,
   compose,
   fail,
   IDLE,
+  isUncertain,
   type Problem,
   retry,
   type Submission,
@@ -34,7 +36,7 @@ function problemCopy(problem: Problem): string {
   return problem.message;
 }
 
-export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCreated: (task: Task) => void }) {
+export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCreated: (id: string) => void }) {
   const repos = useQuery({ queryKey: ["repos"], queryFn: listRepos, enabled: Boolean(workspace) });
   const [repo, setRepo] = useState("");
   const [ref, setRef] = useState("");
@@ -45,6 +47,9 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
   const selected = repositories.find((entry) => entry.fullName === repo);
   const ready = Boolean(workspace) && repos.isSuccess;
   const submitting = submission.status === "submitting";
+  // An uncertain outcome holds the draft and the envelope: the fields are
+  // read-only and the primary action retries the same submission.
+  const uncertain = isUncertain(submission);
   const canSubmit = ready && !submitting && repo !== "" && text.trim() !== "";
   const none = repos.isSuccess && repositories.length === 0;
 
@@ -60,7 +65,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
     if (next.status === "done") {
       setText("");
       setSubmission(IDLE);
-      onCreated(next.task);
+      onCreated(next.id);
       return;
     }
     setSubmission(next);
@@ -73,7 +78,11 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
 
   function submit() {
     if (!workspace || !canSubmit) return;
-    void send(begin(compose({ repo, ref: ref || selected?.defaultBranch || "", text }, workspace.deploymentId)));
+    if (submission.status === "failed" && submission.problem.retryable) {
+      void send(retry(submission));
+      return;
+    }
+    void send(begin(compose({ repo, ref: ref || selected?.defaultBranch || "", text })));
   }
 
   const problem = submission.status === "failed" && !shouldRetry(submission) ? submission : undefined;
@@ -89,7 +98,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
               const chosen = repositories.find((entry) => entry.fullName === value);
               if (chosen && (ref === "" || ref === selected?.defaultBranch)) setRef(chosen.defaultBranch);
             }}
-            disabled={!ready || submitting || none}
+            disabled={!ready || uncertain || none}
           >
             <SelectTrigger className="w-full font-mono md:col-span-2" aria-label="Repository">
               <span className="flex min-w-0 flex-1 items-center gap-2 text-left">
@@ -117,7 +126,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
               value={ref}
               onChange={(event) => setRef(event.target.value)}
               disabled={!ready}
-              readOnly={submitting}
+              readOnly={uncertain}
             />
           </div>
         </div>
@@ -131,7 +140,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
             if ((event.metaKey || event.ctrlKey) && event.key === "Enter") submit();
           }}
           disabled={!ready}
-          readOnly={submitting}
+          readOnly={uncertain}
         />
         {problem ? (
           <p role="alert" className="rounded-md bg-status-failed-bg px-3 py-2 text-sm text-status-failed">
@@ -169,7 +178,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
           </KbdGroup>
         </p>
         <Button type="button" className="w-full md:w-auto" disabled={!canSubmit} onClick={submit}>
-          {submitting ? "Starting…" : "Start task"}
+          {submitting ? "Starting…" : uncertain ? "Retry" : "Start task"}
         </Button>
       </CardFooter>
     </Card>

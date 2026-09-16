@@ -51,8 +51,9 @@ The Worker needs no datastore, queue or cron job. For a local Worker preview,
 run `npm run build`, put the configuration in `.dev.vars` and run
 `npx wrangler dev`.
 
-The web app and agent deploy independently. Existing tasks keep their pinned
-agent deployment when you publish another version.
+The web app and agent deploy independently. Publishing another agent version
+changes new tasks only; a task already started keeps the deployment the
+platform recorded for it.
 
 ## Access
 

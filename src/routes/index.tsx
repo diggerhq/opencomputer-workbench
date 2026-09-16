@@ -30,9 +30,9 @@ function TasksPage() {
       <h1 className="sr-only">Tasks</h1>
       <Composer
         workspace={workspace}
-        onCreated={(task) => {
+        onCreated={(id) => {
           void client.invalidateQueries({ queryKey: ["tasks"] });
-          void navigate({ to: "/tasks/$id", params: { id: task.id } });
+          void navigate({ to: "/tasks/$id", params: { id } });
         }}
       />
       <Card data-slot="task-list" role="region" aria-label="Tasks" className="gap-0 py-0">
