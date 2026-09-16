@@ -3,7 +3,9 @@
 // JSON Schema below is the definition: the tool declares it to the model,
 // the `Report` type is derived from it, and the app (src/lib/report.ts)
 // builds its parser from the same object. The dependency runs one way: the
-// app reads this file, this file reads nothing of the app.
+// app reads this file, this file reads nothing of the app. The compiler reads
+// the schema from the syntax tree, so the literal below holds no identifiers,
+// spreads or calls; the patterns are spelled out where they are used.
 //
 // Every field is optional because the agent reports what it knows so far and
 // calls again as more becomes known; the latest committed call is the
@@ -13,8 +15,6 @@
 // it stays the agent's claim, tied to the command it names.
 import { type DataValue, defineTool } from "@opencomputer/agent";
 import type { FromSchema } from "json-schema-to-ts";
-
-const SHA = "^[0-9a-f]{40}$";
 
 export const REPORT_JSON_SCHEMA = {
   type: "object",
@@ -27,7 +27,7 @@ export const REPORT_JSON_SCHEMA = {
     },
     baseSha: {
       type: "string",
-      pattern: SHA,
+      pattern: "^[0-9a-f]{40}$",
       description: "The resolved base commit the work started from, as a full sha",
     },
     branch: {
@@ -38,7 +38,7 @@ export const REPORT_JSON_SCHEMA = {
     },
     commit: {
       type: "string",
-      pattern: SHA,
+      pattern: "^[0-9a-f]{40}$",
       description: "The tested commit at the head of the work branch, as a full sha; it must be pushed",
     },
     pr: {
@@ -103,7 +103,7 @@ function record(value: unknown): Record<string, unknown> | undefined {
     : undefined;
 }
 
-const SHA_PATTERN = new RegExp(SHA);
+const SHA_PATTERN = new RegExp(REPORT_JSON_SCHEMA.properties.commit.pattern);
 const REPO_PATTERN = new RegExp(REPORT_JSON_SCHEMA.properties.repo.pattern);
 
 /**
