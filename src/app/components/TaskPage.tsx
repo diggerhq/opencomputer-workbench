@@ -249,7 +249,14 @@ export function TaskPage({ id }: { id: string }) {
                   activeTurnId={running?.id}
                   ended={ended}
                   archived={current?.archived ?? false}
-                  onStop={stop}
+                  onStop={() =>
+                    // The published hook rejects when the interrupt request was
+                    // not answered with success; settlement itself arrives in turns.
+                    stop().catch((cause: unknown) => {
+                      console.error(cause);
+                      toast.error(cause instanceof Error ? cause.message : "The stop was not requested.");
+                    })
+                  }
                   onArchive={current && !archive.isPending ? () => archive.mutate(!current.archived) : undefined}
                   onEnd={current && !end.isPending ? () => end.mutate() : undefined}
                 />
