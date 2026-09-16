@@ -96,15 +96,12 @@ Complete the agent and access setup above, then use a
 [deploy button in the README](../README.md#run-it), or deploy your fork with
 the checked-in host configuration:
 
-| Host | Configuration | App environment |
-| --- | --- | --- |
-| Cloudflare Workers | [`wrangler.jsonc`](../wrangler.jsonc) | Worker secrets |
-| Vercel | [`vercel.json`](../vercel.json) | Project environment variables |
-
-Both serve `dist/client` and run the same Hono handler. Build with
-`npm run build`. Neither host needs a datastore, queue or cron job.
-For a local Worker preview, build first, put the configuration in `.dev.vars`
-and run `npx wrangler dev`.
+The host is Cloudflare Workers, configured in [`wrangler.jsonc`](../wrangler.jsonc)
+with the application variables as Worker secrets. `npm run build` produces
+the one artifact, the client assets and the Worker, and `npm run deploy`
+builds and ships it. The Worker needs no datastore, queue or cron job. For a
+local Worker preview, build first, put the configuration in `.dev.vars` and
+run `npx wrangler dev`.
 
 Set the same application variables as in `.env.local`, with
 `WORKBENCH_ORIGIN` set to the deployed app's HTTPS origin. Register
