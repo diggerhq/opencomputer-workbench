@@ -27,7 +27,6 @@ one deployed definition serves every task. Here is the
 
 ```ts
 export default function Worker() {
-  const task = readTask(useInput())?.task;
   useModel("anthropic/claude-sonnet-4.6");
   useConnection(github);
   useTool("shell");
@@ -37,6 +36,7 @@ export default function Worker() {
   useTool("glob");
   useTool("grep");
   useTool(report);
+  const task = readTask(useInput())?.task;
 
   return [
     task && `Work on ${task.repo} at ${task.ref}.`,
