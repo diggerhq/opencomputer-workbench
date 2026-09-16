@@ -1,6 +1,6 @@
-// The worker: one agent, one connection, one tool, one model. Everything
-// about coding, git and GitHub is the harness and the managed connection;
-// this file only says what to do and how to report it.
+// The worker: one agent, one connection, the computer, one tool of its own
+// and one model. Everything about coding, git and GitHub is the harness and
+// the managed connection; this file only says what to do and how to report it.
 import { defineConnection, githubApp, useConnection, useInput, useModel, useTool } from "@opencomputer/agent";
 import { readTask } from "./read-task";
 import { report } from "./tools/report";
@@ -14,6 +14,14 @@ export default function Worker() {
   const input = useInput();
   useModel("anthropic/claude-sonnet-4.6");
   useConnection(github);
+  // The computer: the harness's shell and filesystem, offered to the model
+  // only when declared here; the computer starts on the first command.
+  useTool("shell");
+  useTool("sandbox_exec");
+  useTool("read");
+  useTool("write");
+  useTool("glob");
+  useTool("grep");
   useTool(report);
   const read = readTask(input);
   const task = read?.task;

@@ -11,18 +11,18 @@ describe("ResultCard", () => {
   it("renders the published stage with the PR, the checks and the compare link", () => {
     const result = latestResult(reduce("completed"));
     if (!result) throw new Error("no result");
-    render(<ResultCard {...result} reportedBy="turn 1" repo="acme/service" baseRef="main" />);
+    render(<ResultCard {...result} reportedBy="turn 1" repo="diggerhq/opencomputer-workbench" baseRef="main" />);
     expect(screen.getByText("published").className).toContain("text-status-ready-for-review");
     expect(screen.getByText("reported by turn 1")).toBeTruthy();
-    expect(screen.getByText("#482 draft").closest("a")?.getAttribute("href")).toBe(
-      "https://github.com/acme/service/pull/482",
+    expect(screen.getByText("#19 draft").closest("a")?.getAttribute("href")).toBe(
+      "https://github.com/diggerhq/opencomputer-workbench/pull/19",
     );
     expect(screen.getByText("(reported)")).toBeTruthy();
     const compare = screen.getByText(/^Compare/).closest("a");
     expect(compare?.getAttribute("href")).toBe(
-      `https://github.com/acme/service/compare/${result.report.baseSha}...${result.report.commit}`,
+      `https://github.com/diggerhq/opencomputer-workbench/compare/${result.report.baseSha}...${result.report.commit}`,
     );
-    expect(screen.getByText("a1b2c3d")).toBeTruthy();
+    expect(screen.getByText("efbf829")).toBeTruthy();
     expect(screen.getByText("main")).toBeTruthy();
   });
 

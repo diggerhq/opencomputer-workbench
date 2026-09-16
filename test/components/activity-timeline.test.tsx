@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { commandOutcome } from "../../src/app/activity";
 import { ActivityTimeline } from "../../src/app/components/ActivityTimeline";
 import { failureCopy } from "../../src/app/vocabulary";
 import { reduce } from "./helpers";
@@ -13,40 +14,43 @@ function callIds(container: HTMLElement): string[] {
 
 describe("ActivityTimeline", () => {
   it("renders every call keyed by its id, collapsed, and expands to the output with the expander", () => {
-    const { container } = render(<ActivityTimeline turns={reduce("completed").turns} isReplaying={false} />);
-    expect(callIds(container)).toEqual([
-      "toolu_01clone",
-      "toolu_02ci",
-      "toolu_03lint",
-      "toolu_04test",
-      "toolu_05push",
-      "toolu_06report",
-    ]);
+    const { turns } = reduce("completed");
+    const { container } = render(<ActivityTimeline turns={turns} isReplaying={false} />);
+    // Every call of the recording in log order, keyed by the runtime's call id.
+    const recorded = turns.flatMap((turn) => turn.toolCalls.map((call) => call.callId));
+    expect(recorded).toHaveLength(38);
+    expect(callIds(container)).toEqual(recorded);
     expect(container.querySelector("pre")).toBeNull();
-    expect(screen.getByText("38 s · 142 lines")).toBeTruthy();
-    const ci = container.querySelector('li[data-call-id="toolu_02ci"]') as HTMLElement;
-    fireEvent.click(within(ci).getByRole("button", { name: "Show output" }));
-    const output = ci.querySelector("pre") as HTMLElement;
-    expect(output.textContent).toContain("package-0");
-    expect(output.textContent).toContain("…and 102 more lines");
-    fireEvent.click(within(ci).getByRole("button", { name: "Show all" }));
-    expect(ci.querySelector("pre")?.textContent).toContain("added 612 packages");
-    expect(ci.querySelector("pre")?.textContent).not.toContain("more lines");
-    fireEvent.click(within(ci).getByRole("button", { name: "Hide output" }));
-    expect(ci.querySelector("pre")).toBeNull();
+    // The install that finally brought the dev dependencies: 3 min 30 s, ten lines.
+    expect(screen.getByText("3 min 30 s · 10 lines")).toBeTruthy();
+    // The repository's check: 199 lines of output, collapsed to the preview.
+    const checkId = "toolu_01LWthA6E1RHsN7QnrWHTMVb";
+    const checkCall = turns[0]?.toolCalls.find((call) => call.callId === checkId);
+    if (!checkCall) throw new Error("the recording has no check call");
+    const hidden = commandOutcome(checkCall).lines - 40;
+    expect(hidden).toBeGreaterThan(100);
+    const check = container.querySelector(`li[data-call-id="${checkId}"]`) as HTMLElement;
+    fireEvent.click(within(check).getByRole("button", { name: "Show output" }));
+    const output = check.querySelector("pre") as HTMLElement;
+    expect(output.textContent).toContain("> opencomputer-workbench@0.0.1 check");
+    expect(output.textContent).toContain(`…and ${String(hidden)} more lines`);
+    fireEvent.click(within(check).getByRole("button", { name: "Show all" }));
+    expect(check.querySelector("pre")?.textContent).toContain("Test Files");
+    expect(check.querySelector("pre")?.textContent).not.toContain("more lines");
+    fireEvent.click(within(check).getByRole("button", { name: "Hide output" }));
+    expect(check.querySelector("pre")).toBeNull();
   });
 
   it("shows a non-zero exit in the failed tone and the report call as its fields", () => {
     const { container } = render(<ActivityTimeline turns={reduce("completed").turns} isReplaying={false} />);
-    expect(screen.getByText("exit 1 · 1.1 s").parentElement?.className).toContain("text-status-failed");
-    const report = container.querySelector('li[data-call-id="toolu_06report"]') as HTMLElement;
+    expect(screen.getByText("exit 1 · 43 s").parentElement?.className).toContain("text-status-failed");
+    const report = container.querySelector('li[data-call-id="toolu_017rPXUY1Ng9kbJCw6fvKYV5"]') as HTMLElement;
     fireEvent.click(within(report).getByRole("button", { name: "Show output" }));
-    expect(within(report).getByText("#482 draft").closest("a")?.getAttribute("href")).toBe(
-      "https://github.com/acme/service/pull/482",
+    expect(within(report).getByText("#19 draft").closest("a")?.getAttribute("href")).toBe(
+      "https://github.com/diggerhq/opencomputer-workbench/pull/19",
     );
     expect(screen.getAllByRole("heading", { level: 4 }).map((heading) => heading.textContent)).toEqual([
       expect.stringContaining("Turn 1"),
-      expect.stringContaining("Turn 2"),
     ]);
   });
 

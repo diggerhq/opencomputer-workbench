@@ -5,11 +5,18 @@ names, and the list responses the page states use. `toTask` is unit-tested
 over every one of them (`test/task.test.ts`), so each state renders without a
 live run.
 
-**These rows are AUTHORED**, not recorded: they follow the C1 seam of the
-workbench design at its pinned revision `1c07584` (`labels`, `activity`,
-`revision`, `result` with the report tool's data). They must be replaced by
-recordings from real Development sessions once the labels, listing and typed
-result contracts ship, keeping the same file names.
+**`recorded/` holds recordings; the rest is authored.** `recorded/first-run.json`
+is the list row of the workbench's first real task on Development
+(2026-09-16, session `ca088683-e3fe-d635-09e3-a22d89b649f1`), read from the
+filtered list with `label.request`; `ready-published.json` is the same row
+byte for byte, so that state renders from a real row; keep the two files
+identical. The other rows follow the C1 seam of the workbench design at its
+pinned revision `1c07584` (`labels`, `activity`, `revision`, `result` with the
+report tool's data) and are replaced by recordings of the same state as they
+are made, keeping the file names. The recorded row confirmed the seam:
+`activity.lastSettledTurn` is `{ id, status, at }`, `result` is
+`{ turnId, callId, reportedAt, data }` with `data.repo` present, and
+`environment` is set.
 
 | File | State |
 | --- | --- |
@@ -23,7 +30,7 @@ result contracts ship, keeping the same file names.
 | `idle-old-result.json` | Idle; the result was reported by an earlier turn than the last settled one |
 | `result-base.json` | Idle; the agent reported only the resolved base commit |
 | `ready-changes.json` | Idle; the last turn reported a tested commit on the pushed branch |
-| `ready-published.json` | Idle; the last turn reported a draft pull request |
+| `ready-published.json` | Recorded: idle; the last turn reported a draft pull request with a failed check |
 | `failed.json` | The last turn failed with `runtime_lost` |
 | `archived.json` | Archived and working at the same time |
 | `ended.json` | The session ended; read-only |

@@ -1,6 +1,6 @@
 import { Check, ChevronRight, Clock, X } from "lucide-react";
 import { useState } from "react";
-import { type CommandOutcome, commandOf, commandOutcome, type ToolCall } from "@/activity";
+import { type CommandOutcome, commandOf, commandOutcome, parseOutput, type ToolCall } from "@/activity";
 import { reportSchema } from "../../lib/report";
 import { formatDuration } from "./format";
 import { ResultFields } from "./ResultCard";
@@ -87,8 +87,9 @@ function OutputBlock({ text }: { text: string }) {
 }
 
 function ReportBody({ call }: { call: ToolCall }) {
-  const parsed = reportSchema.safeParse(call.output ?? call.input);
-  if (!parsed.success) return <OutputBlock text={JSON.stringify(call.output ?? call.input ?? {}, null, 2)} />;
+  const output = parseOutput(call.output) ?? call.input;
+  const parsed = reportSchema.safeParse(output);
+  if (!parsed.success) return <OutputBlock text={JSON.stringify(output ?? {}, null, 2)} />;
   return (
     <div className="my-2 rounded-md bg-surface p-3">
       <ResultFields report={parsed.data} />

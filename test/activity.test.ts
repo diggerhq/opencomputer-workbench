@@ -79,9 +79,17 @@ describe("the activity the page shows", () => {
     expect(result?.turnNumber).toBe(1);
     expect(result?.stage).toBe("published");
     expect(result?.fromLastTurn).toBe(true);
-    expect(result?.report.pr?.number).toBe(482);
-    expect(activity.turns[0]?.toolCalls.find((call) => call.tool === "report")?.result).toBe(true);
-    expect(activity.turns[1]?.status).toBe("queued");
+    expect(result?.report.pr?.number).toBe(19);
+    expect(result?.report.repo).toBe("diggerhq/opencomputer-workbench");
+    // The recording: two report calls the verifier rejected (a branch not yet
+    // pushed, then a mistyped sha), then the one that committed.
+    const reports = activity.turns[0]?.toolCalls.filter((call) => call.tool === "report") ?? [];
+    expect(reports.map((call) => [call.status, call.result === true])).toEqual([
+      ["failed", false],
+      ["failed", false],
+      ["completed", true],
+    ]);
+    expect(activity.turns).toHaveLength(1);
   });
 
   it("carries a failed turn's code and what settled its open call", () => {
