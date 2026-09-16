@@ -15,7 +15,7 @@ the app—while tasks continue.
 ## Components
 
 - **Worker agent**, built on [OpenComputer Serverless Agents](https://docs.opencomputer.dev/agents/overview).
-- **Web app**, built with TanStack Start and hosted on Cloudflare Workers.
+- **Web app**, built with TanStack Start and suitable for edge hosting, such as Cloudflare.
 
 ### Worker agent
 
@@ -158,8 +158,8 @@ all tasks and connected repositories.
 
 ## Host the app
 
-After the quickstart, [configure the hosted origin and secrets](docs/setup.md#host-the-web-app)
-and deploy the app to Cloudflare Workers:
+Cloudflare is one hosting option; its configuration and deploy button are
+included here. After the quickstart, [configure the hosted origin and secrets](docs/setup.md#host-the-web-app):
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/diggerhq/opencomputer-workbench)
 

@@ -30,7 +30,8 @@ per environment; see [GitHub connections](https://docs.opencomputer.dev/agents/g
 
 ## Host the web app
 
-Complete the [local quickstart](../README.md#quickstart), then use the
+This example includes configuration for Cloudflare. Complete the
+[local quickstart](../README.md#quickstart), then use the
 [deploy button](../README.md#host-the-app) or deploy your fork with the
 checked-in [`wrangler.jsonc`](../wrangler.jsonc).
 
