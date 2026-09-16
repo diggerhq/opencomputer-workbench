@@ -112,7 +112,11 @@ handler.
 
 ## Run it
 
-You need Node.js 22:
+### Prerequisites
+
+- **Node.js 22**
+- An **OpenComputer account** and organization API key
+- An authenticated **[GitHub CLI](https://cli.github.com/)** (used to resolve the membership rule)
 
 ```sh
 git clone https://github.com/diggerhq/opencomputer-workbench.git
@@ -126,9 +130,9 @@ and configure GitHub sign-in. Then run `npm run dev` and open
 
 Start a task and wait for it to run. Stop the local web server, restart it,
 and reopen the task. Review the draft PR, then ask for a follow-up such as
-“cover the empty-input case too.” The agent updates the same PR.
+"cover the empty-input case too." The agent updates the same PR.
 
-To explore the UI with sample tasks first—no credentials required or live
+To explore the UI with sample tasks first—no credentials required and no live
 agents started:
 
 ```sh
@@ -148,7 +152,12 @@ repositories; there are no per-user repository permissions.
 
 ## Develop
 
-`npm run check` runs typechecks, lint, unit tests and the build.
-`npm run test:e2e` exercises the UI with Playwright.
-`npm run deploy:agents` publishes the worker to Development independently of
-the web app. See [AGENTS.md](AGENTS.md) for the source map and commands.
+| Command | What it does |
+| --- | --- |
+| `npm run check` | Typechecks, lint, unit tests and build — what CI runs |
+| `npm run test:e2e` | End-to-end UI tests with Playwright |
+| `npm run dev` | Local dev server on port 3200 with hot reload |
+| `npm run dev:fixtures` | Same server over sample fixtures, browser opened pre-signed-in |
+| `npm run deploy:agents` | Publishes the worker to the Development environment |
+
+See [AGENTS.md](AGENTS.md) for the full source map and all available commands.
