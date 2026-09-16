@@ -102,7 +102,7 @@ export function ToolCallRow({ call, expanded, onToggle }: { call: ToolCall; expa
   const command = call.tool === "report" ? "" : commandOf(call);
   const hasBody = call.tool === "report" || outcome.text.length > 0;
   return (
-    <li data-call-id={call.callId} className="text-sm">
+    <li data-call-id={call.callId} className="min-w-0 text-sm">
       <button
         type="button"
         aria-expanded={expanded}
@@ -111,7 +111,7 @@ export function ToolCallRow({ call, expanded, onToggle }: { call: ToolCall; expa
         className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left hover:bg-hover"
       >
         <ChevronRight aria-hidden="true" className="chevron size-4 shrink-0 text-muted-foreground" />
-        <span className="w-14 shrink-0 truncate text-xs font-medium text-muted-foreground">{call.tool}</span>
+        <span className="w-14 shrink-0 truncate text-xs text-muted-foreground">{call.tool}</span>
         <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground" title={command || undefined}>
           {command}
         </span>
@@ -120,7 +120,7 @@ export function ToolCallRow({ call, expanded, onToggle }: { call: ToolCall; expa
         </span>
       </button>
       {expanded ? (
-        <div className="pl-8">
+        <div className="pb-1 pl-8">
           {call.tool === "report" ? (
             <ReportBody call={call} />
           ) : hasBody ? (

@@ -27,9 +27,9 @@ const SKELETON_ROWS = ["first", "second", "third"] as const;
 /** Three rows of the row's own shape: the status, title and stage columns, so nothing shifts when the rows arrive. */
 function SkeletonRows() {
   return (
-    <ul aria-hidden="true" className="divide-y">
+    <ul aria-hidden="true" className="py-2">
       {SKELETON_ROWS.map((row) => (
-        <li key={row} className="flex h-14 items-center gap-4 px-4">
+        <li key={row} className="flex h-16 items-center gap-4 px-5">
           <span className="hidden w-32 shrink-0 md:block">
             <Skeleton className="h-3 w-20" />
           </span>
@@ -58,7 +58,7 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
   if (query.isError) {
     const code = query.error instanceof ApiError ? query.error.code : "network_error";
     return (
-      <div className="flex min-h-40 flex-col items-center justify-center gap-4 px-4 text-center">
+      <div className="flex min-h-48 flex-col items-center justify-center gap-4 px-5 text-center">
         <p className="text-sm text-muted-foreground" role="alert">
           Couldn't load tasks. <span className="font-mono text-xs">{code}</span>
         </p>
@@ -73,7 +73,7 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
   const tasks = query.data.pages.flatMap((page) => page.tasks);
   if (tasks.length === 0) {
     return (
-      <div className="flex min-h-40 flex-col items-center justify-center gap-2 px-4 text-center">
+      <div className="flex min-h-48 flex-col items-center justify-center gap-3 px-5 text-center">
         <span
           aria-hidden="true"
           className="grid size-8 place-items-center rounded-full bg-surface text-muted-foreground"
@@ -89,7 +89,7 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
 
   return (
     <>
-      <ul className="divide-y">
+      <ul className="py-2">
         {tasks.map((task) => (
           <TaskRow
             key={task.id}
@@ -102,7 +102,7 @@ export function TaskList({ query, archived }: { query: TasksQuery; archived: boo
       {query.isFetchingNextPage ? (
         <SkeletonRows />
       ) : (
-        <div className="flex h-12 items-center justify-center border-t bg-surface">
+        <div className="flex h-14 items-center justify-center">
           {query.hasNextPage ? (
             <Button type="button" variant="outline" size="sm" onClick={() => void query.fetchNextPage()}>
               Load more

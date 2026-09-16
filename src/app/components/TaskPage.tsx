@@ -65,16 +65,16 @@ function Meta({ children, title }: { children: React.ReactNode; title?: string }
 function Header({ task, id }: { task: Task | undefined; id: string }) {
   if (!task) {
     return (
-      <header aria-busy="true" className="grid gap-2">
+      <header aria-busy="true" className="grid gap-3">
         <Skeleton className="h-7 w-2/3" />
         <Skeleton className="h-5 w-1/2" />
       </header>
     );
   }
   return (
-    <header className="grid gap-2">
-      <div className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between md:gap-4">
-        <h2 className="min-w-0 text-xl font-semibold tracking-tight">{task.title}</h2>
+    <header className="grid gap-3">
+      <div className="flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
+        <h2 className="min-w-0 text-xl font-medium tracking-tight">{task.title}</h2>
         <StatusBadge state={displayStateOf(task)} queued={task.queued} variant="full" className="shrink-0" />
       </div>
       <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
@@ -189,7 +189,7 @@ export function TaskPage({ id }: { id: string }) {
   const actorLogin = current?.actor.login || "you";
 
   return (
-    <main className="flex flex-1 flex-col gap-6 py-6 pb-16">
+    <main className="flex flex-1 flex-col gap-8 pt-8 pb-24">
       <div className="flex h-8 items-center">
         <Link
           to="/"
@@ -205,10 +205,10 @@ export function TaskPage({ id }: { id: string }) {
           {task.error.message}
         </p>
       ) : null}
-      <div className="flex flex-col gap-6 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-8">
-        <div className="contents lg:col-span-5 lg:flex lg:flex-col lg:gap-6">
-          <section aria-label="Request" className="order-1 grid gap-2">
-            <h3 className="text-sm font-medium">Request</h3>
+      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-10">
+        <div className="contents lg:col-span-5 lg:flex lg:flex-col lg:gap-10">
+          <section aria-label="Request" className="order-1 grid gap-3">
+            <h3 className="text-sm font-medium text-muted-foreground">Request</h3>
             {first ? (
               <Card>
                 <CardContent>
@@ -225,9 +225,9 @@ export function TaskPage({ id }: { id: string }) {
             {result ? (
               <ResultCard {...result} repo={current?.repo} baseRef={current?.ref} />
             ) : isReplaying || task.isPending ? null : (
-              <section aria-label="Result" className="grid gap-2">
-                <h3 className="text-sm font-medium">Result</h3>
-                <p className="rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground">
+              <section aria-label="Result" className="grid gap-3">
+                <h3 className="text-sm font-medium text-muted-foreground">Result</h3>
+                <p className="rounded-xl border border-dashed px-5 py-4 text-sm text-muted-foreground">
                   No result reported yet
                 </p>
               </section>

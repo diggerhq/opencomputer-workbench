@@ -80,8 +80,8 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
 
   return (
     <Card data-slot="composer" role="region" aria-label="New task">
-      <CardContent className="grid gap-2">
-        <div className="grid gap-2 md:grid-cols-3">
+      <CardContent className="grid gap-3">
+        <div className="grid gap-3 md:grid-cols-3">
           <Select
             value={repo}
             onValueChange={(value) => {
@@ -160,7 +160,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
           </p>
         ) : null}
       </CardContent>
-      <CardFooter className="justify-between gap-4">
+      <CardFooter className="justify-between gap-4 border-0 bg-transparent pt-0">
         <p className="hidden items-center gap-2 text-xs text-muted-foreground md:flex">
           The agent clones the repository, works on a branch and opens a draft pull request.
           <KbdGroup aria-label="Command Enter starts the task">

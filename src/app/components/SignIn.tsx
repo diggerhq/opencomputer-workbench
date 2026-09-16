@@ -17,7 +17,7 @@ export function SignIn({ reason }: { reason?: string }) {
       <Card className="w-full max-w-sm">
         <CardHeader className="gap-2">
           <Wordmark className="mb-4" />
-          <CardTitle className="text-xl font-semibold tracking-tight">Sign in to the workbench</CardTitle>
+          <CardTitle className="text-xl font-medium tracking-tight">Sign in to the workbench</CardTitle>
           <CardDescription className="text-base">
             Hand a repository task to an agent, leave, and come back to a tested branch and a draft pull request.
           </CardDescription>

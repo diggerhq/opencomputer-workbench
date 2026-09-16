@@ -15,7 +15,7 @@ export function Mark({ className }: { className?: string }) {
 
 export function Wordmark({ className }: { className?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5 font-semibold tracking-tight", className)}>
+    <span className={cn("inline-flex items-center gap-2.5 font-medium tracking-tight", className)}>
       <Mark />
       Workbench
     </span>

@@ -126,7 +126,7 @@ button {
   margin: 0;
   font-size: var(--text-xl);
   line-height: var(--leading-xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
 }
 
 .identity {
