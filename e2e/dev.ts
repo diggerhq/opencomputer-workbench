@@ -51,7 +51,10 @@ async function cookie(env: Record<string, string>): Promise<string> {
       project: config.oc.projectId,
       environment: config.oc.environment,
     },
-    checkedAt: now,
+    // The fixture token cannot be re-checked against GitHub, and the app
+    // re-checks membership an hour after the last check; date the check at
+    // the end of the cookie's life so the walkthrough never signs you out.
+    checkedAt: now + 23 * 60 * 60 * 1000,
     token: "fixture-token",
     exp: now + 24 * 60 * 60 * 1000,
   };
