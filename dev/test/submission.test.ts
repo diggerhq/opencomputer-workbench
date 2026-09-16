@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { ApiError } from "../../src/lib/api";
 import { AUTOMATIC_RETRIES, begin, compose, fail, IDLE, retry, shouldRetry, succeed } from "../../src/lib/submission";
 import { ULID_PATTERN, ulid } from "../../src/lib/ulid";
-import type { Task } from "../../src/server/task";
+import type { Task } from "../../src/shared/task";
 
 const task = { id: "ses_new", execution: "queued" } as Task;
 const receipt = { turnId: "t1", status: "queued" as const, duplicate: false };

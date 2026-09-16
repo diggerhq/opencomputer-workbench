@@ -8,7 +8,8 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { routeTree } from "../../../src/routeTree.gen";
 import type { SessionSummary } from "../../../src/server/client";
-import { type Task, toTask } from "../../../src/server/task";
+import { toTask } from "../../../src/server/task";
+import type { Task } from "../../../src/shared/task";
 import { load } from "./helpers";
 
 const ROWS = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "fixtures", "rows");

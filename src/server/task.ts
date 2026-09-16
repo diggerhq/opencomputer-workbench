@@ -2,56 +2,9 @@
 // session; its three facets, execution, archived and result, are projected
 // independently from the row (the design's Task lifecycle) and never stored.
 // Pure: a row and a clock in, a task out; unit-tested over the row fixtures.
-import { type Report, type ReportStage, reportSchema, reportStage } from "../lib/report";
+import { type Report, reportSchema, reportStage } from "../shared/report";
+import { type Execution, LABEL_BOUNDS, LABELS, type Task } from "../shared/task";
 import type { Session, SessionSummary, Turn } from "./client";
-
-export type Execution = "starting" | "not_started" | "queued" | "working" | "stopping" | "idle" | "failed" | "ended";
-
-export interface Task {
-  /** The session id: the URL and the app's identity after creation. */
-  readonly id: string;
-  readonly execution: Execution;
-  /** Turns admitted and waiting behind the running one. */
-  readonly queued: number;
-  /** The public failure code of the last failed turn, when the row carries it. */
-  readonly failure?: { readonly code: string };
-  readonly archived: boolean;
-  readonly result?: Report & {
-    readonly turnId: string;
-    readonly reportedAt: string;
-    readonly stage: ReportStage;
-    /** Whether the reporting turn is the last settled one. */
-    readonly fromLastTurn: boolean;
-  };
-  readonly title: string;
-  readonly repo: string;
-  readonly ref: string;
-  readonly actor: { readonly id: number; readonly login: string };
-  /** The predecessor task, when this one continues another. */
-  readonly continues?: string;
-  readonly createdAt: string;
-  readonly updatedAt: string;
-}
-
-/** The label keys the app writes; labels organize, they are neither authority nor proof. */
-export const LABELS = Object.freeze({
-  request: "request",
-  title: "title",
-  repo: "repo",
-  ref: "ref",
-  actorId: "actor_id",
-  actorLogin: "actor_login",
-  continues: "continues",
-  archived: "archived",
-});
-
-/** The C1 bounds on the label map. */
-export const LABEL_BOUNDS = Object.freeze({
-  key: /^[a-z][a-z0-9_.-]{0,63}$/,
-  valueLength: 256,
-  keys: 16,
-  bytes: 4096,
-});
 
 export class LabelError extends Error {
   constructor(message: string) {

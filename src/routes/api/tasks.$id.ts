@@ -1,13 +1,13 @@
-// GET /api/tasks/:id: one task, the session fetched, scope-checked and
-// mapped by toTask. PATCH /api/tasks/:id: title and archived, as labels.
+// GET /api/tasks/:id: one task, the session the guard fetched and
+// scope-checked, mapped by toTask. PATCH /api/tasks/:id: title and
+// archived, as labels.
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { createClient, untilPublished } from "@/server/client";
-import { config, deps } from "@/server/env";
+import { untilPublished } from "@/server/client";
 import { handle, problem } from "@/server/problem";
-import { workbenchSession } from "@/server/scope";
-import { boundLabels, LABEL_BOUNDS, LABELS, summarize, toTask } from "@/server/task";
-import { type Handled, member } from "../-middleware";
+import { boundLabels, summarize, toTask } from "@/server/task";
+import { LABEL_BOUNDS, LABELS } from "@/shared/task";
+import { type HandledTask, task } from "../-guards";
 
 const patchBody = z
   .object({
@@ -18,28 +18,23 @@ const patchBody = z
 
 export const Route = createFileRoute("/api/tasks/$id")({
   server: {
-    middleware: [member],
+    middleware: [task],
     handlers: {
-      GET: handle(async ({ params }: Handled<{ id: string }>) => {
-        const settings = config();
-        const { fetch, now } = deps();
-        const session = await workbenchSession(createClient(settings, fetch), settings, params.id);
+      GET: handle(async ({ context }: HandledTask) => {
+        const { config: settings, session, now } = context;
         return Response.json({ task: toTask(summarize(session, settings.oc.projectId), now()) });
       }),
-      PATCH: handle(async ({ request, params }: Handled<{ id: string }>) => {
-        const settings = config();
-        const { fetch, now } = deps();
-        const oc = createClient(settings, fetch);
+      PATCH: handle(async ({ request, context }: HandledTask) => {
+        const { config: settings, client: oc, now } = context;
         const parsed = patchBody.safeParse(await request.json().catch(() => undefined));
         if (!parsed.success) {
           return problem(400, "invalid_patch", parsed.error.issues[0]?.message ?? "Invalid change");
         }
-        await workbenchSession(oc, settings, params.id);
         const set = boundLabels({
           ...(parsed.data.title !== undefined ? { [LABELS.title]: parsed.data.title } : {}),
           ...(parsed.data.archived !== undefined ? { [LABELS.archived]: parsed.data.archived ? "true" : "false" } : {}),
         });
-        const session = await untilPublished(() => oc.sessions.setLabels(params.id, { set }));
+        const session = await untilPublished(() => oc.sessions.setLabels(context.session.id, { set }));
         return Response.json({ task: toTask(summarize(session, settings.oc.projectId), now()) });
       }),
     },

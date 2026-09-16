@@ -14,7 +14,7 @@ export class ScopeError extends Error {
 }
 
 /** The bare agent id: `worker` from `worker` or `worker@development`. */
-export function bareAgentId(agentId: string): string {
+function bareAgentId(agentId: string): string {
   const at = agentId.indexOf("@");
   return at < 0 ? agentId : agentId.slice(0, at);
 }

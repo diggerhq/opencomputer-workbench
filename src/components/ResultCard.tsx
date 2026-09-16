@@ -2,8 +2,8 @@ import { ArrowUpRight, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { shortSha } from "@/lib/format";
-import type { Report, ReportStage } from "@/lib/report";
 import { cn } from "@/lib/utils";
+import type { Report, TaskResult } from "@/shared/report";
 
 function Row({ term, children }: { term: string; children: React.ReactNode }) {
   return (
@@ -106,19 +106,18 @@ export function ResultFields({ report, repo, baseRef }: { report: Report; repo?:
   );
 }
 
-export interface ResultCardProps {
-  readonly report: Report;
-  readonly stage: ReportStage;
-  /** "turn 1" from the log, or the row's turn until the log has replayed. */
-  readonly reportedBy: string;
-  /** The reporting turn is the last settled one; otherwise the card says which turn it came from. */
-  readonly fromLastTurn: boolean;
+interface ResultCardProps {
+  readonly result: TaskResult;
   readonly repo?: string;
   readonly baseRef?: string;
 }
 
 /** The session's result with its provenance. Rendered only when there is one; the page says "No result reported yet" otherwise. */
-export function ResultCard({ report, stage, reportedBy, fromLastTurn, repo, baseRef }: ResultCardProps) {
+export function ResultCard({ result, repo, baseRef }: ResultCardProps) {
+  const { stage, fromLastTurn } = result;
+  // The turn's number once the log has replayed; its id until then.
+  const reportedBy =
+    result.turnNumber === undefined ? `turn ${result.turnId.slice(0, 8)}` : `turn ${String(result.turnNumber)}`;
   return (
     <section aria-label="Result" className="grid gap-3">
       <div className="flex h-5 items-baseline justify-between gap-2">
@@ -143,7 +142,7 @@ export function ResultCard({ report, stage, reportedBy, fromLastTurn, repo, base
               </p>
             )}
           </div>
-          <ResultFields report={report} repo={repo} baseRef={baseRef} />
+          <ResultFields report={result} repo={repo} baseRef={baseRef} />
         </CardContent>
       </Card>
     </section>

@@ -6,10 +6,11 @@
 // tasks never shows the previous one's turns.
 import { type AgentEvent, type UseAgentResult, useAgent } from "@opencomputer/react";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { type Activity, activityOf, emptyNotes, type Notes, noteEvent } from "@/lib/activity";
+import { type Activity, activityOf } from "@/lib/activity";
+import { emptyNotes, type Notes, noteEvent } from "@/lib/activity-notes";
 
 /** The prefix of the three routes the hook needs, as the app serves them. */
-export const AGENT_BASE_PATH = "/api/agent";
+const AGENT_BASE_PATH = "/api/agent";
 
 export interface ActivityResult extends UseAgentResult {
   readonly activity: Activity;

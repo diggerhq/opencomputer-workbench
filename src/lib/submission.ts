@@ -5,7 +5,7 @@
 // lost reply is retried with the same envelope; a conflict or a refusal
 // keeps the draft with the problem shown. Pure and unit-tested; the Composer
 // only drives it.
-import type { Task } from "../server/task";
+import type { Task } from "@/shared/task";
 import type { ApiError } from "./api";
 import { ulid } from "./ulid";
 
@@ -74,7 +74,7 @@ export function shouldRetry(state: Submission): boolean {
   return state.status === "failed" && state.problem.retryable && state.attempt <= AUTOMATIC_RETRIES;
 }
 
-export function problemOf(cause: unknown): Problem {
+function problemOf(cause: unknown): Problem {
   const error = cause as Partial<ApiError> | undefined;
   if (error && typeof error.status === "number" && typeof error.code === "string") {
     return {

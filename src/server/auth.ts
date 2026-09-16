@@ -4,7 +4,7 @@
 // session table. Its contract is in the design's Access section.
 import { GitHub, generateState, OAuth2RequestError } from "arctic";
 import { EncryptJWT, jwtDecrypt } from "jose";
-import type { Config } from "./env";
+import type { Config, Deps } from "./env";
 import { admit, policyId } from "./membership";
 
 export const SESSION_COOKIE = "wb_session";
@@ -19,14 +19,6 @@ export interface Identity {
   readonly login: string;
   readonly avatarUrl: string;
 }
-
-export interface AuthDeps {
-  readonly fetch: typeof globalThis.fetch;
-  /** Milliseconds since the epoch. */
-  readonly now: () => number;
-}
-
-export const defaultDeps: AuthDeps = Object.freeze({ fetch: globalThis.fetch.bind(globalThis), now: () => Date.now() });
 
 /** What the cookie holds. `ws` binds it to this workspace's configuration. */
 export interface SessionClaims {
@@ -131,7 +123,7 @@ function readCookie(req: Request, name: string): string | undefined {
 export async function identity(
   req: Request,
   config: Config,
-  deps: AuthDeps = defaultDeps,
+  deps: Deps,
 ): Promise<{ identity: Identity; membership: { kind: string; display: string }; setCookie?: string } | null> {
   const value = readCookie(req, SESSION_COOKIE);
   if (!value) return null;
@@ -175,7 +167,7 @@ function redirect(location: string, setCookies: string[]): Response {
 }
 
 /** GET /auth/callback: exchange the code, check membership, issue the cookie. */
-export async function callback(req: Request, config: Config, deps: AuthDeps = defaultDeps): Promise<Response> {
+export async function callback(req: Request, config: Config, deps: Deps): Promise<Response> {
   const url = new URL(req.url);
   const clearState = cookie(STATE_COOKIE, "", config, 0, "/auth");
   const denied = (reason: string) => redirect(`/?error=${reason}`, [clearState]);

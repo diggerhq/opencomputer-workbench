@@ -2,7 +2,7 @@
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { ActivityTimeline } from "../../../src/components/ActivityTimeline";
-import { commandOutcome } from "../../../src/lib/activity";
+import { commandOutcome } from "../../../src/lib/command-output";
 import { failureCopy } from "../../../src/lib/vocabulary";
 import { reduce } from "./helpers";
 

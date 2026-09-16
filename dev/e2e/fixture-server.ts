@@ -17,7 +17,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type AgentEvent, applyEvents, emptyTimeline, turnsOf } from "@opencomputer/react";
 import { Hono } from "hono";
-import { activityOf, emptyNotes, isSettled, latestResult, noteEvents } from "../../src/lib/activity";
+import { activityOf, isSettled, latestResult } from "../../src/lib/activity";
+import { emptyNotes, noteEvents } from "../../src/lib/activity-notes";
 
 /** One log entry as the fixtures record it: the hook's event plus the session it belongs to. */
 type ActivityEvent = AgentEvent & { sessionId?: string };
@@ -103,6 +104,7 @@ function sessionFromLog(name: string, id: string, base: Row): Stored {
   const running = activity.turns.find((turn) => turn.status === "running");
   const settled = activity.turns.filter(isSettled).at(-1);
   const result = latestResult(activity);
+  const reporting = activity.turns.find((turn) => turn.id === result?.turnId);
   const last = events.at(-1);
   const created = events[0]?.timestamp ?? base.createdAt;
   const row: Row = {
@@ -122,14 +124,15 @@ function sessionFromLog(name: string, id: string, base: Row): Stored {
       queued: activity.turns.filter((turn) => turn.status === "queued").length,
       lastSettledTurn: settled ? { id: settled.id, status: settled.status, at: settled.settledAt ?? created } : null,
     },
-    result: result
-      ? {
-          turnId: result.turn.id,
-          callId: result.turn.toolCalls.find((call) => call.result)?.callId ?? `call_${result.turn.id}`,
-          reportedAt: result.turn.settledAt ?? created,
-          data: result.report,
-        }
-      : null,
+    result:
+      result && reporting?.result
+        ? {
+            turnId: reporting.id,
+            callId: reporting.toolCalls.find((call) => call.result)?.callId ?? `call_${reporting.id}`,
+            reportedAt: reporting.settledAt ?? created,
+            data: reporting.result,
+          }
+        : null,
   };
   return { row, events, keys: new Map() };
 }

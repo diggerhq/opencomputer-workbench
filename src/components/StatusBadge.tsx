@@ -1,7 +1,6 @@
 // The badge: the dot and the label from the one vocabulary, in the tone's
 // tokens. Inline in a row (no background), full on the task page. The
-// display state comes from lib/display, the one derivation from the three
-// facets, so the row, the badge and the task page agree.
+// caller derives the display state with the vocabulary's `displayStateOf`.
 import { cn } from "@/lib/utils";
 import { DISPLAY, type DisplayState, type Tone, workingLabel } from "@/lib/vocabulary";
 
@@ -26,8 +25,6 @@ const TONES: Record<Tone, { text: string; bg: string; dot: string }> = {
   "status-archived": { text: "text-status-archived", bg: "bg-status-archived-bg", dot: "bg-status-archived-dot" },
   "status-ended": { text: "text-status-ended", bg: "bg-status-ended-bg", dot: "bg-status-ended-dot" },
 };
-
-export { displayStateOf, needsAttention } from "@/lib/display";
 
 export function StatusBadge({
   state,

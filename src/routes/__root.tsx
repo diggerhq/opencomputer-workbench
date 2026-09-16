@@ -29,7 +29,7 @@ import appCss from "@/styles.css?url";
 export const workspaceQuery = { queryKey: ["workspace"], queryFn: fetchWorkspace } as const;
 
 /** The one container: the header, the list and the task page share its edges and gutters. */
-export const CONTAINER = "mx-auto w-full max-w-6xl px-4 md:px-8";
+const CONTAINER = "mx-auto w-full max-w-6xl px-4 md:px-8";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
