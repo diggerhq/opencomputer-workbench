@@ -22,7 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useActivity } from "@/components/use-activity";
 import { type Activity, activeTurn, isSettled, latestResult } from "@/lib/activity";
 import { ApiError, endTask, getTask, patchTask, type Task } from "@/lib/api";
-import { type Report, type ReportStage, reportStage } from "@/lib/report";
+import { type Report, type ReportStage, reportStage } from "@/shared/report";
 
 export const taskQueryKey = (id: string) => ["task", id] as const;
 

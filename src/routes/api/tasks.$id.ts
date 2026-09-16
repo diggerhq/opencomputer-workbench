@@ -6,7 +6,8 @@ import { createClient, untilPublished } from "@/server/client";
 import { config, deps } from "@/server/env";
 import { handle, problem } from "@/server/problem";
 import { workbenchSession } from "@/server/scope";
-import { boundLabels, LABEL_BOUNDS, LABELS, summarize, toTask } from "@/server/task";
+import { boundLabels, summarize, toTask } from "@/server/task";
+import { LABEL_BOUNDS, LABELS } from "@/shared/task";
 import { type Handled, member } from "../-middleware";
 
 const patchBody = z

@@ -8,7 +8,8 @@ import { config, deps } from "@/server/env";
 import { handle, problem } from "@/server/problem";
 import { taskRequest } from "@/server/request";
 import { workbenchSession } from "@/server/scope";
-import { boundLabels, LABELS, summarize, titleOf, toTask } from "@/server/task";
+import { boundLabels, summarize, titleOf, toTask } from "@/server/task";
+import { LABELS } from "@/shared/task";
 import { type Handled, member } from "../-middleware";
 
 const ULID = /^[0-9A-HJKMNP-TV-Z]{26}$/;
