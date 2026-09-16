@@ -3,7 +3,7 @@
 // display state comes from lib/display, the one derivation from the three
 // facets, so the row, the badge and the task page agree.
 import { cn } from "@/lib/utils";
-import { DISPLAY, type DisplayState, type Tone, workingLabel } from "@/vocabulary";
+import { DISPLAY, type DisplayState, type Tone, workingLabel } from "@/lib/vocabulary";
 
 /** Tailwind names for each tone; static strings so the classes exist in the build. */
 const TONES: Record<Tone, { text: string; bg: string; dot: string }> = {

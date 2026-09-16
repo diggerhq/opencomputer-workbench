@@ -1,5 +1,5 @@
-import { useNow } from "@/hooks/use-now";
-import { formatRelative } from "./format";
+import { useNow } from "@/components/use-now";
+import { formatRelative } from "@/lib/format";
 
 /** A relative age with the absolute time in the title, as the design fixes it. */
 export function RelativeTime({ iso, prefix, className }: { iso?: string; prefix?: string; className?: string }) {

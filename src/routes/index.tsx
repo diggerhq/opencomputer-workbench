@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { workspaceQuery } from "./__root";
 
 export const Route = createFileRoute("/")({
+  // The screen renders in the browser only; the server sends the shell.
+  ssr: false,
   component: TasksPage,
 });
 

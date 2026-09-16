@@ -24,7 +24,7 @@ import {
   shouldRetry,
   succeed,
 } from "@/lib/submission";
-import { FAILURE_COPY, failureCopy } from "@/vocabulary";
+import { FAILURE_COPY, failureCopy } from "@/lib/vocabulary";
 
 const CONFLICT_COPY = "A task with this id already exists with a different request. Keep editing or start over.";
 

@@ -1,5 +1,5 @@
 // The product's fixed vocabulary: the words a task's state is shown with,
-// the tone each one takes from src/app/tokens.css, and the copy a public
+// the tone each one takes from src/tokens.css, and the copy a public
 // failure code turns into. The badge, the row and the result card read this
 // one definition; nothing else spells a state or a failure.
 
@@ -13,7 +13,7 @@ export type Execution = "starting" | "not_started" | "queued" | "working" | "sto
  */
 export type DisplayState = Execution | "ready_for_review" | "archived";
 
-/** The token stem in src/app/tokens.css: `--status-<tone>`, `-bg`, `-dot`. */
+/** The token stem in src/tokens.css: `--status-<tone>`, `-bg`, `-dot`. */
 export type Tone =
   | "status-starting"
   | "status-not-started"

@@ -1,6 +1,8 @@
-// Typed configuration. Each host passes its own source (Worker bindings,
-// process.env) and gets back an immutable Config or an Error naming the
-// missing key. Values never appear in errors.
+// Typed configuration. `config()` reads the process environment at request
+// time: the Vite dev server has .env.local loaded into it, the Worker has its
+// variables and secrets there through nodejs_compat. A missing key is an
+// Error naming the key; values never appear in errors. `deps()` is the
+// host's fetch and clock. Tests replace both through `configure`.
 import { type Policy, parsePolicy } from "./membership";
 
 export type Environment = "development" | "production";
@@ -89,4 +91,34 @@ export function readConfig(source: ConfigSource): Config {
     membership: parsePolicy(required(source, "WORKBENCH_MEMBERSHIP")),
     origin: origin("WORKBENCH_ORIGIN", required(source, "WORKBENCH_ORIGIN")),
   });
+}
+
+export interface Deps {
+  readonly fetch: typeof globalThis.fetch;
+  /** Milliseconds since the epoch. */
+  readonly now: () => number;
+}
+
+interface Overrides {
+  readonly config?: Config;
+  readonly fetch?: typeof globalThis.fetch;
+  readonly now?: () => number;
+}
+
+let overrides: Overrides | undefined;
+
+/** Tests only: fix the configuration, the fetch and the clock every route sees; `configure()` restores the host's. */
+export function configure(next?: Overrides): void {
+  overrides = next;
+}
+
+export function config(): Config {
+  return overrides?.config ?? readConfig(process.env);
+}
+
+export function deps(): Deps {
+  return {
+    fetch: overrides?.fetch ?? globalThis.fetch.bind(globalThis),
+    now: overrides?.now ?? (() => Date.now()),
+  };
 }

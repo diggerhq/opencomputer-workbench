@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { setTheme, type Theme, useTheme } from "@/theme";
+import { setTheme, type Theme, useTheme } from "@/lib/theme";
 
 const OPTIONS: ReadonlyArray<{ value: Theme; label: string; Icon: typeof Sun }> = [
   { value: "light", label: "Light", Icon: Sun },

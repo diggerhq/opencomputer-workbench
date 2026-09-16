@@ -5,7 +5,7 @@
 // lost reply is retried with the same envelope; a conflict or a refusal
 // keeps the draft with the problem shown. Pure and unit-tested; the Composer
 // only drives it.
-import type { Task } from "../../server/task";
+import type { Task } from "../server/task";
 import type { ApiError } from "./api";
 import { ulid } from "./ulid";
 

@@ -1,6 +1,10 @@
-import { QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+// The document and the shell. The framework renders <html> from here on the
+// server; the screens themselves render in the browser only (see the two
+// route files), so nothing about a task is ever rendered on the server.
+import { type QueryClient, QueryClientProvider, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createRootRouteWithContext, HeadContent, Link, Outlet, Scripts } from "@tanstack/react-router";
 import { LogOut, Users } from "lucide-react";
+import { type ReactNode, useEffect } from "react";
 import { Toaster } from "sonner";
 import { SignIn } from "@/components/SignIn";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -18,27 +22,57 @@ import {
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Wordmark } from "@/components/Wordmark";
 import { fetchWorkspace, signOut, type Workspace } from "@/lib/api";
+import { initTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false, refetchOnWindowFocus: false } },
-});
+import appCss from "@/styles.css?url";
 
 export const workspaceQuery = { queryKey: ["workspace"], queryFn: fetchWorkspace } as const;
 
 /** The one container: the header, the list and the task page share its edges and gutters. */
 export const CONTAINER = "mx-auto w-full max-w-6xl px-4 md:px-8";
 
-export const Route = createRootRoute({
-  component: () => (
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  head: () => ({
+    meta: [
+      { charSet: "utf-8" },
+      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "color-scheme", content: "light dark" },
+      { title: "Workbench" },
+    ],
+    links: [{ rel: "stylesheet", href: appCss }],
+  }),
+  shellComponent: Document,
+  component: App,
+});
+
+function Document({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <HeadContent />
+      </head>
+      <body>
+        {children}
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function App() {
+  const { queryClient } = Route.useRouteContext();
+  // The theme class goes on <html> as soon as the app's script runs; the
+  // document before that is the light default, and no inline script is used.
+  useEffect(() => initTheme(), []);
+  return (
     <TooltipProvider delayDuration={300}>
       <QueryClientProvider client={queryClient}>
         <Gate />
         <Toaster position="bottom-right" closeButton />
       </QueryClientProvider>
     </TooltipProvider>
-  ),
-});
+  );
+}
 
 function Gate() {
   const workspace = useQuery(workspaceQuery);

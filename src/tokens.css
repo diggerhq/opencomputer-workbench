@@ -1,7 +1,7 @@
 /* Workbench design tokens: ink on paper, one accent, neutral surfaces.
  *
  * Plain CSS custom properties, no framework directives, so the same file
- * serves the application (src/app/styles.css maps these into Tailwind) and
+ * serves the application (src/styles.css maps these into Tailwind) and
  * the static mockups under dev/design/mockups. Light is the base palette on
  * :root; `.dark` overrides it. Every visual value in the product comes from
  * here or from Tailwind's own scale: colors, radii, type, focus ring, motion

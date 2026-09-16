@@ -1,9 +1,9 @@
 import { ArrowUpRight, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { shortSha } from "@/lib/format";
+import type { Report, ReportStage } from "@/lib/report";
 import { cn } from "@/lib/utils";
-import type { Report, ReportStage } from "../../lib/report";
-import { shortSha } from "./format";
 
 function Row({ term, children }: { term: string; children: React.ReactNode }) {
   return (

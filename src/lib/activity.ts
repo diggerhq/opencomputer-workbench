@@ -13,7 +13,7 @@ import type {
   ToolCallStatus,
   TurnStatus,
 } from "@opencomputer/react";
-import { type Report, type ReportStage, reportSchema, reportStage } from "../lib/report";
+import { type Report, type ReportStage, reportSchema, reportStage } from "./report";
 
 export type { ToolCallStatus as CallStatus, TurnStatus };
 

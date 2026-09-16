@@ -1,6 +1,6 @@
 // The browser's view of the app's own routes. One problem shape, one place
 // that turns it into an Error; 401 on the workspace route means "signed out".
-import type { Task } from "../../server/task";
+import type { Task } from "../server/task";
 import type { Envelope, Receipt } from "./submission";
 
 export type { Task };

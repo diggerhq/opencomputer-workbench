@@ -2,13 +2,13 @@ import type { AgentMessage } from "@opencomputer/react";
 import { Bot } from "lucide-react";
 import { type FormEvent, type KeyboardEvent, type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { Turn } from "@/activity";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Textarea } from "@/components/ui/textarea";
+import type { Turn } from "@/lib/activity";
 import { ulid } from "@/lib/ulid";
 import { cn } from "@/lib/utils";
-import { failureCopy } from "@/vocabulary";
+import { failureCopy } from "@/lib/vocabulary";
 import { ActorAvatar } from "./ActorAvatar";
 import { Markdown } from "./Markdown";
 
