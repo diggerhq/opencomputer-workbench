@@ -187,7 +187,7 @@ export function activityOf(turns: readonly HookTurn[], notes: Notes): Activity {
   return {
     turns: turns.map((turn) => {
       const { result, toolCalls, ...rest } = turn;
-      const parsed = result === undefined ? undefined : reportSchema.safeParse(result);
+      const parsed = result === undefined ? undefined : reportSchema.safeParse(parseOutput(result));
       return {
         ...rest,
         ...notes.turns[turn.id],
@@ -261,6 +261,25 @@ export interface CommandOutcome {
   readonly durationMs?: number;
 }
 
+/**
+ * A tool's output as the runtime records it. The computer's commands come
+ * back as one JSON string encoding `{ stdout, stderr, exitCode, signal,
+ * timedOut, terminated, truncated, durationMs }` (recorded on Development,
+ * fixtures/logs/recorded); an object is read as is, any other string is the
+ * output itself.
+ */
+export function parseOutput(output: unknown): unknown {
+  if (typeof output !== "string") return output;
+  const text = output.trimStart();
+  if (!text.startsWith("{")) return output;
+  try {
+    const parsed: unknown = JSON.parse(text);
+    return isRecord(parsed) ? parsed : output;
+  } catch {
+    return output;
+  }
+}
+
 function outputText(output: unknown): string {
   if (typeof output === "string") return output;
   if (isRecord(output)) {
@@ -290,7 +309,7 @@ export function commandOutcome(call: ToolCall): CommandOutcome {
       ...(elapsed !== undefined ? { durationMs: elapsed } : {}),
     };
   }
-  const output = call.output;
+  const output = parseOutput(call.output);
   const record = isRecord(output) ? output : {};
   const durationMs = typeof record.durationMs === "number" ? record.durationMs : elapsed;
   const exitCode = typeof record.exitCode === "number" ? record.exitCode : undefined;

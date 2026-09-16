@@ -98,18 +98,18 @@ describe("the task page", () => {
     await open(row.id);
     await waitFor(() => expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(row.title));
     const header = screen.getByRole("heading", { level: 2 }).closest("header") as HTMLElement;
-    expect(header.textContent).toContain("acme/service");
-    expect(header.textContent).toContain("v2.1.0");
-    expect(header.textContent).toContain("mo");
+    expect(header.textContent).toContain("diggerhq/opencomputer-workbench");
+    expect(header.textContent).toContain("main");
+    expect(header.textContent).toContain("ZIJ");
     expect(screen.getByText("Ready for review")).toBeTruthy();
     await waitFor(() => expect(screen.getByText("reported by turn 1")).toBeTruthy(), { timeout: 3000 });
     const compare = screen.getByText(/^Compare/).closest("a");
     // The log's shas, not the row's: the log wins once it has replayed.
     expect(compare?.getAttribute("href")).toBe(
-      "https://github.com/acme/service/compare/a1b2c3d4e5f60718293a4b5c6d7e8f9012345678...d4e5f6a7b8c90112233445566778899aabbccdde",
+      "https://github.com/diggerhq/opencomputer-workbench/compare/efbf829b8ad7285f6c9092359521abbf678b3e8a...7928252e88ee993fe8d84a759534d9031cfbeba0",
     );
     const request = screen.getByRole("region", { name: "Request" });
-    expect(request.textContent).toContain("Rename billing to invoicing");
+    expect(request.textContent).toContain("Add a file SMOKE.md");
     expect(served.calls.some((call) => call.path === `/api/agent/sessions/${row.id}/events`)).toBe(true);
   });
 
@@ -125,7 +125,7 @@ describe("the task page", () => {
         .getByText(/^Compare/)
         .closest("a")
         ?.getAttribute("href"),
-    ).toBe(`https://github.com/acme/service/compare/${row.result?.baseSha ?? ""}...${row.result?.commit ?? ""}`);
+    ).toBe(`https://github.com/${row.repo}/compare/${row.result?.baseSha ?? ""}...${row.result?.commit ?? ""}`);
   });
 
   it("archives through the task route and refetches the task and the list", async () => {

@@ -69,11 +69,15 @@ test.describe("the task page", () => {
     await captureBoth(page, "task-working");
   });
 
-  test("completed: a published report and a queued second turn", async ({ page, member: _member }) => {
+  test("completed: the recorded first run, a published report after two rejected ones", async ({
+    page,
+    member: _member,
+  }) => {
     await page.goto(`/tasks/${LOG_SESSIONS.completed ?? ""}`);
     await expect(page.getByText("reported by turn 1")).toBeVisible();
     await expect(page.getByText("published", { exact: true })).toBeVisible();
-    await expect(page.getByRole("region", { name: "Turn 2" })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Turn 1" })).toBeVisible();
+    await expect(page.getByText("#19 draft")).toBeVisible();
     await settled(page);
     await captureBoth(page, "task-completed");
   });

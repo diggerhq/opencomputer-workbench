@@ -49,11 +49,11 @@ describe("toTask over the row fixtures", () => {
   it("keeps the result facet independent of execution, with its turn and stage", () => {
     const fresh = toTask(row("ready-published"), T0);
     expect(fresh.result).toMatchObject({
-      turnId: "turn_10a",
+      turnId: "8c28580e-7a53-4cfa-95ac-66df1e3884db",
       stage: "published",
       fromLastTurn: true,
-      pr: { number: 482, draft: true },
-      checks: [{ command: "npm test", passed: true }],
+      pr: { number: 19, draft: true },
+      checks: [{ command: "npm run check", passed: false }],
     });
     const old = toTask(row("idle-old-result"), T0);
     expect(old.result).toMatchObject({ turnId: "turn_8a", stage: "changes", fromLastTurn: false });
@@ -72,10 +72,11 @@ describe("toTask over the row fixtures", () => {
 
   it("reads the labels the app writes", () => {
     expect(toTask(row("ready-published"), T0)).toMatchObject({
-      title: "Add rate limiting to the public API",
-      repo: "acme/service",
-      ref: "v2.1.0",
-      actor: { id: 2, login: "mo" },
+      title:
+        "Add a file SMOKE.md containing one line with today's date, run the checks this repository defines, commit, push, and open a draft pull request.",
+      repo: "diggerhq/opencomputer-workbench",
+      ref: "main",
+      actor: { id: 1280498, login: "ZIJ" },
     });
     const bare = toTask({ ...row("idle"), labels: {} }, T0);
     expect(bare).toMatchObject({ title: "Untitled task", repo: "", ref: "", actor: { id: 0, login: "" } });
