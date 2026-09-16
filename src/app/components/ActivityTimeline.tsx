@@ -47,10 +47,10 @@ function TurnGroup({
 }) {
   const rule = RULE_WORD[turn.status];
   return (
-    <section aria-label={`Turn ${String(number)}`} className="px-2 py-2">
-      <h4 className="flex h-8 items-center gap-2 px-2 text-xs font-medium text-muted-foreground">
+    <section aria-label={`Turn ${String(number)}`} className="px-3 py-3">
+      <h4 className="flex h-8 items-center gap-2 px-2 text-xs text-muted-foreground">
         <span aria-hidden="true" className={cn("size-2 rounded-full", RULE_DOT[turn.status])} />
-        <span className="text-foreground">Turn {String(number)}</span>
+        <span className="font-medium text-foreground">Turn {String(number)}</span>
         <span aria-hidden="true">·</span>
         <RelativeTime iso={turn.createdAt} />
         <span aria-hidden="true" className="h-px flex-1 bg-border" />
@@ -60,7 +60,7 @@ function TurnGroup({
         </span>
       </h4>
       {turn.toolCalls.length ? (
-        <ul>
+        <ul className="mt-1 flex flex-col gap-0.5">
           {turn.toolCalls.map((call) => (
             <ToolCallRow
               key={call.callId}
@@ -77,7 +77,7 @@ function TurnGroup({
         </p>
       ) : null}
       {turn.failure ? (
-        <p role="status" className="mx-2 mt-2 rounded-md bg-status-failed-bg px-3 py-2 text-sm text-status-failed">
+        <p role="status" className="mx-2 mt-3 rounded-md bg-status-failed-bg px-3 py-2 text-sm text-status-failed">
           {failureCopy(turn.failure.code)} <code className="font-mono text-xs opacity-80">{turn.failure.code}</code>
         </p>
       ) : null}
@@ -98,7 +98,7 @@ export function ActivityTimeline({ turns, isReplaying }: { turns: readonly Turn[
   const calls = turns.reduce((count, turn) => count + turn.toolCalls.length, 0);
   return (
     <Card data-slot="activity" role="region" aria-label="Activity" className="gap-0 py-0">
-      <div className="flex h-12 items-center justify-between gap-4 border-b bg-surface px-4">
+      <div className="flex h-12 items-center justify-between gap-4 bg-surface px-5">
         <h3 className="text-sm font-medium">Activity</h3>
         {turns.length ? (
           <span className="text-xs text-muted-foreground">
@@ -114,7 +114,7 @@ export function ActivityTimeline({ turns, isReplaying }: { turns: readonly Turn[
           ))}
         </div>
       ) : isReplaying ? (
-        <div role="status" aria-busy="true" aria-label="Loading activity" className="divide-y px-4">
+        <div role="status" aria-busy="true" aria-label="Loading activity" className="divide-y px-5">
           {[0, 1, 2].map((row) => (
             <div key={row} className="flex h-8 items-center">
               <Skeleton className="h-3 w-1/2" />
@@ -122,7 +122,7 @@ export function ActivityTimeline({ turns, isReplaying }: { turns: readonly Turn[
           ))}
         </div>
       ) : (
-        <p className="flex min-h-24 items-center justify-center px-4 text-sm text-muted-foreground">
+        <p className="flex min-h-32 items-center justify-center px-5 text-sm text-muted-foreground">
           Nothing has run yet.
         </p>
       )}

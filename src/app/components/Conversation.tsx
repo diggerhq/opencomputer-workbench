@@ -32,7 +32,7 @@ export interface ConversationProps {
 function Speaker({ message, actorLogin, actorId }: { message: AgentMessage; actorLogin: string; actorId?: number }) {
   if (message.role === "assistant") {
     return (
-      <span className="flex h-5 items-center gap-1.5 text-xs font-medium text-muted-foreground">
+      <span className="flex h-5 items-center gap-1.5 text-xs text-muted-foreground">
         <span
           aria-hidden="true"
           className="grid size-5 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
@@ -44,7 +44,7 @@ function Speaker({ message, actorLogin, actorId }: { message: AgentMessage; acto
     );
   }
   return (
-    <span className="flex h-5 items-center gap-1.5 text-xs font-medium text-muted-foreground">
+    <span className="flex h-5 items-center gap-1.5 text-xs text-muted-foreground">
       <ActorAvatar id={actorId} />
       {actorLogin}
     </span>
@@ -53,12 +53,12 @@ function Speaker({ message, actorLogin, actorId }: { message: AgentMessage; acto
 
 function Message({ message, actorLogin, actorId }: { message: AgentMessage; actorLogin: string; actorId?: number }) {
   return (
-    <div className="grid gap-1.5">
+    <div className="grid gap-2">
       <Speaker message={message} actorLogin={actorLogin} actorId={actorId} />
       {message.role === "assistant" ? (
         <Markdown className={cn("text-base", message.streaming && "streaming-caret")}>{message.text}</Markdown>
       ) : (
-        <div className="rounded-lg bg-surface px-3 py-2 text-base whitespace-pre-wrap">{message.text}</div>
+        <div className="rounded-xl bg-surface px-4 py-3 text-base whitespace-pre-wrap">{message.text}</div>
       )}
     </div>
   );
@@ -147,8 +147,8 @@ export function Conversation({
   const items = ordered(messages, turns, actorLogin, actorId);
 
   return (
-    <section aria-label="Conversation" className="grid gap-4">
-      <h3 className="text-sm font-medium">Conversation</h3>
+    <section aria-label="Conversation" className="grid gap-5">
+      <h3 className="text-sm font-medium text-muted-foreground">Conversation</h3>
       {connectionError ? (
         <p role="alert" className="rounded-md bg-status-failed-bg px-3 py-2 text-xs text-status-failed">
           {connectionError}
@@ -157,9 +157,9 @@ export function Conversation({
       {isReplaying && messages.length === 0 ? (
         <p className="text-sm text-muted-foreground">Loading the conversation…</p>
       ) : (
-        <div className="grid gap-4">{items}</div>
+        <div className="grid gap-6">{items}</div>
       )}
-      <form onSubmit={submit} className="grid gap-2 pt-2">
+      <form onSubmit={submit} className="grid gap-3 pt-2">
         {ended ? <p className="text-sm text-muted-foreground">This task has ended.</p> : null}
         <Textarea
           aria-label="Follow up"

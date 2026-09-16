@@ -7,9 +7,12 @@
  * here or from Tailwind's own scale: colors, radii, type, focus ring, motion
  * and the status palette live here; spacing, control heights and container
  * widths are Tailwind's 4 px scale and shadcn's size variants (controls are
- * h-8, h-7 or h-6; rows h-14; gutters px-4 and px-8; one container,
- * max-w-6xl). There is one sizing system, not two, and e2e/measure.spec.ts
- * proves it. Nothing is typed at a call site.
+ * h-8, h-7 or h-6; rows h-16; card inset p-5; gutters px-4 and px-8; one
+ * container, max-w-6xl). The spacing rhythm is three steps, written in
+ * design/screens.md: 8 within a group, 12 heading to panel, 16 between
+ * groups in a card, 32 to 40 between sections. There is one sizing system,
+ * not two, and e2e/measure.spec.ts proves it. Nothing is typed at a call
+ * site.
  *
  * Colors are OKLCH. `node design/contrast.mjs` recomputes the WCAG 2 ratios
  * from this file. Text pairs must stay at or above 4.5:1 in both themes and
@@ -59,9 +62,9 @@
   --text-xl: 1.375rem; /* 22px  page heading */
   --leading-xl: 1.75rem;
 
+  /* Two weights: regular everywhere, medium for one emphasis per context. */
   --weight-regular: 400;
   --weight-medium: 500;
-  --weight-semibold: 600;
 
   /* Radii: shadcn's family. One base, four steps, the same on cards,
      inputs, buttons and menus; a control is rounded-lg, a card rounded-xl. */
