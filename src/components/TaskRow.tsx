@@ -13,9 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Task } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { displayStateOf, needsAttention } from "@/lib/vocabulary";
 import { ActorAvatar } from "./ActorAvatar";
 import { RelativeTime } from "./RelativeTime";
-import { displayStateOf, needsAttention, StatusBadge } from "./StatusBadge";
+import { StatusBadge } from "./StatusBadge";
 
 export function TaskRow({
   task,

@@ -15,13 +15,14 @@ import { Conversation } from "@/components/Conversation";
 import { Markdown } from "@/components/Markdown";
 import { RelativeTime } from "@/components/RelativeTime";
 import { ResultCard } from "@/components/ResultCard";
-import { displayStateOf, StatusBadge } from "@/components/StatusBadge";
+import { StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActivity } from "@/components/use-activity";
 import { activeTurn, isSettled, latestResult } from "@/lib/activity";
 import { ApiError, endTask, getTask, patchTask, type Task } from "@/lib/api";
+import { displayStateOf } from "@/lib/vocabulary";
 
 export const taskQueryKey = (id: string) => ["task", id] as const;
 

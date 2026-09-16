@@ -1,10 +1,9 @@
-// The product's fixed vocabulary: the words a task's state is shown with,
-// the tone each one takes from src/tokens.css, and the copy a public
-// failure code turns into. The badge, the row and the result card read this
-// one definition; nothing else spells a state or a failure.
-
-/** The execution facet of a task, projected from the session by task.ts. */
-export type Execution = "starting" | "not_started" | "queued" | "working" | "stopping" | "idle" | "failed" | "ended";
+// The product's fixed vocabulary: the display state a task's three facets
+// derive to, the words that state is shown with, the tone each one takes
+// from src/tokens.css, and the copy a public failure code turns into. The
+// badge, the row and the task page read this one definition; nothing else
+// derives a state or spells a failure.
+import type { Execution, Task } from "@/shared/task";
 
 /**
  * What the badge can show. `ready_for_review` is idle with a result from the
@@ -12,6 +11,24 @@ export type Execution = "starting" | "not_started" | "queued" | "working" | "sto
  * label, shown when the list is filtered to archived tasks.
  */
 export type DisplayState = Execution | "ready_for_review" | "archived";
+
+/** Archived is the label; ready for review is idle with a fresh result at changes or published. */
+export function displayStateOf(task: Task): DisplayState {
+  if (task.archived) return "archived";
+  if (
+    task.execution === "idle" &&
+    task.result?.fromLastTurn &&
+    (task.result.stage === "changes" || task.result.stage === "published")
+  ) {
+    return "ready_for_review";
+  }
+  return task.execution;
+}
+
+/** Facts that are the same for every member: a failed turn or a request that was never accepted. */
+export function needsAttention(task: Task): boolean {
+  return task.execution === "failed" || task.execution === "not_started";
+}
 
 /** The token stem in src/tokens.css: `--status-<tone>`, `-bg`, `-dot`. */
 export type Tone =
