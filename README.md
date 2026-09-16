@@ -14,14 +14,8 @@ the app—while tasks continue.
 
 ## How it works
 
-```mermaid
-flowchart LR
-  App["Web app<br/>TanStack Start · stateless"]
-  OC["OpenComputer<br/>Worker agent + task sessions"]
-  GitHub["GitHub<br/>Branches + pull requests"]
-  App <-->|API + session events| OC
-  OC <-->|git + gh| GitHub
-```
+- **[Web app](src/):** TanStack Start UI and authenticated routes, deployed to Cloudflare Workers.
+- **[Worker agent](opencomputer/agents/worker/agent.ts):** TypeScript instructions and tools, deployed to OpenComputer.
 
 Submitting a task creates an OpenComputer **session** running the worker
 agent. An [agent](https://docs.opencomputer.dev/agents/reactive-agents) is a
@@ -56,7 +50,7 @@ works, its [`report` tool](opencomputer/agents/worker/tools/report.ts) saves
 the branch, commit, reported checks and PR as the session's typed result.
 That becomes the result card in the UI.
 
-The [web app](src/server/tasks.ts) reads the task list from
+The [web app](src/routes/api/tasks.ts) reads the task list from
 `oc.sessions.list()`. Opening a task attaches the React UI to its session:
 
 ```tsx
@@ -68,7 +62,7 @@ const { messages, turns, send, stop } = useAgent({
 
 [`useAgent`](https://docs.opencomputer.dev/agents/react) loads the conversation,
 follows activity and sends follow-ups or Stop requests through
-[authenticated routes](src/server/session-proxy.ts). Task metadata, history
+[authenticated routes](src/routes/api/agent/sessions.$id.$action.ts). Task metadata, history
 and results stay on OpenComputer. The web server needs no database, queue or
 background worker; it can reconstruct the view from any fresh process.
 
@@ -100,4 +94,15 @@ The web app is one artifact that deploys to Cloudflare Workers. Complete
 
 Use your own OpenComputer project and restrict sign-in to a GitHub user, team
 or organization. Admitted members share all tasks and connected repositories.
-[Access details](docs/setup.md#access) · [Source map and development commands](AGENTS.md).
+[Access details](docs/setup.md#access).
+
+## Adapt it
+
+- Change the model, tools or instructions in the [worker agent](opencomputer/agents/worker/agent.ts).
+- Change what a task returns in the [report tool](opencomputer/agents/worker/tools/report.ts), and how it appears in [ResultCard](src/components/ResultCard.tsx).
+
+Run `npm run check` to validate changes, then `npm run deploy:agents` to deploy
+an updated agent. New tasks use the update; existing tasks keep their pinned
+version. See [AGENTS.md](AGENTS.md) for the source map and development commands.
+
+[MIT licensed](LICENSE).
