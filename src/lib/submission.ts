@@ -74,7 +74,7 @@ export function shouldRetry(state: Submission): boolean {
   return state.status === "failed" && state.problem.retryable && state.attempt <= AUTOMATIC_RETRIES;
 }
 
-export function problemOf(cause: unknown): Problem {
+function problemOf(cause: unknown): Problem {
   const error = cause as Partial<ApiError> | undefined;
   if (error && typeof error.status === "number" && typeof error.code === "string") {
     return {

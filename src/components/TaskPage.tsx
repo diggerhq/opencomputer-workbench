@@ -24,7 +24,7 @@ import { activeTurn, isSettled, latestResult } from "@/lib/activity";
 import { ApiError, endTask, getTask, patchTask, type Task } from "@/lib/api";
 import { displayStateOf } from "@/lib/vocabulary";
 
-export const taskQueryKey = (id: string) => ["task", id] as const;
+const taskQueryKey = (id: string) => ["task", id] as const;
 
 /** Refetch cadence while a turn runs; the log settling a turn triggers a refetch on its own. */
 const RUNNING_REFETCH_MS = 5_000;

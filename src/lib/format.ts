@@ -35,8 +35,3 @@ export function formatDuration(ms: number | undefined): string {
 export function shortSha(sha: string): string {
   return sha.slice(0, 7);
 }
-
-/** The first line of a request, the title the design derives from it. */
-export function firstLine(text: string): string {
-  return text.split("\n", 1)[0]?.trim() ?? "";
-}

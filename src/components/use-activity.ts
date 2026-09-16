@@ -10,7 +10,7 @@ import { type Activity, activityOf } from "@/lib/activity";
 import { emptyNotes, type Notes, noteEvent } from "@/lib/activity-notes";
 
 /** The prefix of the three routes the hook needs, as the app serves them. */
-export const AGENT_BASE_PATH = "/api/agent";
+const AGENT_BASE_PATH = "/api/agent";
 
 export interface ActivityResult extends UseAgentResult {
   readonly activity: Activity;

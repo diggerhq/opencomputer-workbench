@@ -89,7 +89,9 @@ describe("identity", () => {
   });
 
   it("is null without a cookie", async () => {
-    expect(await identity(new Request("https://workbench.example/api/workspace"), config())).toBeNull();
+    expect(
+      await identity(new Request("https://workbench.example/api/workspace"), config(), { fetch, now: () => T0 }),
+    ).toBeNull();
   });
 });
 
@@ -113,6 +115,7 @@ describe("login and callback", () => {
         headers: { cookie: "wb_oauth_state=y" },
       }),
       config(),
+      { fetch: fakeFetch({}), now: () => T0 },
     );
     expect(response.status).toBe(302);
     expect(response.headers.get("location")).toBe("/?error=invalid_state");

@@ -20,7 +20,7 @@ export function useTasks(archived: boolean) {
   });
 }
 
-export type TasksQuery = ReturnType<typeof useTasks>;
+type TasksQuery = ReturnType<typeof useTasks>;
 
 const SKELETON_ROWS = ["first", "second", "third"] as const;
 

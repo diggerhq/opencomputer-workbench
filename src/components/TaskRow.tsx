@@ -6,7 +6,9 @@
 // row, and the archive control sits above it so the two never nest. A row
 // that needs attention carries the attention tint across its whole surface,
 // never a border. Below md the status folds into the meta line and the stage
-// word is dropped.
+// word is dropped: the badge is rendered twice from the same state, each copy
+// shown at one width and `display: none` at the other, which also removes
+// it from the accessibility tree, so a screen reader hears it once.
 import { Link } from "@tanstack/react-router";
 import { Archive, ArchiveRestore } from "lucide-react";
 import { Button } from "@/components/ui/button";

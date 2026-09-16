@@ -73,7 +73,7 @@ export function parseReport(input: unknown): Report {
   }
   if (value.checks !== undefined) {
     if (!Array.isArray(value.checks) || value.checks.length > 10) {
-      throw new ReportRejected("checks", "must be an array of at most 20 checks");
+      throw new ReportRejected("checks", "must be an array of at most 10 checks");
     }
     report.checks = value.checks.map((entry) => {
       const check = record(entry);
