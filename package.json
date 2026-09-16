@@ -10,10 +10,10 @@
   "cloudflare": {
     "bindings": {
       "OPENCOMPUTER_API_KEY": {
-        "description": "Your OpenComputer organization API key (`npx opencomputer login` stores one in `~/.opencomputer/config.json`). Server only."
+        "description": "Your OpenComputer organization API key. Server only."
       },
       "OPENCOMPUTER_PROJECT_ID": {
-        "description": "The OpenComputer project id `npm run deploy:agents` recorded in `.opencomputer/project.json`."
+        "description": "The OpenComputer project id written to `.opencomputer/project.json` by `npx opencomputer link`."
       },
       "OPENCOMPUTER_ENVIRONMENT": {
         "description": "`development` or `production`: the environment of that project the workbench uses."
