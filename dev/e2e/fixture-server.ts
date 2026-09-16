@@ -1,8 +1,8 @@
-// A replay of the recordings under fixtures/ as the subset of the management
+// A replay of the recordings under dev/fixtures as the subset of the management
 // API the workbench calls. The application is unchanged: it is pointed here
 // through OPENCOMPUTER_API_URL and sees rows, sessions and event logs exactly
 // as OpenComputer would serve them. This exists so every visual state renders
-// without a live run; the acceptance run is live (e2e/live.spec.ts).
+// without a live run; the acceptance run is live (dev/e2e/live.spec.ts).
 //
 // List rows are the authored row fixtures as they are. Each log fixture is a
 // session of its own whose status, activity and result are derived from the
@@ -17,7 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type AgentEvent, applyEvents, emptyTimeline, turnsOf } from "@opencomputer/react";
 import { Hono } from "hono";
-import { activityOf, emptyNotes, isSettled, latestResult, noteEvents } from "../src/app/activity";
+import { activityOf, emptyNotes, isSettled, latestResult, noteEvents } from "../../src/app/activity";
 
 /** One log entry as the fixtures record it: the hook's event plus the session it belongs to. */
 type ActivityEvent = AgentEvent & { sessionId?: string };
@@ -206,7 +206,7 @@ export function initialState(): FixtureState {
   const base = rows.find(
     (row) => row.labels.title === "Rename the billing module to invoicing" && row.status === "running",
   );
-  if (!base) throw new Error("fixtures/rows/working.json is the base row for the log sessions");
+  if (!base) throw new Error("dev/fixtures/rows/working.json is the base row for the log sessions");
   for (const [name, id] of Object.entries(LOG_SESSIONS)) sessions.set(id, sessionFromLog(name, id, base));
   return { scenario: "all", sessions };
 }

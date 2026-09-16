@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import workers from "../src/hosts/workers";
+import workers from "../../src/hosts/workers";
 import { SOURCE } from "./helpers";
 
 describe("host entries", () => {
@@ -11,7 +11,7 @@ describe("host entries", () => {
 
   it("serve the same app on Vercel", async () => {
     Object.assign(process.env, SOURCE);
-    const { default: handler } = await import("../api/index");
+    const { default: handler } = await import("../../api/index");
     const response = await handler(new Request("https://workbench.example/api/workspace"));
     expect(response.status).toBe(401);
     expect((await response.json()).error.code).toBe("unauthenticated");

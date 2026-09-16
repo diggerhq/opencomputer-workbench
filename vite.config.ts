@@ -11,6 +11,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   resolve: { tsconfigPaths: true },
+  publicDir: "src/app/public",
   build: { outDir: "dist/client" },
   plugins: [
     tailwindcss(),

@@ -21,17 +21,16 @@ agents. The design that decides what is built lives outside this repository.
 - `src/app/components/` the list (`Composer`, `TaskList`, `TaskRow`, `StatusBadge`), the page (`TaskPage`, `ActivityTimeline`, `ToolCall`, `ResultCard`, `Conversation`, `Controls`, `Markdown`, `RelativeTime`, `format.ts`), `SignIn`, and the shadcn primitives under `ui/`
 - `src/app/activity.ts` combines the hook's turns with event notes, marked `STOPGAP(C5)`; `hooks/use-activity.ts` feeds it from `useAgent`
 - `src/app/lib/api.ts` the browser's view of the app's routes; `lib/submission.ts` the envelope held until the admission receipt; `lib/display.ts` the display state from the three facets; `lib/ulid.ts`
-- `src/app/vocabulary.ts` the words and the failure copy; `styles.css` maps `design/tokens.css` into Tailwind; `design/` the tokens, the two screens, the mockups, the captures and the review checklist
-- `fixtures/rows/` one session row per task state; `fixtures/logs/` one event log per scenario; each README says which are authored and which are recorded
+- `src/app/vocabulary.ts` the words and the failure copy; `tokens.css` every visual value, `styles.css` maps it into Tailwind; `src/app/public/_headers` the content security policy the hosts serve
+- `dev/` everything auxiliary, so the root is the example: `dev/test/` the unit tests, `dev/e2e/` the visual suite, the fixture replay of the management API and the walkthrough, `dev/fixtures/` one session row per task state and one event log per scenario (each README says which are authored and which are recorded), `dev/design/` the two screens, the mockups, the captures, the review checklist and the design tooling's `PRODUCT.md`, `dev/scripts/membership-id.mjs`, and the Biome, Vitest and Playwright configs
 - `wrangler.jsonc`, `vercel.json` host configuration: static assets and the handler, nothing that keeps state
-- `scripts/membership-id.mjs` resolves the membership rule to pinned ids once, at setup
-- `test/` Vitest over the server, the pure client modules and the components: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, the activity view over log fixtures, the page through the route tree, both host entries, statelessness
+- `dev/test/` covers the server, the pure client modules and the components: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, the activity view over log fixtures, the page through the route tree, both host entries, statelessness; `components.json` stays at the root because the shadcn generator reads it from the project directory
 
 ## Commands
 
 - `npm run dev` port 3200, strict; the SPA and the routes in one process, configuration from `.env.local`
 - `npm run dev:fixtures` the real application over sample fixtures on the same port, a browser opened already signed in, or `-- --no-browser` for a sign-in snippet to paste into your own; for looking, not for tests
-- `npm run check` typecheck of the application and the agent directory, lint, unit tests, build; what CI runs
+- `npm run check` typecheck of the application and the agent directory, lint, unit tests, build; what CI runs; `npm run test:e2e` the visual suite over the fixture replay, captures under `dev/design/screens/app`
 - `npx wrangler dev` the Worker with `dist/client` after `npm run build`, configuration from `.dev.vars`
 - `npm run membership-id -- team:<org>/<slug>` prints the `WORKBENCH_MEMBERSHIP` line
 - `npm run doctor` checks the agent directory; `npm run deploy:agents` deploys the worker to the linked project's development environment (`npx opencomputer login` first)
@@ -40,7 +39,7 @@ agents. The design that decides what is built lives outside this repository.
 
 - The server routes are the only holder of the OpenComputer key; the browser gets a cookie and the app's own routes.
 - Every `/api` route requires a member; every POST and PATCH requires the app's own origin; every session-scoped route checks the session's project, environment and agent before forwarding.
-- Nothing depends on process-local state surviving a request; the hosts declare no persistence, queue or schedule (`test/stateless.test.ts`).
+- Nothing depends on process-local state surviving a request; the hosts declare no persistence, queue or schedule (`dev/test/stateless.test.ts`).
 - The workbench never substitutes a shipping path for a missing OpenComputer contract; stopgaps carry a `STOPGAP(Cn)` comment naming their deletion condition.
 - Agent code imports nothing from outside its own directory; the report schema lives with the tool and the app derives its type and parser from it.
 - The agent is deployed with the OpenComputer CLI from `opencomputer/`; sessions pin the deployment they started on, so a redeploy changes new tasks only.

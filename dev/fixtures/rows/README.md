@@ -2,7 +2,7 @@
 
 One `SessionSummary` row per state the [states table](../../design/screens.md#states)
 names, and the list responses the page states use. `toTask` is unit-tested
-over every one of them (`test/task.test.ts`), so each state renders without a
+over every one of them (`dev/test/task.test.ts`), so each state renders without a
 live run.
 
 **`recorded/` holds recordings; the rest is authored.** `recorded/first-run.json`

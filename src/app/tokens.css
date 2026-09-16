@@ -2,19 +2,19 @@
  *
  * Plain CSS custom properties, no framework directives, so the same file
  * serves the application (src/app/styles.css maps these into Tailwind) and
- * the static mockups under design/mockups. Light is the base palette on
+ * the static mockups under dev/design/mockups. Light is the base palette on
  * :root; `.dark` overrides it. Every visual value in the product comes from
  * here or from Tailwind's own scale: colors, radii, type, focus ring, motion
  * and the status palette live here; spacing, control heights and container
  * widths are Tailwind's 4 px scale and shadcn's size variants (controls are
  * h-8, h-7 or h-6; rows h-16; card inset p-5; gutters px-4 and px-8; one
  * container, max-w-6xl). The spacing rhythm is three steps, written in
- * design/screens.md: 8 within a group, 12 heading to panel, 16 between
+ * dev/design/screens.md: 8 within a group, 12 heading to panel, 16 between
  * groups in a card, 32 to 40 between sections. There is one sizing system,
- * not two, and e2e/measure.spec.ts proves it. Nothing is typed at a call
+ * not two, and dev/e2e/measure.spec.ts proves it. Nothing is typed at a call
  * site.
  *
- * Colors are OKLCH. `node design/contrast.mjs` recomputes the WCAG 2 ratios
+ * Colors are OKLCH. `node dev/design/contrast.mjs` recomputes the WCAG 2 ratios
  * from this file. Text pairs must stay at or above 4.5:1 in both themes and
  * status dots at or above 3:1 against the page (dots never carry meaning
  * alone; the label beside them does). Ratios at the time of writing:

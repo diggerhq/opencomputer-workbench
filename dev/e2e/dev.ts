@@ -1,6 +1,6 @@
 // Walk through the workbench locally over the recorded fixtures, for looking
 // rather than testing: the fixture server replays the management API from
-// fixtures/, the real application runs against it on its usual port, and a
+// dev/fixtures, the real application runs against it on its usual port, and a
 // browser opens already signed in as the fixture member. Resize the window
 // to 390 and 1440; flip the system theme for dark mode. Nothing here touches
 // OpenComputer or GitHub.
@@ -16,9 +16,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { parseEnv } from "node:util";
 import { chromium } from "@playwright/test";
-import { SESSION_COOKIE, type SessionClaims, seal } from "../src/server/auth";
-import { readConfig } from "../src/server/env";
-import { policyId } from "../src/server/membership";
+import { SESSION_COOKIE, type SessionClaims, seal } from "../../src/server/auth";
+import { readConfig } from "../../src/server/env";
+import { policyId } from "../../src/server/membership";
 import { APP_PORT, FIXTURE_ENV, FIXTURE_PORT } from "./env";
 import { fixtureApp, initialState, listen } from "./fixture-server";
 

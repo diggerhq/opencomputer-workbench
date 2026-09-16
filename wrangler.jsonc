@@ -6,7 +6,7 @@
   "observability": { "enabled": true },
   // The SPA is a static asset; the Worker sees only its own routes. There is
   // deliberately no KV, D1, queue, Durable Object or cron binding: the app
-  // keeps nothing between requests (test/stateless.test.ts checks this).
+  // keeps nothing between requests (dev/test/stateless.test.ts checks this).
   "assets": {
     "directory": "dist/client",
     "not_found_handling": "single-page-application",

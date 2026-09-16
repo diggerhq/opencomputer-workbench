@@ -44,7 +44,7 @@ What the recording established about shapes, applied to the app:
 | `tool-failed.json` | The report tool rejects a claim; the agent reports again and the turn continues |
 | `ended.json` | A completed turn, then the owner ended the session |
 
-`design/screens.md` names these under `events/`; they live here under
-`fixtures/logs/` beside the row fixtures the list uses.
+`dev/design/screens.md` names these under `events/`; they live here under
+`dev/fixtures/logs/` beside the row fixtures the list uses.
 
 Reconciled on 2026-09-16 with the events page as the OC integration branch documents it: the first `message.received` of a task carries the `payload` the app sends; a call still open when its turn ends is settled by a `tool.failed` with `settledBy` ahead of the terminal turn event; `turn.cancelled` carries `settledAfterMs`, `operationsSettled` and `computerTerminated`.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { parseReport, REPORT_JSON_SCHEMA, report } from "../opencomputer/agents/worker/tools/report";
-import { type Report, reportSchema, reportStage } from "../src/lib/report";
+import { parseReport, REPORT_JSON_SCHEMA, report } from "../../opencomputer/agents/worker/tools/report";
+import { type Report, reportSchema, reportStage } from "../../src/lib/report";
 
 const sha = "a".repeat(40);
 

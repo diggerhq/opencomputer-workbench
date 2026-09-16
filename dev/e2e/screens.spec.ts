@@ -1,6 +1,6 @@
 // Every visual state of the two screens, rendered by the real application
 // from the recordings the fixture server replays, captured at both viewports
-// in both themes into design/screens/app. Each capture is preceded by the
+// in both themes into dev/design/screens/app. Each capture is preceded by the
 // assertion that names the state, so a failing state fails here before it
 // produces a misleading picture. Fixture-only: the states are the fixtures'.
 import { LIVE } from "./env";

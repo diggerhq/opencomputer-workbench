@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { taskRequest } from "../src/server/request";
+import { taskRequest } from "../../src/server/request";
 
 const submission = {
   taskId: "01J9Y0C6R4V3M2K7Q8N5P1H9ZT",

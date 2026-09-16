@@ -1,5 +1,5 @@
 // Who may sign in: one configured policy naming a kind and pinned numeric
-// GitHub ids, resolved once during setup (scripts/membership-id.mjs). Names
+// GitHub ids, resolved once during setup (dev/scripts/membership-id.mjs). Names
 // are display only; a rename never changes who is admitted.
 
 export type Policy =

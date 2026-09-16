@@ -1,7 +1,7 @@
 # UI review checklist
 
 Every pull request that touches `src/app/` is reviewed against this list, on
-the captures the screenshot suite writes to `design/screens/app/` at 390 and
+the captures the screenshot suite writes to `dev/design/screens/app/` at 390 and
 1440 pixels in both themes, worst finding first. The list does not change per
 review; a new rule is added here when a bug shows the list missed it.
 
@@ -13,7 +13,7 @@ review; a new rule is added here when a bug shows the list missed it.
    context; every visible border
    is one hairline in `--border` (`--input` on fields); the header, the
    composer and the list share a left edge and the task page's two columns
-   share a top edge. `npx playwright test e2e/measure.spec.ts` reads the
+   share a top edge. `npm run test:e2e dev/e2e/measure.spec.ts` reads the
    rendered page and fails on any of these; the review confirms what the
    gate cannot see (text baselines in a row on one line, optical centering).
 2. **No layout shift between states.** Loading, empty, streaming, error and
@@ -28,7 +28,7 @@ review; a new rule is added here when a bug shows the list missed it.
    carries a focus ring of its own (`src/app/components/ui/` has none; the
    Card's hairline ring is its frame, not a focus state).
 4. **Contrast in both themes.** Text at or above 4.5:1, status dots at or
-   above 3:1 against the page. `node design/contrast.mjs` checks the tokens;
+   above 3:1 against the page. `node dev/design/contrast.mjs` checks the tokens;
    the review checks that components use them and nothing else.
 5. **Copy from the vocabulary.** Badge labels are the ten words in
    `src/app/vocabulary.ts`; failure copy comes from `failureCopy`; Session
@@ -55,18 +55,18 @@ review; a new rule is added here when a bug shows the list missed it.
 
 The suite starts the real application on port 3201 with fixture values in
 its environment and points it at a replay of the recordings under
-`fixtures/` (the fixture server in `e2e/fixture-server.ts` on port 3202).
+`dev/fixtures/` (the fixture server in `dev/e2e/fixture-server.ts` on port 3202).
 Nothing is configured in a file; nothing reaches OpenComputer or GitHub.
 
 ```sh
 npx playwright install chromium   # once
 npm run test:e2e                  # every state, both viewports, both themes
-npx playwright test --project=desktop        # one viewport
-npx playwright test -g "the task page"       # one group
+npm run test:e2e --project=desktop        # one viewport
+npm run test:e2e -g "the task page"       # one group
 ```
 
-Captures land in `design/screens/app/<name>-<viewport>-<theme>.png`, 56
-files under 300 KB each, and `e2e/measure.spec.ts` runs beside the
+Captures land in `dev/design/screens/app/<name>-<viewport>-<theme>.png`, 56
+files under 300 KB each, and `dev/e2e/measure.spec.ts` runs beside the
 captures. `APP_PORT` and `FIXTURE_PORT` move the replay's ports when a
 walkthrough (`npm run dev:fixtures`) already holds the defaults.
 `.github/workflows/screenshots.yml` runs the same
@@ -77,7 +77,7 @@ The same suite targets a deployed workbench when `BASE_URL` and
 `OPENCOMPUTER_API_URL` are set. The cookie is then minted from that
 environment's own `WORKBENCH_COOKIE_KEY`, `WORKBENCH_MEMBERSHIP`,
 `OPENCOMPUTER_PROJECT_ID` and `OPENCOMPUTER_ENVIRONMENT`, which must be the
-deployment's, and the live acceptance spec (`e2e/live.spec.ts`: sign in,
+deployment's, and the live acceptance spec (`dev/e2e/live.spec.ts`: sign in,
 list, open a task, follow up, stop) runs; the fixture-specific state
 captures are skipped. Never in CI.
 
@@ -88,7 +88,7 @@ OPENCOMPUTER_PROJECT_ID=… OPENCOMPUTER_ENVIRONMENT=development \
 E2E_LOGIN=<your login> E2E_USER_ID=<your numeric id> npm run test:e2e
 ```
 
-The static mockups under `design/mockups/` predate the application and
-render from `design/tokens.css` alone; they are kept as the design's
+The static mockups under `dev/design/mockups/` predate the application and
+render from `src/app/tokens.css` alone; they are kept as the design's
 reference and are no longer captured. To look at one, open it in a browser
 (`?theme=dark` for the dark palette).

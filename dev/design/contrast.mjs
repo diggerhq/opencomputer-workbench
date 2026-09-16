@@ -1,7 +1,7 @@
 // Recomputes the WCAG 2 contrast ratios stated in tokens.css from the file
 // itself, so the header comment can be checked rather than trusted.
 //
-//   node design/contrast.mjs
+//   node dev/design/contrast.mjs
 //
 // Prints one row per pair and theme; exits 1 when a text pair falls below
 // 4.5:1 or a status dot below 3:1 against the page.
@@ -9,7 +9,10 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "tokens.css"), "utf8");
+const source = readFileSync(
+  join(dirname(fileURLToPath(import.meta.url)), "..", "..", "src", "app", "tokens.css"),
+  "utf8",
+);
 
 function block(selector) {
   const start = source.indexOf(`${selector} {`);

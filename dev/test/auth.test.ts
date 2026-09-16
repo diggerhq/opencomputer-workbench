@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { callback, identity, login, open, SESSION_COOKIE, type SessionClaims, seal } from "../src/server/auth";
+import { callback, identity, login, open, SESSION_COOKIE, type SessionClaims, seal } from "../../src/server/auth";
 import { config, fakeFetch, GITHUB_MEMBER, json } from "./helpers";
 
 const T0 = Date.UTC(2026, 8, 15, 12, 0, 0);

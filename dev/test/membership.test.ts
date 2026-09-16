@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { admit, parsePolicy, policyId } from "../src/server/membership";
+import { admit, parsePolicy, policyId } from "../../src/server/membership";
 import { fakeFetch, json } from "./helpers";
 
 describe("parsePolicy", () => {

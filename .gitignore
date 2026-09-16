@@ -9,6 +9,7 @@ dist/
 .opencomputer/dev.json
 opencomputer/agents/*/.opencomputer/
 opencomputer/agents/*/workspace/
+.impeccable/
 playwright-report/
 test-results/
 *.log

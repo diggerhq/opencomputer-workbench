@@ -2,8 +2,8 @@
 import type { AgentMessage } from "@opencomputer/react";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { Conversation } from "../../src/app/components/Conversation";
-import { failureCopy } from "../../src/app/vocabulary";
+import { Conversation } from "../../../src/app/components/Conversation";
+import { failureCopy } from "../../../src/app/vocabulary";
 import { reduce } from "./helpers";
 
 afterEach(cleanup);

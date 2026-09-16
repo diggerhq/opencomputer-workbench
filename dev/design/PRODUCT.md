@@ -71,15 +71,15 @@ The name on screen is "Workbench"; the repository is `opencomputer-workbench`.
 Inter for text and Geist Mono for commands, output, commit shas and branch
 names are fixed. The palette is ink on paper with one accent and neutral
 surfaces; light and dark themes share one token set. Both screens are
-specified in `design/screens.md` and the tokens in `design/tokens.css`. No
+specified in `dev/design/screens.md` and the tokens in `src/app/tokens.css`. No
 other brand assets exist.
 
 ## Evidence on Hand
 
-Recorded fixtures under `fixtures/rows/` and `fixtures/logs/` render every
+Recorded fixtures under `dev/fixtures/rows/` and `dev/fixtures/logs/` render every
 state without a live run; they are authored to the platform's documented
 shapes until recordings from a live run replace them. Captures of every state
-at 390 and 1440 in both themes live under `design/screens/app/`. There are no
+at 390 and 1440 in both themes live under `dev/design/screens/app/`. There are no
 customer quotes, benchmarks or usage numbers; do not invent any.
 
 ## Product Principles
@@ -101,6 +101,6 @@ customer quotes, benchmarks or usage numbers; do not invent any.
 Keyboard-first for the two flows that matter: compose and start a task
 (⌘↵), send a follow-up (⌘↵), stop, archive, end. Every focusable element shows
 the token focus ring. Text contrast at or above 4.5:1 and status dots at or
-above 3:1 in both themes, checked by `design/contrast.mjs`. State is never
+above 3:1 in both themes, checked by `dev/design/contrast.mjs`. State is never
 carried by color alone: every dot has its word. Reduced motion stops the two
 animations.

@@ -1,6 +1,6 @@
 /* The mockups predate the application and keep the measures they were drawn
    with. The application itself uses Tailwind's scale and shadcn's sizes
-   (design/tokens.css says so), so these live here, for the mockups only. */
+   (src/app/tokens.css says so), so these live here, for the mockups only. */
 :root {
   --space-1: 0.25rem;
   --space-2: 0.5rem;
@@ -26,7 +26,7 @@
 }
 
 /* Static mockups of the two screens. Every color, size, radius and space is a
-   token from ../tokens.css; this file only arranges them. The application's
+   token from src/app/tokens.css; this file only arranges them. The application's
    components reproduce these boxes with Tailwind names mapped to the same
    tokens. Not shipped. */
 

@@ -4,9 +4,10 @@
 // walking through GitHub. Also the screenshot helper and the fixture
 // server's control calls.
 import { mkdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { type BrowserContext, test as base, type Page } from "@playwright/test";
-import { SESSION_COOKIE, type SessionClaims, seal } from "../src/server/auth";
-import { policyId } from "../src/server/membership";
+import { SESSION_COOKIE, type SessionClaims, seal } from "../../src/server/auth";
+import { policyId } from "../../src/server/membership";
 import { BASE_URL, cookieConfig, FIXTURE_PORT, LIVE } from "./env";
 
 const HOUR = 60 * 60 * 1000;
@@ -100,13 +101,13 @@ export { expect } from "@playwright/test";
 export type Theme = "light" | "dark";
 
 /**
- * Writes `design/screens/app/<name>-<viewport>-<theme>.png`. Animations are
+ * Writes `dev/design/screens/app/<name>-<viewport>-<theme>.png`. Animations are
  * disabled so the working dot and the streaming caret are captured in their
  * resting state; full page unless told otherwise.
  */
 export async function capture(page: Page, name: string, theme: Theme, options: { fullPage?: boolean } = {}) {
   const width = page.viewportSize()?.width ?? 0;
-  const dir = process.env.SCREENSHOT_DIR ?? "design/screens/app";
+  const dir = process.env.SCREENSHOT_DIR ?? fileURLToPath(new URL("../design/screens/app", import.meta.url));
   mkdirSync(dir, { recursive: true });
   await page.screenshot({
     path: `${dir}/${name}-${String(width)}-${theme}.png`,

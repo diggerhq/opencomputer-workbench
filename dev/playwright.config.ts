@@ -2,10 +2,11 @@
 // starts the app itself (`vite dev` on a strict port) with fixture values in
 // its environment and OPENCOMPUTER_API_URL pointing at the fixture server,
 // which the global setup starts; the specs render every state from the
-// recordings under fixtures/ and write their captures to design/screens/app.
+// recordings under dev/fixtures and write their captures to dev/design/screens/app.
 // With BASE_URL and OPENCOMPUTER_API_URL set in the environment the same
 // suite targets a live workbench instead: nothing is started here, the cookie
 // is minted from that environment's key, and the live-only specs run.
+import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 import { APP_PORT, BASE_URL, FIXTURE_ENV, LIVE } from "./e2e/env";
 
@@ -28,6 +29,8 @@ export default defineConfig({
     ? undefined
     : {
         command: `npx vite dev --port ${String(APP_PORT)} --strictPort`,
+        // The app lives at the repository root, one level above this configuration.
+        cwd: fileURLToPath(new URL("..", import.meta.url)),
         url: `http://localhost:${String(APP_PORT)}/`,
         reuseExistingServer: false,
         timeout: 60_000,

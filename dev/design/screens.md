@@ -5,8 +5,8 @@ are designed here at 390 and 1440 pixels before any component exists, in the
 tokens of [`tokens.css`](tokens.css) and the words of
 [`src/app/vocabulary.ts`](../src/app/vocabulary.ts). The static mockups under
 [`mockups/`](mockups/) were the first rendering of this specification; the
-screenshot suite (`e2e/screens.spec.ts`) now captures the application itself
-into [`screens/app/`](screens/app/) from the recordings under `fixtures/`,
+screenshot suite (`dev/e2e/screens.spec.ts`) now captures the application itself
+into [`screens/app/`](screens/app/) from the recordings under `dev/fixtures/`,
 and those captures are what every UI change is reviewed against with the
 [review checklist](review-checklist.md). Where building the screens changed
 the specification, the [last section](#what-the-built-screens-changed) says
@@ -15,7 +15,7 @@ what and why.
 Every measure below names a token or a step of Tailwind's 4 px scale, and
 every control size is one of shadcn's (default `h-8`, small `h-7`, extra
 small `h-6`). A value that is neither does not go into a component;
-`e2e/measure.spec.ts` reads the rendered page and fails when one does.
+`dev/e2e/measure.spec.ts` reads the rendered page and fails when one does.
 
 ## Shared rules
 
@@ -304,7 +304,7 @@ rows of full-width buttons: Send alone, then Stop, Archive, End in thirds.
 ## States
 
 Every state has a fixture that renders it without a live run: rows under
-`fixtures/rows/`, event logs under `fixtures/logs/`, both authored to the
+`dev/fixtures/rows/`, event logs under `dev/fixtures/logs/`, both authored to the
 design's seams until Development recordings replace them (their READMEs say
 which). The screenshot suite opens each log fixture as a session of its own
 whose status, activity and result are derived from the log, so the badge and
@@ -328,12 +328,12 @@ the timeline agree on every task-page capture.
 | TaskRow | failed | Red dot, "Failed", attention border | `rows/failed.json` |
 | TaskRow | archived | No dot, "Archived", muted title | `rows/archived.json` |
 | TaskRow | ended | No dot, "Ended" | `rows/ended.json` |
-| Composer | idle | Picker, ref, empty textarea, disabled button | (none; `test/submission.test.ts` fakes the workspace and repository answers) |
+| Composer | idle | Picker, ref, empty textarea, disabled button | (none; `dev/test/submission.test.ts` fakes the workspace and repository answers) |
 | Composer | bootstrapping | Every control disabled, no text change | (rendered before `workspace` answers) |
 | Composer | submitting | Button "Starting…" disabled, fields read-only | (interaction) |
-| Composer | conflict | Inline problem above the button: "A task with this id already exists with a different request. Keep editing or start over." Draft kept | (none; `test/submission.test.ts` fakes the conflict) |
-| Composer | refused | Inline problem from `failureCopy` (for example insufficient credits). Draft kept | (none; `test/submission.test.ts` fakes the refusal) |
-| Composer | no repositories | Picker disabled with "No repositories are connected" | (none; `test/submission.test.ts` fakes the empty list) |
+| Composer | conflict | Inline problem above the button: "A task with this id already exists with a different request. Keep editing or start over." Draft kept | (none; `dev/test/submission.test.ts` fakes the conflict) |
+| Composer | refused | Inline problem from `failureCopy` (for example insufficient credits). Draft kept | (none; `dev/test/submission.test.ts` fakes the refusal) |
+| Composer | no repositories | Picker disabled with "No repositories are connected" | (none; `dev/test/submission.test.ts` fakes the empty list) |
 | StatusBadge | each state | The dot rule and the label from `DISPLAY` | (derived from the row fixtures) |
 | ActivityTimeline | loading | Three `h-8` (32 px) skeleton entries | (rendered while replaying) |
 | ActivityTimeline | empty | "Nothing has run yet." | `logs/created-only.json` |
@@ -387,7 +387,7 @@ task's failure.
 
 ## What the built screens changed
 
-Recorded after the first screenshot suite ran over the application (`design/screens/app/`), with the reason for each departure from the sections above.
+Recorded after the first screenshot suite ran over the application (`dev/design/screens/app/`), with the reason for each departure from the sections above.
 
 - **Header.** Shows the environment beside the membership display and a Sign out control; the avatar appears only when GitHub returns one. The app needs a way out of the session, and the environment is the one configuration fact a member should see.
 - **Task page title.** The h2 is the task's title label (the first line of the request) at `--text-lg`, wrapping when long; there is no clamp. A clamp would hide the words that identify the task; the list is where titles are cut to one line.
@@ -396,7 +396,7 @@ Recorded after the first screenshot suite ran over the application (`design/scre
 - **Failure in two places.** A failed turn's copy appears under its turn in the timeline and as the marker after its messages in the conversation, both from `failureCopy`. The timeline reader and the conversation reader each see it where they are.
 - **Composer.** The repository picker starts empty with "Repository" as its placeholder and the base-ref input shows the chosen repository's default branch as its placeholder; the button is disabled until both a repository and a request exist.
 - **Skeletons and dialogs do not move.** Loading rows are still blocks and the End dialog opens without a fade or zoom, so streaming text and the working dot remain the only motion.
-- **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `design/tokens.css`.
+- **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `src/app/tokens.css`.
 - **Air, rhythm and weight.** The first captures on one system still read
   dense and heavy: one interval (8 px inside, 24 px between everything)
   repeated until nothing had more weight than anything else, medium weight
@@ -411,4 +411,4 @@ Recorded after the first screenshot suite ran over the application (`design/scre
   moved to the row's meta line so the title stands alone. Nothing about
   size, border color or control height changed, and the measurement gate
   passed unchanged apart from the row height it measures for equality.
-- **One sizing system.** The measures the specification first named as its own tokens (a row height, two control heights, gutters, two container widths, a dot and an avatar size, a spacing scale, a radius family) were a second system beside the shadcn primitives' own; wherever the two met, heights, corners and border weights disagreed and the interface read rough. They are gone: the application is on Tailwind's 4 px scale and shadcn's sizes, radii and border lightness (`--border` at shadcn's default with the neutral tint; `--ring` stays the accent because a focus indicator needs 3:1). Cards are shadcn's Card, the filter is Tabs, the composer, the request, the result and the timeline are Cards, task rows are three fixed columns so their edges align down the list, and `e2e/measure.spec.ts` asserts all of it on the rendered page. The mockups keep the old measures in their own stylesheet.
+- **One sizing system.** The measures the specification first named as its own tokens (a row height, two control heights, gutters, two container widths, a dot and an avatar size, a spacing scale, a radius family) were a second system beside the shadcn primitives' own; wherever the two met, heights, corners and border weights disagreed and the interface read rough. They are gone: the application is on Tailwind's 4 px scale and shadcn's sizes, radii and border lightness (`--border` at shadcn's default with the neutral tint; `--ring` stays the accent because a focus indicator needs 3:1). Cards are shadcn's Card, the filter is Tabs, the composer, the request, the result and the timeline are Cards, task rows are three fixed columns so their edges align down the list, and `dev/e2e/measure.spec.ts` asserts all of it on the rendered page. The mockups keep the old measures in their own stylesheet.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readConfig } from "../src/server/env";
+import { readConfig } from "../../src/server/env";
 import { config, SOURCE } from "./helpers";
 
 describe("readConfig", () => {

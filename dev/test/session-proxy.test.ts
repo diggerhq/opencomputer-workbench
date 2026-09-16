@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { createApp } from "../src/server/app";
+import { createApp } from "../../src/server/app";
 import { config, fakeFetch, json } from "./helpers";
 import { memberHeaders, memberPost, OC, T0 } from "./member";
 

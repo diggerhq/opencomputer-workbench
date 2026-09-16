@@ -1,7 +1,7 @@
 // A signed-in member for route tests: the cookie is minted with the app's
 // own sealing code, as the callback would mint it.
-import { SESSION_COOKIE, type SessionClaims, seal } from "../src/server/auth";
-import type { Config } from "../src/server/env";
+import { SESSION_COOKIE, type SessionClaims, seal } from "../../src/server/auth";
+import type { Config } from "../../src/server/env";
 
 export const T0 = Date.UTC(2026, 8, 15, 20, 46, 0);
 const HOUR = 60 * 60 * 1000;

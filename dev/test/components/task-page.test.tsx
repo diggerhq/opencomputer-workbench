@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { routeTree } from "../../src/app/routeTree.gen";
-import type { SessionSummary } from "../../src/server/client";
-import { type Task, toTask } from "../../src/server/task";
+import { routeTree } from "../../../src/app/routeTree.gen";
+import type { SessionSummary } from "../../../src/server/client";
+import { type Task, toTask } from "../../../src/server/task";
 import { load } from "./helpers";
 
 const ROWS = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "fixtures", "rows");

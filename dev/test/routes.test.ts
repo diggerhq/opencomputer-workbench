@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createApp } from "../src/server/app";
-import { SESSION_COOKIE, type SessionClaims, seal } from "../src/server/auth";
+import { createApp } from "../../src/server/app";
+import { SESSION_COOKIE, type SessionClaims, seal } from "../../src/server/auth";
 import { config, fakeFetch, GITHUB_MEMBER, json, PROJECT } from "./helpers";
 
 const T0 = Date.UTC(2026, 8, 15, 12, 0, 0);

@@ -1,4 +1,4 @@
-import { type Config, readConfig } from "../src/server/env";
+import { type Config, readConfig } from "../../src/server/env";
 
 export const COOKIE_KEY = Buffer.alloc(32, 7).toString("base64");
 

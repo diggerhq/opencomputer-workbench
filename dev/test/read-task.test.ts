@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { readTask } from "../opencomputer/agents/worker/read-task";
+import { readTask } from "../../opencomputer/agents/worker/read-task";
 
 const payload = {
   taskId: "01J9Y0C6R4V3M2K7Q8N5P1H9ZT",

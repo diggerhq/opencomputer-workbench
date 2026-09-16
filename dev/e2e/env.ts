@@ -4,7 +4,7 @@
 // BASE_URL and OPENCOMPUTER_API_URL in the environment; the cookie is then
 // minted from the same environment's WORKBENCH_COOKIE_KEY, membership,
 // project and environment, which must be the deployed workbench's own.
-import { type Config, readConfig } from "../src/server/env";
+import { type Config, readConfig } from "../../src/server/env";
 
 /** The replay's two ports; APP_PORT and FIXTURE_PORT in the environment move them, so a second run can sit beside a walkthrough. */
 export const APP_PORT = Number(process.env.APP_PORT ?? 3201);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type Report, ReportRejected, verifyReport } from "../opencomputer/agents/worker/tools/report";
+import { type Report, ReportRejected, verifyReport } from "../../opencomputer/agents/worker/tools/report";
 
 const repo = "acme/service";
 const base = "a".repeat(40);
