@@ -3,12 +3,11 @@
 // the management API one to one and checks every answer against the
 // documented shape, so this module adds only what the API's contract asks
 // of a caller: a bounded repeat of a write whose row was not yet confirmed in
-// the list, and the agent's active deployment read from the project.
+// the list.
 import { OpenComputer, OpenComputerError } from "@opencomputer/sdk/agents";
-import type { Config, Environment } from "./env";
+import type { Config } from "./env";
 
 export type {
-  Deployment,
   Repository,
   Session,
   SessionResult,
@@ -47,16 +46,4 @@ export async function untilPublished<T>(call: () => Promise<T>): Promise<T> {
       await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
     }
   }
-}
-
-/** The agent's active deployment in the environment, or null when it is not deployed there. */
-export async function activeDeployment(
-  oc: Client,
-  config: Config,
-  agentId: string,
-  environment: Environment,
-): Promise<string | null> {
-  const detail = await oc.projects.get(config.oc.projectId);
-  const match = detail.project.environments.find((entry) => entry.agentId === agentId && entry.name === environment);
-  return match?.activeDeploymentId || null;
 }
