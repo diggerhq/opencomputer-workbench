@@ -4,8 +4,8 @@
 // is the whole of "start work safely from a stateless handler".
 import { Hono } from "hono";
 import { z } from "zod";
+import { type Client, type Deployment, OpenComputerError, type SessionSummary, untilPublished } from "./client";
 import type { Config } from "./env";
-import { type Deployment, type OC, OCError, type SessionSummary } from "./oc";
 import { problem } from "./problem";
 import { taskRequest } from "./request";
 import type { Variables } from "./routes";
@@ -40,7 +40,7 @@ export interface Clock {
   now(): number;
 }
 
-export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variables: Variables }> {
+export function taskRoutes(config: Config, oc: Client, clock: Clock): Hono<{ Variables: Variables }> {
   const app = new Hono<{ Variables: Variables }>();
   const scope = { project: config.oc.projectId, environment: config.oc.environment, agent: config.oc.agentId };
   const task = (row: SessionSummary): Task => toTask(row, clock.now());
@@ -57,9 +57,9 @@ export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variabl
     const page = await oc.sessions.list({
       ...scope,
       ...(archived ? { labels: { [LABELS.archived]: "true" } } : {}),
-      cursor,
+      ...(cursor ? { cursor } : {}),
     });
-    const rows = archived ? page.sessions : page.sessions.filter((row) => row.labels[LABELS.archived] !== "true");
+    const rows = archived ? page.sessions : page.sessions.filter((row) => row.labels?.[LABELS.archived] !== "true");
     return c.json({ tasks: rows.map(task), nextCursor: page.nextCursor });
   });
 
@@ -82,7 +82,7 @@ export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variabl
     try {
       deployment = await oc.deployments.get(deploymentId);
     } catch (cause) {
-      if (cause instanceof OCError && cause.status === 404) {
+      if (cause instanceof OpenComputerError && cause.status === 404) {
         return problem(c, 409, "deployment_mismatch", "The pinned deployment is not this workbench's agent's.");
       }
       throw cause;
@@ -104,19 +104,21 @@ export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variabl
     // Two calls, one key each. A 200 on the first is the same session; the
     // second deduplicates by key. A conflict from either is shown, never
     // repaired through the request label.
-    const created = await oc.sessions.create(
-      { deploymentId, environment: config.oc.environment, labels, source: "api" },
-      taskId,
+    const created = await untilPublished(() =>
+      oc.sessions.create(
+        { deploymentId, environment: config.oc.environment, labels, source: "api" },
+        { idempotencyKey: taskId },
+      ),
     );
-    const receipt = await oc.turns.send(created.id, {
-      ...taskRequest({ taskId, repo, ref, text, actor }, config.devStubs),
+    const receipt = await oc.sessions.turns.send(created.session.id, {
+      ...taskRequest({ taskId, repo, ref, text, actor }),
       idempotencyKey: `${taskId}/start`,
       mode: "queue",
     });
     // The session is read back rather than assembled here: its row is
     // published before the create call returns (C1), and a duplicate receipt
     // may name a turn that has already settled.
-    return c.json({ task: await fromSession(created.id), receipt }, 201);
+    return c.json({ task: await fromSession(created.session.id), receipt }, 201);
   });
 
   app.patch("/api/tasks/:id", async (c) => {
@@ -130,7 +132,7 @@ export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variabl
       ...(parsed.data.title !== undefined ? { [LABELS.title]: parsed.data.title } : {}),
       ...(parsed.data.archived !== undefined ? { [LABELS.archived]: parsed.data.archived ? "true" : "false" } : {}),
     });
-    const session = await oc.sessions.setLabels(id, { set });
+    const session = await untilPublished(() => oc.sessions.setLabels(id, { set }));
     return c.json({ task: task(summarize(session, config.oc.projectId)) });
   });
 
@@ -142,12 +144,11 @@ export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variabl
   });
 
   app.get("/api/repos", async (c) => {
-    // DEV STUB (C3): the configured list, only with WORKBENCH_DEV_STUBS=1;
-    // deleted with the stub when the repositories route ships.
-    if (config.devStubs && config.devRepos) {
-      return c.json({ repositories: config.devRepos.map((repo) => ({ ...repo, private: false })), nextCursor: null });
-    }
-    const page = await oc.github.repositories(config.oc.environment, c.req.query("cursor") || null);
+    const cursor = c.req.query("cursor");
+    const page = await oc.projects.github.repositories(config.oc.projectId, {
+      environment: config.oc.environment,
+      ...(cursor ? { cursor } : {}),
+    });
     return c.json({
       repositories: page.repositories
         .filter((repo) => !repo.archived)

@@ -2,8 +2,8 @@
 // session; its three facets, execution, archived and result, are projected
 // independently from the row (the design's Task lifecycle) and never stored.
 // Pure: a row and a clock in, a task out; unit-tested over the row fixtures.
-import { type Report, type ReportStage, reportStage } from "../lib/report";
-import type { Session, SessionSummary, Turn } from "./oc";
+import { type Report, type ReportStage, reportSchema, reportStage } from "../lib/report";
+import type { Session, SessionSummary, Turn } from "./client";
 
 export type Execution = "starting" | "not_started" | "queued" | "working" | "stopping" | "idle" | "failed" | "ended";
 
@@ -88,8 +88,11 @@ export function titleOf(text: string): string {
 const NOT_STARTED_AFTER_MS = 2 * 60 * 1000;
 const WORKING_STATUSES = new Set(["running", "waiting_runtime", "resuming"]);
 
+const NO_ACTIVITY = Object.freeze({ activeTurnId: null, queued: 0, lastSettledTurn: null });
+
 function execution(row: SessionSummary, now: number): { execution: Execution; failure?: { code: string } } {
-  const { status, activity } = row;
+  const { status } = row;
+  const activity = row.activity ?? NO_ACTIVITY;
   if (status === "ended") return { execution: "ended" };
   if (status === "stopping") return { execution: "stopping" };
   if (status === "failed") return { execution: "failed" };
@@ -100,19 +103,41 @@ function execution(row: SessionSummary, now: number): { execution: Execution; fa
     const age = now - Date.parse(row.createdAt);
     return { execution: age > NOT_STARTED_AFTER_MS ? "not_started" : "starting" };
   }
-  if (last.status === "failed") return { execution: "failed", ...(last.code ? { failure: { code: last.code } } : {}) };
+  if (last.status === "failed") {
+    // The row's settled turn carries no failure code today; the ask for one
+    // is open with the platform, and a row that carries it is read as is.
+    const code = (last as { code?: unknown }).code;
+    return { execution: "failed", ...(typeof code === "string" && code ? { failure: { code } } : {}) };
+  }
   return { execution: "idle" };
 }
 
+/**
+ * A committed result whose data fits the report schema; invalid data is
+ * logged and treated as no result, because a row must never fail to render
+ * over a field the app does not own.
+ */
+function reportOf(row: SessionSummary): { turnId: string; reportedAt: string; data: Report } | undefined {
+  const result = row.result;
+  if (!result) return undefined;
+  const parsed = reportSchema.safeParse(result.data);
+  if (!parsed.success) {
+    console.warn(`Session result from turn ${result.turnId} does not match the report schema; ignored.`);
+    return undefined;
+  }
+  return { turnId: result.turnId, reportedAt: result.reportedAt, data: parsed.data };
+}
+
 export function toTask(row: SessionSummary, now: number): Task {
-  const labels = row.labels;
+  const labels = row.labels ?? {};
+  const activity = row.activity ?? NO_ACTIVITY;
   const state = execution(row, now);
   const actorId = Number(labels[LABELS.actorId]);
-  const result = row.result;
+  const result = reportOf(row);
   return {
     id: row.id,
     execution: state.execution,
-    queued: row.activity.queued,
+    queued: activity.queued,
     ...(state.failure ? { failure: state.failure } : {}),
     archived: labels[LABELS.archived] === "true",
     ...(result
@@ -122,7 +147,7 @@ export function toTask(row: SessionSummary, now: number): Task {
             turnId: result.turnId,
             reportedAt: result.reportedAt,
             stage: reportStage(result.data),
-            fromLastTurn: row.activity.lastSettledTurn?.id === result.turnId,
+            fromLastTurn: activity.lastSettledTurn?.id === result.turnId,
           },
         }
       : {}),
@@ -144,38 +169,32 @@ function later(a: Turn, b: Turn): Turn {
 
 /**
  * A session from `GET /sessions/<id>` as a list row, so one `toTask` serves
- * both. `activity` is derived from `turns` when the response has none.
+ * both. The session carries its turns and no `activity`; the row's facts are
+ * derived from them.
  */
 export function summarize(session: Session, projectId: string): SessionSummary {
-  const activity =
-    session.activity ??
-    (() => {
-      const running = session.turns.find((turn) => turn.status === "running");
-      const queued = session.turns.filter((turn) => turn.status === "queued").length;
-      const settled = session.turns
-        .filter((turn) => SETTLED.has(turn.status))
-        .reduce<Turn | undefined>((best, turn) => (best ? later(best, turn) : turn), undefined);
-      return {
-        activeTurnId: running?.id ?? null,
-        queued,
-        lastSettledTurn: settled
-          ? { id: settled.id, status: settled.status as "completed" | "failed" | "cancelled", at: settled.updatedAt }
-          : null,
-      };
-    })();
+  const running = session.turns.find((turn) => turn.status === "running");
+  const queued = session.turns.filter((turn) => turn.status === "queued").length;
+  const settled = session.turns
+    .filter((turn) => SETTLED.has(turn.status))
+    .reduce<Turn | undefined>((best, turn) => (best ? later(best, turn) : turn), undefined);
   return {
     id: session.id,
     projectId: session.projectId ?? projectId,
     agentId: session.agentId,
     deploymentId: session.deploymentId,
-    environment: session.environment ?? "development",
-    ...(session.source ? { source: session.source } : {}),
+    environment: session.environment ?? null,
+    source: session.source ?? "api",
     status: session.status,
-    labels: session.labels,
+    labels: session.labels ?? {},
     createdAt: session.createdAt,
     updatedAt: session.updatedAt,
     revision: session.revision ?? 0,
-    activity,
-    result: session.result,
+    activity: {
+      activeTurnId: running?.id ?? null,
+      queued,
+      lastSettledTurn: settled ? { id: settled.id, status: settled.status, at: settled.updatedAt } : null,
+    },
+    result: session.result ?? null,
   };
 }

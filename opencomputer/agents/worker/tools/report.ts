@@ -270,7 +270,6 @@ export const report = defineTool({
     "Record what is known about the task so far: the repository, the resolved base commit, the work branch, the tested commit, the pull request and the checks that ran. Call it as soon as the base commit is known and again whenever one of these changes, each call carrying everything known so far. Git references are verified against GitHub; a claim that does not hold is rejected with the reason.",
   input: REPORT_JSON_SCHEMA,
   output: REPORT_JSON_SCHEMA,
-  // @ts-expect-error `result: true` names this tool's latest committed output as the session's result (C1); the typing arrives with the package that ships it, the runtime keeps the property.
   result: true,
   async run({ input }) {
     const verified = await verifyReport(

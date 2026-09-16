@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../src/server/app";
-import type { Session } from "../src/server/oc";
+import type { Session } from "../src/server/client";
 import { config, fakeFetch, json } from "./helpers";
 import { memberHeaders, memberPost, OC, T0 } from "./member";
 
@@ -18,9 +18,19 @@ function session(over: Partial<Session> = {}): Session {
     deploymentId: "dep_dev",
     environment: "development",
     status: "idle",
+    source: "api",
     labels: { title: "Investigate", repo: "acme/service", ref: "main", actor_id: "1", actor_login: "octocat" },
     result: null,
-    turns: [{ id: "t1", status: "completed", createdAt: "2026-09-15T20:00:00Z", updatedAt: "2026-09-15T20:05:00Z" }],
+    turns: [
+      {
+        id: "t1",
+        input: "Investigate",
+        mode: "queue",
+        status: "completed",
+        createdAt: "2026-09-15T20:00:00Z",
+        updatedAt: "2026-09-15T20:05:00Z",
+      },
+    ],
     createdAt: "2026-09-15T20:00:00Z",
     updatedAt: "2026-09-15T20:05:00Z",
     ...over,
@@ -28,7 +38,8 @@ function session(over: Partial<Session> = {}): Session {
 }
 
 const deployment = {
-  [`${OC}/deployments/dep_dev`]: () => json({ id: "dep_dev", agentId: "worker", alias: "development" }),
+  [`${OC}/deployments/dep_dev`]: () =>
+    json({ id: "dep_dev", agentId: "worker", alias: "development", createdAt: "2026-09-15T18:00:00Z" }),
 };
 
 const envelope = {
@@ -129,7 +140,16 @@ describe("POST /api/tasks", () => {
         actor_login: "octocat",
         archived: "false",
       },
-      turns: [{ id: "turn_1", status: "queued", createdAt: "2026-09-15T20:46:01Z", updatedAt: "2026-09-15T20:46:01Z" }],
+      turns: [
+        {
+          id: "turn_1",
+          input: "Add a health endpoint\n\nGET /healthz.",
+          mode: "queue",
+          status: "queued",
+          createdAt: "2026-09-15T20:46:01Z",
+          updatedAt: "2026-09-15T20:46:01Z",
+        },
+      ],
       createdAt: "2026-09-15T20:46:00Z",
       updatedAt: "2026-09-15T20:46:01Z",
       ...over,
@@ -142,7 +162,7 @@ describe("POST /api/tasks", () => {
       [`${OC}/sessions/ses_new/turns`]: () => json({ turnId: "turn_1", status: "queued", duplicate: false }, 202),
       [`${OC}/sessions/ses_new`]: () => json(createdSession()),
       [`${OC}/sessions`]: () =>
-        json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" }, deployment: {} }, 201),
+        json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" } }, 201),
       ...overrides,
     });
   }
@@ -187,33 +207,12 @@ describe("POST /api/tasks", () => {
         archived: "false",
       },
     });
+    expect(turn?.init?.headers).toMatchObject({ "idempotency-key": `${TASK_ID}/start` });
     expect(JSON.parse(String(turn?.init?.body))).toEqual({
       input: envelope.text,
-      payload: { taskId: TASK_ID, repo: "acme/service", ref: "main", actor: { id: 1, login: "octocat" } },
-      idempotencyKey: `${TASK_ID}/start`,
       mode: "queue",
+      payload: { taskId: TASK_ID, repo: "acme/service", ref: "main", actor: { id: 1, login: "octocat" } },
     });
-  });
-
-  it("folds the context into the text only under the development stub", async () => {
-    const fetch = creating();
-    const app = createApp(
-      config({ WORKBENCH_DEV_STUBS: "1", WORKBENCH_DEV_REPOS: '[{"fullName":"acme/service","defaultBranch":"main"}]' }),
-      {
-        fetch,
-        now: () => T0,
-      },
-    );
-    await app.fetch(
-      new Request("https://workbench.example/api/tasks", {
-        method: "POST",
-        headers: await memberPost(cfg),
-        body: JSON.stringify(envelope),
-      }),
-    );
-    const turn = JSON.parse(String(fetch.calls[2]?.init?.body));
-    expect(turn.payload).toBeUndefined();
-    expect(turn.input).toBe(`[workbench] task=${TASK_ID} repo=acme/service ref=main actor=octocat\n${envelope.text}`);
   });
 
   it("continues to the turn when the key had already created the session", async () => {
@@ -243,6 +242,8 @@ describe("POST /api/tasks", () => {
             turns: [
               {
                 id: "turn_1",
+                input: "Add a health endpoint",
+                mode: "queue",
                 status: "completed",
                 createdAt: "2026-09-15T20:46:01Z",
                 updatedAt: "2026-09-15T20:50:00Z",
@@ -372,7 +373,8 @@ describe("POST /api/tasks", () => {
 
   it("refuses a deployment that is not the workbench agent's without creating anything", async () => {
     const fetch = fakeFetch({
-      [`${OC}/deployments/dep_x`]: () => json({ id: "dep_x", agentId: "other", alias: "development" }),
+      [`${OC}/deployments/dep_x`]: () =>
+        json({ id: "dep_x", agentId: "other", alias: "development", createdAt: "2026-09-15T18:00:00Z" }),
     });
     const app = createApp(cfg, { fetch, now: () => T0 });
     const response = await app.fetch(
@@ -492,10 +494,7 @@ describe("GET /api/repos", () => {
       [`${OC}/projects/proj_1/github/repositories`]: () =>
         json({ error: { code: "not_found", message: "No route." } }, 404),
     });
-    const app = createApp(config({ WORKBENCH_DEV_REPOS: '[{"fullName":"acme/service","defaultBranch":"main"}]' }), {
-      fetch,
-      now: () => T0,
-    });
+    const app = createApp(cfg, { fetch, now: () => T0 });
     const response = await app.fetch(
       new Request("https://workbench.example/api/repos", { headers: await memberHeaders(cfg) }),
     );
@@ -513,26 +512,5 @@ describe("GET /api/repos", () => {
     );
     expect(response.status).toBe(404);
     expect((await response.json()).error.code).toBe("github_connection_not_found");
-  });
-
-  it("serves the configured list only under the development stub", async () => {
-    const fetch = fakeFetch({});
-    const stubbed = config({
-      WORKBENCH_DEV_STUBS: "1",
-      WORKBENCH_DEV_REPOS: '[{"fullName":"acme/service","defaultBranch":"main"}]',
-    });
-    const app = createApp(stubbed, { fetch, now: () => T0 });
-    const response = await app.fetch(
-      new Request("https://workbench.example/api/repos", { headers: await memberHeaders(stubbed) }),
-    );
-    expect(await response.json()).toEqual({
-      repositories: [{ fullName: "acme/service", defaultBranch: "main", private: false }],
-      nextCursor: null,
-    });
-    expect(fetch.calls).toHaveLength(0);
-    // The gate alone does not stub the route: without a configured list the
-    // live repositories route is called, so the C2 stub can run by itself.
-    expect(config({ WORKBENCH_DEV_STUBS: "1" }).devRepos).toBeUndefined();
-    expect(() => config({ WORKBENCH_DEV_STUBS: "1", WORKBENCH_DEV_REPOS: "[]" })).toThrow(/WORKBENCH_DEV_REPOS/);
   });
 });

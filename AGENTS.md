@@ -9,7 +9,7 @@ agents. The design that decides what is built lives outside this repository.
 - `src/server/app.ts` `createApp(config)`: the one Fetch handler every host runs; `routes.ts` the route table; `problem.ts` the one error shape
 - `src/server/env.ts` typed configuration from a host's own source; a missing key names itself
 - `src/server/auth.ts` GitHub sign-in and the cookie; `membership.ts` the org, team or user rule with pinned numeric ids
-- `src/server/oc.ts` the management API wrapper, marked `STOPGAP(C5)`; the only module that knows OpenComputer's paths and shapes
+- `src/server/client.ts` the management client from `@opencomputer/sdk/agents`, plus the bounded repeat of an unconfirmed publication and the agent's active deployment
 - `src/server/task.ts` `toTask`: the only place OpenComputer facts become app facets (execution, archived, result); `scope.ts` the session check every session-scoped route runs first
 - `src/server/tasks.ts` the task routes (list, get, create with the submission envelope, title and archive labels, end, repositories); `session-proxy.ts` the three routes the React hook needs; `request.ts` what the first turn carries
 - `opencomputer/project.ts` the project and its one agent; `opencomputer/agents/worker/agent.ts` the worker: the GitHub connection, one model, one tool and its instructions
@@ -35,7 +35,7 @@ agents. The design that decides what is built lives outside this repository.
 - The server routes are the only holder of the OpenComputer key; the browser gets a cookie and the app's own routes.
 - Every `/api` route requires a member; every POST and PATCH requires the app's own origin.
 - Nothing depends on process-local state surviving a request; the hosts declare no persistence, queue or schedule (`test/stateless.test.ts`).
-- The workbench never substitutes a shipping path for a missing OpenComputer contract: stopgaps carry a `STOPGAP(Cn)` comment naming their deletion condition; development stubs run only with `WORKBENCH_DEV_STUBS=1`.
+- The workbench never substitutes a shipping path for a missing OpenComputer contract: the one remaining stopgap, the notes beside the hook's turns in `src/app/activity.ts`, carries a `STOPGAP(C5)` comment naming its deletion condition.
 - The agent is deployed with the OpenComputer CLI from `opencomputer/`; sessions pin the deployment they started on, so a redeploy changes new tasks only.
 - Never print or commit secrets; `.env.local` and `.dev.vars` hold them and are ignored.
 

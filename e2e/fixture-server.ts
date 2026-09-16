@@ -15,8 +15,12 @@ import { readdirSync, readFileSync } from "node:fs";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { type AgentEvent, applyEvents, emptyTimeline, turnsOf } from "@opencomputer/react";
 import { Hono } from "hono";
-import { type ActivityEvent, applyEvents, emptyActivity, isSettled, latestResult } from "../src/app/reducer";
+import { activityOf, emptyNotes, isSettled, latestResult, noteEvents } from "../src/app/activity";
+
+/** One log entry as the fixtures record it: the hook's event plus the session it belongs to. */
+type ActivityEvent = AgentEvent & { sessionId?: string };
 
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), "..", "fixtures");
 /** The fixtures' "now": one minute after the row timestamps' reference, as the unit tests read them. */
@@ -95,7 +99,7 @@ function sessionFromLog(name: string, id: string, base: Row): Stored {
     ...event,
     sessionId: id,
   }));
-  const activity = applyEvents(emptyActivity(), events);
+  const activity = activityOf(turnsOf(applyEvents(emptyTimeline(), events)), noteEvents(emptyNotes(), events));
   const running = activity.turns.find((turn) => turn.status === "running");
   const settled = activity.turns.filter(isSettled).at(-1);
   const result = latestResult(activity);
@@ -116,19 +120,12 @@ function sessionFromLog(name: string, id: string, base: Row): Stored {
     activity: {
       activeTurnId: running?.id ?? null,
       queued: activity.turns.filter((turn) => turn.status === "queued").length,
-      lastSettledTurn: settled
-        ? {
-            id: settled.id,
-            status: settled.status,
-            at: settled.settledAt ?? created,
-            ...(settled.failure ? { code: settled.failure.code } : {}),
-          }
-        : null,
+      lastSettledTurn: settled ? { id: settled.id, status: settled.status, at: settled.settledAt ?? created } : null,
     },
     result: result
       ? {
           turnId: result.turn.id,
-          callId: result.turn.resultCallId ?? `call_${result.turn.id}`,
+          callId: result.turn.toolCalls.find((call) => call.result)?.callId ?? `call_${result.turn.id}`,
           reportedAt: result.turn.settledAt ?? created,
           data: result.report,
         }
@@ -167,17 +164,28 @@ function sessionOf(stored: Stored): Json {
   if (activity.lastSettledTurn) {
     turns.push({
       id: activity.lastSettledTurn.id,
+      input: "",
+      mode: "queue",
       status: activity.lastSettledTurn.status,
       createdAt: row.createdAt,
       updatedAt: activity.lastSettledTurn.at,
     });
   }
   if (activity.activeTurnId) {
-    turns.push({ id: activity.activeTurnId, status: "running", createdAt: row.updatedAt, updatedAt: row.updatedAt });
+    turns.push({
+      id: activity.activeTurnId,
+      input: "",
+      mode: "queue",
+      status: "running",
+      createdAt: row.updatedAt,
+      updatedAt: row.updatedAt,
+    });
   }
   for (let index = 0; index < activity.queued; index += 1) {
     turns.push({
       id: `${row.id}:queued:${String(index + 1)}`,
+      input: "",
+      mode: "queue",
       status: "queued",
       createdAt: row.updatedAt,
       updatedAt: row.updatedAt,
@@ -212,6 +220,8 @@ const project = {
     { name: "production", agentId: "worker" },
   ],
   agents: [{ id: "worker", name: "worker" }],
+  createdAt: "2026-09-15T18:00:00.000Z",
+  updatedAt: "2026-09-15T18:00:00.000Z",
 };
 
 const repositories = [
@@ -292,7 +302,7 @@ export function fixtureApp(state: FixtureState): Hono {
     const existing = [...state.sessions.values()].find((stored) => stored.row.labels.request === key);
     if (existing) {
       const { id, status, createdAt } = existing.row;
-      return c.json({ session: { id, status, createdAt }, deployment: {} }, 200);
+      return c.json({ session: { id, status, createdAt } }, 200);
     }
     const id = crypto.randomUUID();
     const createdAt = now();
@@ -314,7 +324,7 @@ export function fixtureApp(state: FixtureState): Hono {
     const stored: Stored = { row, events: [], keys: new Map() };
     stored.events = createdOnly(row).map((event) => ({ ...event, timestamp: createdAt }));
     state.sessions.set(id, stored);
-    return c.json({ session: { id, status: row.status, createdAt }, deployment: {} }, 201);
+    return c.json({ session: { id, status: row.status, createdAt } }, 201);
   });
 
   api.get("/sessions/:id", (c) => {

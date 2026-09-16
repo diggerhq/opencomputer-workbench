@@ -1,12 +1,13 @@
 import type { AgentMessage } from "@opencomputer/react";
 import { Bot } from "lucide-react";
-import { type FormEvent, type KeyboardEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type KeyboardEvent, type ReactNode, useRef, useState } from "react";
 import { toast } from "sonner";
+import type { Turn } from "@/activity";
 import { Button } from "@/components/ui/button";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Textarea } from "@/components/ui/textarea";
+import { ulid } from "@/lib/ulid";
 import { cn } from "@/lib/utils";
-import type { Turn } from "@/reducer";
 import { failureCopy } from "@/vocabulary";
 import { ActorAvatar } from "./ActorAvatar";
 import { Markdown } from "./Markdown";
@@ -23,8 +24,12 @@ export interface ConversationProps {
   readonly isReplaying: boolean;
   /** A request or poll failure the hook reports; shown once, not as a turn failure. */
   readonly connectionError?: string;
-  /** The hook's `send`: resolves on admission, rejects with a `SendError` when nothing was admitted. */
-  readonly send: (text: string) => Promise<unknown>;
+  /**
+   * The hook's `send`: resolves on admission, rejects with a `SendError` when
+   * nothing was admitted. The composer passes its own idempotency key, one
+   * per submission, kept for that submission's retries.
+   */
+  readonly send: (text: string, options: { idempotencyKey: string }) => Promise<unknown>;
   /** The controls rendered on the Send row: stop, archive, end. */
   readonly controls?: ReactNode;
 }
@@ -121,16 +126,26 @@ export function Conversation({
 }: ConversationProps) {
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  // The submission's key: minted when the draft is sent, kept while the same
+  // draft is retried, dropped when the draft changes or the turn is admitted.
+  const submissionKey = useRef<string | null>(null);
   const text = draft.trim();
   const disabled = ended || sending;
+
+  function edit(value: string) {
+    submissionKey.current = null;
+    setDraft(value);
+  }
 
   async function submit(event?: FormEvent) {
     event?.preventDefault();
     if (!text || disabled) return;
     setSending(true);
+    submissionKey.current ??= ulid();
     try {
-      await send(text);
+      await send(text, { idempotencyKey: submissionKey.current });
       // The platform has the input; only now is the draft not needed.
+      submissionKey.current = null;
       setDraft("");
     } catch (cause) {
       console.error(cause);
@@ -166,7 +181,7 @@ export function Conversation({
           placeholder={ended ? "" : "Follow up…"}
           value={draft}
           disabled={disabled}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={(event) => edit(event.target.value)}
           onKeyDown={onKeyDown}
           className="h-16 resize-none"
         />
