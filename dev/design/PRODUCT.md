@@ -71,7 +71,7 @@ The name on screen is "Workbench"; the repository is `opencomputer-workbench`.
 Inter for text and Geist Mono for commands, output, commit shas and branch
 names are fixed. The palette is ink on paper with one accent and neutral
 surfaces; light and dark themes share one token set. Both screens are
-specified in `dev/design/screens.md` and the tokens in `src/app/tokens.css`. No
+specified in `dev/design/screens.md` and the tokens in `src/tokens.css`. No
 other brand assets exist.
 
 ## Evidence on Hand

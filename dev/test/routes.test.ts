@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { createApp } from "../../src/server/app";
 import { SESSION_COOKIE, type SessionClaims, seal } from "../../src/server/auth";
+import { configure } from "../../src/server/env";
 import { config, fakeFetch, GITHUB_MEMBER, json, PROJECT } from "./helpers";
+import { serve } from "./serve";
 
 const T0 = Date.UTC(2026, 8, 15, 12, 0, 0);
 const HOUR = 60 * 60 * 1000;
@@ -23,8 +24,8 @@ async function member(): Promise<Record<string, string>> {
 
 describe("the route table", () => {
   it("answers 401 with one problem shape and clears the cookie when nobody is signed in", async () => {
-    const app = createApp(cfg, { fetch: fakeFetch({}), now: () => T0 });
-    const response = await app.fetch(new Request("https://workbench.example/api/workspace"));
+    configure({ config: cfg, fetch: fakeFetch({}), now: () => T0 });
+    const response = await serve(new Request("https://workbench.example/api/workspace"));
     expect(response.status).toBe(401);
     expect(await response.json()).toEqual({
       error: { code: "unauthenticated", message: "Sign in to use the workbench." },
@@ -36,10 +37,8 @@ describe("the route table", () => {
 
   it("describes the workspace for a member", async () => {
     const fetch = fakeFetch(PROJECT);
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
-      new Request("https://workbench.example/api/workspace", { headers: await member() }),
-    );
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(new Request("https://workbench.example/api/workspace", { headers: await member() }));
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({
       identity: { id: 1, login: "octocat", avatarUrl: "" },
@@ -51,12 +50,9 @@ describe("the route table", () => {
   });
 
   it("reports an agent that is not deployed to the environment", async () => {
-    const app = createApp(config({ OPENCOMPUTER_ENVIRONMENT: "production" }), {
-      fetch: fakeFetch(PROJECT),
-      now: () => T0,
-    });
+    configure({ config: config({ OPENCOMPUTER_ENVIRONMENT: "production" }), fetch: fakeFetch(PROJECT), now: () => T0 });
     const production = { ...claims, ws: { ...claims.ws, environment: "production" } };
-    const response = await app.fetch(
+    const response = await serve(
       new Request("https://workbench.example/api/workspace", {
         headers: {
           cookie: `${SESSION_COOKIE}=${await seal(production, config({ OPENCOMPUTER_ENVIRONMENT: "production" }))}`,
@@ -72,26 +68,22 @@ describe("the route table", () => {
       "https://app.opencomputer.dev/api/managed-agents/projects/proj_1": () =>
         json({ error: { code: "project_not_found", message: "No such project." } }, 404),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
-      new Request("https://workbench.example/api/workspace", { headers: await member() }),
-    );
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(new Request("https://workbench.example/api/workspace", { headers: await member() }));
     expect(response.status).toBe(502);
     expect(await response.json()).toEqual({ error: { code: "project_not_found", message: "No such project." } });
   });
 
   it("rewrites the cookie on a route when membership was re-checked", async () => {
-    const app = createApp(cfg, { fetch: fakeFetch({ ...PROJECT, ...GITHUB_MEMBER }), now: () => T0 + 2 * HOUR });
-    const response = await app.fetch(
-      new Request("https://workbench.example/api/workspace", { headers: await member() }),
-    );
+    configure({ config: cfg, fetch: fakeFetch({ ...PROJECT, ...GITHUB_MEMBER }), now: () => T0 + 2 * HOUR });
+    const response = await serve(new Request("https://workbench.example/api/workspace", { headers: await member() }));
     expect(response.status).toBe(200);
     expect(response.headers.get("set-cookie")).toMatch(/^wb_session=.+; Max-Age=79200; Secure$/);
   });
 
   it("requires the app's own origin on state-changing requests", async () => {
-    const app = createApp(cfg, { fetch: fakeFetch({}), now: () => T0 });
-    const foreign = await app.fetch(
+    configure({ config: cfg, fetch: fakeFetch({}), now: () => T0 });
+    const foreign = await serve(
       new Request("https://workbench.example/auth/logout", {
         method: "POST",
         headers: { origin: "https://evil.example" },
@@ -99,9 +91,9 @@ describe("the route table", () => {
     );
     expect(foreign.status).toBe(403);
     expect((await foreign.json()).error.code).toBe("origin_mismatch");
-    const missing = await app.fetch(new Request("https://workbench.example/auth/logout", { method: "POST" }));
+    const missing = await serve(new Request("https://workbench.example/auth/logout", { method: "POST" }));
     expect(missing.status).toBe(403);
-    const own = await app.fetch(
+    const own = await serve(
       new Request("https://workbench.example/auth/logout", {
         method: "POST",
         headers: { origin: "https://workbench.example" },
@@ -109,7 +101,7 @@ describe("the route table", () => {
     );
     expect(own.status).toBe(204);
     expect(own.headers.get("set-cookie")).toContain("Max-Age=0");
-    const sameSite = await app.fetch(
+    const sameSite = await serve(
       new Request("https://workbench.example/auth/logout", {
         method: "POST",
         headers: { "sec-fetch-site": "same-origin" },
@@ -119,8 +111,8 @@ describe("the route table", () => {
   });
 
   it("answers unknown routes with the problem shape", async () => {
-    const app = createApp(cfg, { fetch: fakeFetch({}), now: () => T0 });
-    const response = await app.fetch(new Request("https://workbench.example/api/nope", { headers: await member() }));
+    configure({ config: cfg, fetch: fakeFetch({}), now: () => T0 });
+    const response = await serve(new Request("https://workbench.example/api/nope", { headers: await member() }));
     expect(response.status).toBe(404);
     expect((await response.json()).error.code).toBe("not_found");
   });

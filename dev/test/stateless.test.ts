@@ -1,15 +1,15 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
-// The statelessness check the design calls mechanical: the host
-// configurations declare no persistence or queue binding. Static assets and
-// secrets are fine; anything that could carry state between requests is not.
+// The statelessness check the design calls mechanical: the Worker declares
+// no persistence or queue binding. The client assets are attached by the
+// build; anything that could carry state between requests is not declared.
 function jsonc(path: string): Record<string, unknown> {
   return JSON.parse(readFileSync(path, "utf8").replace(/^\s*\/\/.*$/gm, "")) as Record<string, unknown>;
 }
 
-describe("the host configurations", () => {
-  it("declare no persistence, queue or schedule on Workers", () => {
+describe("the Worker configuration", () => {
+  it("declares no persistence, queue or schedule", () => {
     const wrangler = jsonc("wrangler.jsonc");
     for (const binding of [
       "kv_namespaces",
@@ -23,16 +23,11 @@ describe("the host configurations", () => {
       "analytics_engine_datasets",
       "workflows",
       "migrations",
+      "vars",
     ]) {
       expect(wrangler, binding).not.toHaveProperty(binding);
     }
-    expect(wrangler.assets).toMatchObject({ directory: "dist/client", not_found_handling: "single-page-application" });
-  });
-
-  it("declare no schedule or storage on Vercel", () => {
-    const vercel = jsonc("vercel.json");
-    expect(vercel).not.toHaveProperty("crons");
-    expect(vercel).not.toHaveProperty("env");
-    expect(vercel.outputDirectory).toBe("dist/client");
+    expect(wrangler.main).toBe("src/server.ts");
+    expect(wrangler.compatibility_flags).toEqual(["nodejs_compat"]);
   });
 });

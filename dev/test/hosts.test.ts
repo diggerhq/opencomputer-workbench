@@ -1,26 +1,31 @@
 import { describe, expect, it } from "vitest";
-import workers from "../../src/hosts/workers";
-import { SOURCE } from "./helpers";
+import { Route as workspace } from "../../src/routes/api/workspace";
+import server from "../../src/server";
+import { configure } from "../../src/server/env";
+import { serve } from "./serve";
 
-describe("host entries", () => {
-  it("serve the same app on Workers", async () => {
-    const response = await workers.fetch(new Request("https://workbench.example/api/workspace"), SOURCE);
-    expect(response.status).toBe(401);
-    expect((await response.json()).error.code).toBe("unauthenticated");
+describe("the one artifact", () => {
+  it("exports the framework's request handler as the server entry", () => {
+    expect(typeof server.fetch).toBe("function");
   });
 
-  it("serve the same app on Vercel", async () => {
-    Object.assign(process.env, SOURCE);
-    const { default: handler } = await import("../../api/index");
-    const response = await handler(new Request("https://workbench.example/api/workspace"));
-    expect(response.status).toBe(401);
-    expect((await response.json()).error.code).toBe("unauthenticated");
+  it("serves every server route as a route file with its handlers and guards", () => {
+    expect(Object.keys(workspace.options.server?.handlers ?? {})).toEqual(["GET"]);
+    expect(workspace.options.server?.middleware?.length).toBe(1);
   });
 
-  it("fail at startup naming the missing key", () => {
-    const { OPENCOMPUTER_AGENT_ID: _omitted, ...rest } = SOURCE;
-    expect(() => workers.fetch(new Request("https://workbench.example/api/workspace"), rest)).toThrow(
-      "Missing configuration: OPENCOMPUTER_AGENT_ID",
-    );
+  it("answers a request with a problem naming the missing key instead of running misconfigured", async () => {
+    const { OPENCOMPUTER_AGENT_ID: _omitted, ...rest } = process.env;
+    const saved = process.env;
+    process.env = rest as NodeJS.ProcessEnv;
+    configure();
+    try {
+      const response = await serve(new Request("https://workbench.example/api/workspace"));
+      expect(response.status).toBe(500);
+      expect((await response.json()).error).toMatchObject({ code: "misconfigured" });
+      expect(response.headers.get("content-type") ?? "").toContain("json");
+    } finally {
+      process.env = saved;
+    }
   });
 });

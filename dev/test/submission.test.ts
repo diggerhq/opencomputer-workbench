@@ -1,16 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { ApiError } from "../../src/app/lib/api";
-import {
-  AUTOMATIC_RETRIES,
-  begin,
-  compose,
-  fail,
-  IDLE,
-  retry,
-  shouldRetry,
-  succeed,
-} from "../../src/app/lib/submission";
-import { ULID_PATTERN, ulid } from "../../src/app/lib/ulid";
+import { ApiError } from "../../src/lib/api";
+import { AUTOMATIC_RETRIES, begin, compose, fail, IDLE, retry, shouldRetry, succeed } from "../../src/lib/submission";
+import { ULID_PATTERN, ulid } from "../../src/lib/ulid";
 import type { Task } from "../../src/server/task";
 
 const task = { id: "ses_new", execution: "queued" } as Task;

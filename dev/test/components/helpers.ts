@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type AgentEvent, applyEvents, emptyTimeline, turnsOf } from "@opencomputer/react";
-import { type Activity, activityOf, emptyNotes, noteEvents } from "../../../src/app/activity";
+import { type Activity, activityOf, emptyNotes, noteEvents } from "../../../src/lib/activity";
 
 type ActivityEvent = AgentEvent & { sessionId?: string };
 

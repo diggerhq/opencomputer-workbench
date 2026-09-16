@@ -1,9 +1,10 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { createApp } from "../../src/server/app";
 import type { Session } from "../../src/server/client";
+import { configure } from "../../src/server/env";
 import { config, fakeFetch, json } from "./helpers";
 import { memberHeaders, memberPost, OC, T0 } from "./member";
+import { serve } from "./serve";
 
 const cfg = config();
 const TASK_ID = "01J9Y0C6R4V3M2K7Q8N5P1H9ZT";
@@ -53,8 +54,8 @@ const envelope = {
 describe("GET /api/tasks", () => {
   it("lists one page filtered to the workbench and maps the rows", async () => {
     const fetch = fakeFetch({ [`${OC}/sessions?`]: () => json(page1) });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks?cursor=c_1", { headers: await memberHeaders(cfg) }),
     );
     expect(response.status).toBe(200);
@@ -74,12 +75,12 @@ describe("GET /api/tasks", () => {
     const archived = JSON.parse(readFileSync(new URL("../fixtures/rows/archived.json", import.meta.url), "utf8"));
     const idle = JSON.parse(readFileSync(new URL("../fixtures/rows/idle.json", import.meta.url), "utf8"));
     const fetch = fakeFetch({ [`${OC}/sessions?`]: () => json({ sessions: [archived, idle], nextCursor: null }) });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const active = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const active = await serve(
       new Request("https://workbench.example/api/tasks", { headers: await memberHeaders(cfg) }),
     );
     expect(((await active.json()) as { tasks: unknown[] }).tasks).toHaveLength(1);
-    const archivedPage = await app.fetch(
+    const archivedPage = await serve(
       new Request("https://workbench.example/api/tasks?archived=true", { headers: await memberHeaders(cfg) }),
     );
     expect(((await archivedPage.json()) as { tasks: unknown[] }).tasks).toHaveLength(2);
@@ -91,8 +92,8 @@ describe("GET /api/tasks", () => {
 describe("GET /api/tasks/:id", () => {
   it("answers the task after the scope check, accepting an aliased agent id", async () => {
     const fetch = fakeFetch({ [`${OC}/sessions/ses_1`]: () => json(session({ agentId: "worker@development" })) });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", { headers: await memberHeaders(cfg) }),
     );
     expect(response.status).toBe(200);
@@ -104,8 +105,8 @@ describe("GET /api/tasks/:id", () => {
     ["another environment", session({ environment: "production" })],
     ["another project", session({ projectId: "proj_2" })],
   ])("hides a session of %s as not found", async (_, foreign) => {
-    const app = createApp(cfg, { fetch: fakeFetch({ [`${OC}/sessions/ses_1`]: () => json(foreign) }), now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch: fakeFetch({ [`${OC}/sessions/ses_1`]: () => json(foreign) }), now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", { headers: await memberHeaders(cfg) }),
     );
     expect(response.status).toBe(404);
@@ -116,8 +117,8 @@ describe("GET /api/tasks/:id", () => {
     const fetch = fakeFetch({
       [`${OC}/sessions/ses_1`]: () => json({ error: { code: "session_not_found", message: "No such session." } }, 404),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", { headers: await memberHeaders(cfg) }),
     );
     expect(response.status).toBe(404);
@@ -169,8 +170,8 @@ describe("POST /api/tasks", () => {
 
   it("creates the session and admits the first turn under the task id, pinned to the composer's deployment", async () => {
     const fetch = creating();
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -221,8 +222,8 @@ describe("POST /api/tasks", () => {
         json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" } }, 200),
       [`${OC}/sessions/ses_new/turns`]: () => json({ turnId: "turn_1", status: "queued", duplicate: true }, 200),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -252,8 +253,8 @@ describe("POST /api/tasks", () => {
           }),
         ),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -280,8 +281,8 @@ describe("POST /api/tasks", () => {
         return json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" } }, 200);
       },
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -298,7 +299,8 @@ describe("POST /api/tasks", () => {
           503,
         ),
     });
-    const stuck = await createApp(cfg, { fetch: always, now: () => T0 }).fetch(
+    configure({ config: cfg, fetch: always, now: () => T0 });
+    const stuck = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -319,9 +321,9 @@ describe("POST /api/tasks", () => {
         return json({ turnId: "turn_1", status: "queued", duplicate: true }, 200);
       },
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
+    configure({ config: cfg, fetch, now: () => T0 });
     const send = async () =>
-      app.fetch(
+      serve(
         new Request("https://workbench.example/api/tasks", {
           method: "POST",
           headers: await memberPost(cfg),
@@ -343,8 +345,8 @@ describe("POST /api/tasks", () => {
     const conflict = creating({
       [`${OC}/sessions`]: () => json({ error: { code: "idempotency_conflict", message: "Different inputs." } }, 409),
     });
-    const app = createApp(cfg, { fetch: conflict, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch: conflict, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -359,8 +361,8 @@ describe("POST /api/tasks", () => {
       [`${OC}/sessions/ses_new/turns`]: () =>
         json({ error: { code: "insufficient_credits", message: "Out of credits." } }, 402),
     });
-    const refusing = createApp(cfg, { fetch: refused, now: () => T0 });
-    const answer = await refusing.fetch(
+    configure({ config: cfg, fetch: refused, now: () => T0 });
+    const answer = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -376,8 +378,8 @@ describe("POST /api/tasks", () => {
       [`${OC}/deployments/dep_x`]: () =>
         json({ id: "dep_x", agentId: "other", alias: "development", createdAt: "2026-09-15T18:00:00Z" }),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks", {
         method: "POST",
         headers: await memberPost(cfg),
@@ -390,14 +392,14 @@ describe("POST /api/tasks", () => {
   });
 
   it("validates the envelope", async () => {
-    const app = createApp(cfg, { fetch: fakeFetch({}), now: () => T0 });
+    configure({ config: cfg, fetch: fakeFetch({}), now: () => T0 });
     for (const bad of [
       { ...envelope, taskId: "not-a-ulid" },
       { ...envelope, repo: "acme" },
       { ...envelope, ref: "bad ref" },
       { ...envelope, text: "   " },
     ]) {
-      const response = await app.fetch(
+      const response = await serve(
         new Request("https://workbench.example/api/tasks", {
           method: "POST",
           headers: await memberPost(cfg),
@@ -419,8 +421,8 @@ describe("PATCH /api/tasks/:id and end", () => {
       },
       [`${OC}/sessions/ses_1`]: () => json(session()),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", {
         method: "PATCH",
         headers: await memberPost(cfg),
@@ -434,8 +436,8 @@ describe("PATCH /api/tasks/:id and end", () => {
   });
 
   it("refuses a title over the label bound and an empty change", async () => {
-    const app = createApp(cfg, { fetch: fakeFetch({}), now: () => T0 });
-    const long = await app.fetch(
+    configure({ config: cfg, fetch: fakeFetch({}), now: () => T0 });
+    const long = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", {
         method: "PATCH",
         headers: await memberPost(cfg),
@@ -443,7 +445,7 @@ describe("PATCH /api/tasks/:id and end", () => {
       }),
     );
     expect(long.status).toBe(400);
-    const empty = await app.fetch(
+    const empty = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", {
         method: "PATCH",
         headers: await memberPost(cfg),
@@ -458,8 +460,8 @@ describe("PATCH /api/tasks/:id and end", () => {
       [`${OC}/sessions/ses_1/end`]: () => json(session({ status: "ended" })),
       [`${OC}/sessions/ses_1`]: () => json(session()),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/tasks/ses_1/end", { method: "POST", headers: await memberPost(cfg) }),
     );
     expect(response.status).toBe(200);
@@ -479,8 +481,8 @@ describe("GET /api/repos", () => {
           nextCursor: null,
         }),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/repos", { headers: await memberHeaders(cfg) }),
     );
     expect(await response.json()).toEqual({
@@ -494,8 +496,8 @@ describe("GET /api/repos", () => {
       [`${OC}/projects/proj_1/github/repositories`]: () =>
         json({ error: { code: "not_found", message: "No route." } }, 404),
     });
-    const app = createApp(cfg, { fetch, now: () => T0 });
-    const response = await app.fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/repos", { headers: await memberHeaders(cfg) }),
     );
     expect(response.status).toBe(502);
@@ -507,7 +509,8 @@ describe("GET /api/repos", () => {
       [`${OC}/projects/proj_1/github/repositories`]: () =>
         json({ error: { code: "github_connection_not_found", message: "No installation." } }, 404),
     });
-    const response = await createApp(cfg, { fetch, now: () => T0 }).fetch(
+    configure({ config: cfg, fetch, now: () => T0 });
+    const response = await serve(
       new Request("https://workbench.example/api/repos", { headers: await memberHeaders(cfg) }),
     );
     expect(response.status).toBe(404);

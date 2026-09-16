@@ -17,7 +17,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type AgentEvent, applyEvents, emptyTimeline, turnsOf } from "@opencomputer/react";
 import { Hono } from "hono";
-import { activityOf, emptyNotes, isSettled, latestResult, noteEvents } from "../../src/app/activity";
+import { activityOf, emptyNotes, isSettled, latestResult, noteEvents } from "../../src/lib/activity";
 
 /** One log entry as the fixtures record it: the hook's event plus the session it belongs to. */
 type ActivityEvent = AgentEvent & { sessionId?: string };

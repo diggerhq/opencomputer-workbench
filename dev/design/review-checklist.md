@@ -1,6 +1,6 @@
 # UI review checklist
 
-Every pull request that touches `src/app/` is reviewed against this list, on
+Every pull request that touches `src/` is reviewed against this list, on
 the captures the screenshot suite writes to `dev/design/screens/app/` at 390 and
 1440 pixels in both themes, worst finding first. The list does not change per
 review; a new rule is added here when a bug shows the list missed it.
@@ -25,13 +25,13 @@ review; a new rule is added here when a bug shows the list missed it.
 3. **Focus rings from tokens.** Tab through the screen: every focusable
    element shows the `--ring` outline at `--ring-width` and `--ring-offset`,
    nothing shows a browser default, nothing hides it, and no primitive
-   carries a focus ring of its own (`src/app/components/ui/` has none; the
+   carries a focus ring of its own (`src/components/ui/` has none; the
    Card's hairline ring is its frame, not a focus state).
 4. **Contrast in both themes.** Text at or above 4.5:1, status dots at or
    above 3:1 against the page. `node dev/design/contrast.mjs` checks the tokens;
    the review checks that components use them and nothing else.
 5. **Copy from the vocabulary.** Badge labels are the ten words in
-   `src/app/vocabulary.ts`; failure copy comes from `failureCopy`; Session
+   `src/lib/vocabulary.ts`; failure copy comes from `failureCopy`; Session
    and turn do not appear on screen. Timestamps are relative with the
    absolute time on hover.
 6. **Reserved space for optional controls.** Stop, archive and end keep
@@ -89,6 +89,6 @@ E2E_LOGIN=<your login> E2E_USER_ID=<your numeric id> npm run test:e2e
 ```
 
 The static mockups under `dev/design/mockups/` predate the application and
-render from `src/app/tokens.css` alone; they are kept as the design's
+render from `src/tokens.css` alone; they are kept as the design's
 reference and are no longer captured. To look at one, open it in a browser
 (`?theme=dark` for the dark palette).

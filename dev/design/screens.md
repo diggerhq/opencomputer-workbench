@@ -3,7 +3,7 @@
 The workbench has a task list and a task page, no sidebar, no panels. Both
 are designed here at 390 and 1440 pixels before any component exists, in the
 tokens of [`tokens.css`](tokens.css) and the words of
-[`src/app/vocabulary.ts`](../src/app/vocabulary.ts). The static mockups under
+[`src/lib/vocabulary.ts`](../src/lib/vocabulary.ts). The static mockups under
 [`mockups/`](mockups/) were the first rendering of this specification; the
 screenshot suite (`dev/e2e/screens.spec.ts`) now captures the application itself
 into [`screens/app/`](screens/app/) from the recordings under `dev/fixtures/`,
@@ -367,7 +367,7 @@ the timeline agree on every task-page capture.
 
 The public failure codes the API edge emits on a turn, and the admission
 refusals the composer can receive, each with the sentence the user reads.
-`failureCopy` in `src/app/vocabulary.ts` is the one source; unknown codes
+`failureCopy` in `src/lib/vocabulary.ts` is the one source; unknown codes
 are shown as "The turn failed with code <code>."
 
 | Code | Where | Copy |
@@ -396,7 +396,7 @@ Recorded after the first screenshot suite ran over the application (`dev/design/
 - **Failure in two places.** A failed turn's copy appears under its turn in the timeline and as the marker after its messages in the conversation, both from `failureCopy`. The timeline reader and the conversation reader each see it where they are.
 - **Composer.** The repository picker starts empty with "Repository" as its placeholder and the base-ref input shows the chosen repository's default branch as its placeholder; the button is disabled until both a repository and a request exist.
 - **Skeletons and dialogs do not move.** Loading rows are still blocks and the End dialog opens without a fade or zoom, so streaming text and the working dot remain the only motion.
-- **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `src/app/tokens.css`.
+- **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `src/tokens.css`.
 - **Air, rhythm and weight.** The first captures on one system still read
   dense and heavy: one interval (8 px inside, 24 px between everything)
   repeated until nothing had more weight than anything else, medium weight

@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
-import { commandOutcome } from "../../../src/app/activity";
-import { ActivityTimeline } from "../../../src/app/components/ActivityTimeline";
-import { failureCopy } from "../../../src/app/vocabulary";
+import { ActivityTimeline } from "../../../src/components/ActivityTimeline";
+import { commandOutcome } from "../../../src/lib/activity";
+import { failureCopy } from "../../../src/lib/vocabulary";
 import { reduce } from "./helpers";
 
 afterEach(cleanup);
