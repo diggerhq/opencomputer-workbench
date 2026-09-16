@@ -4,7 +4,7 @@
 // from the same events. The result on a turn is the result tool's output,
 // validated against the report schema.
 import type { ToolCall as HookToolCall, Turn as HookTurn, ToolCallStatus, TurnStatus } from "@opencomputer/react";
-import { type Report, type ReportStage, reportSchema, reportStage } from "@/shared/report";
+import { type Report, reportSchema, reportStage, type TaskResult } from "@/shared/report";
 import type { CallNotes, Notes, TurnNotes } from "./activity-notes";
 import { parseOutput } from "./command-output";
 
@@ -65,28 +65,18 @@ export function isSettled(turn: Turn): boolean {
   return turn.status === "completed" || turn.status === "failed" || turn.status === "cancelled";
 }
 
-export interface LatestResult {
-  readonly report: Report;
-  readonly stage: ReportStage;
-  /** The turn that reported it, one-based in log order. */
-  readonly turnNumber: number;
-  readonly turn: Turn;
-  /** The reporting turn is the last settled one. */
-  readonly fromLastTurn: boolean;
-}
-
 /** The session's result as the log shows it: the latest turn that committed one, with its provenance. */
-export function latestResult(activity: Activity): LatestResult | undefined {
+export function latestResult(activity: Activity): TaskResult | undefined {
   let lastSettled: Turn | undefined;
   for (const turn of activity.turns) if (isSettled(turn)) lastSettled = turn;
   for (let index = activity.turns.length - 1; index >= 0; index -= 1) {
     const turn = activity.turns[index];
     if (turn?.result) {
       return {
-        report: turn.result,
-        stage: reportStage(turn.result),
+        ...turn.result,
+        turnId: turn.id,
         turnNumber: index + 1,
-        turn,
+        stage: reportStage(turn.result),
         fromLastTurn: lastSettled === undefined || lastSettled.id === turn.id,
       };
     }

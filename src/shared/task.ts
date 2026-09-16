@@ -1,7 +1,7 @@
 // A task as both sides of the app know it: the projection the server
 // computes from a session and the browser renders. Only types and pure
 // values live here; `toTask` and the label writes are the server's.
-import type { Report, ReportStage } from "./report";
+import type { TaskResult } from "./report";
 
 /** The execution facet: what the session is doing, projected from its status and activity. */
 export type Execution = "starting" | "not_started" | "queued" | "working" | "stopping" | "idle" | "failed" | "ended";
@@ -15,13 +15,7 @@ export interface Task {
   /** The public failure code of the last failed turn, when the row carries it. */
   readonly failure?: { readonly code: string };
   readonly archived: boolean;
-  readonly result?: Report & {
-    readonly turnId: string;
-    readonly reportedAt: string;
-    readonly stage: ReportStage;
-    /** Whether the reporting turn is the last settled one. */
-    readonly fromLastTurn: boolean;
-  };
+  readonly result?: TaskResult;
   readonly title: string;
   readonly repo: string;
   readonly ref: string;

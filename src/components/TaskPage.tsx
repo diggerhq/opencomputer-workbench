@@ -14,45 +14,19 @@ import { Controls } from "@/components/Controls";
 import { Conversation } from "@/components/Conversation";
 import { Markdown } from "@/components/Markdown";
 import { RelativeTime } from "@/components/RelativeTime";
-import { ResultCard, type ResultCardProps } from "@/components/ResultCard";
+import { ResultCard } from "@/components/ResultCard";
 import { displayStateOf, StatusBadge } from "@/components/StatusBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActivity } from "@/components/use-activity";
-import { type Activity, activeTurn, isSettled, latestResult } from "@/lib/activity";
+import { activeTurn, isSettled, latestResult } from "@/lib/activity";
 import { ApiError, endTask, getTask, patchTask, type Task } from "@/lib/api";
-import { type Report, type ReportStage, reportStage } from "@/shared/report";
 
 export const taskQueryKey = (id: string) => ["task", id] as const;
 
 /** Refetch cadence while a turn runs; the log settling a turn triggers a refetch on its own. */
 const RUNNING_REFETCH_MS = 5_000;
-
-/**
- * The result the card shows. The log's, once replayed: it carries the
- * reporting turn's number and whether that turn is the last settled one.
- * The row's until then, with the turn id as its provenance. Both describe
- * the same committed result, so when both exist the log wins: the row is a
- * projection that can lag the log by a publication.
- */
-function resultFor(activity: Activity, task: Task | undefined): Omit<ResultCardProps, "repo" | "baseRef"> | undefined {
-  const fromLog = latestResult(activity);
-  if (fromLog) {
-    return {
-      report: fromLog.report,
-      stage: fromLog.stage,
-      reportedBy: `turn ${String(fromLog.turnNumber)}`,
-      fromLastTurn: fromLog.fromLastTurn,
-    };
-  }
-  if (!task?.result) return undefined;
-  const { turnId, reportedAt: _reportedAt, stage: _stage, fromLastTurn, ...fields } = task.result;
-  const report: Report = fields;
-  const stage: ReportStage = reportStage(report);
-  if (stage === "none") return undefined;
-  return { report, stage, reportedBy: `turn ${turnId.slice(0, 8)}`, fromLastTurn };
-}
 
 function Meta({ children, title }: { children: React.ReactNode; title?: string }) {
   return (
@@ -183,7 +157,11 @@ export function TaskPage({ id }: { id: string }) {
   const ended = activity.ended || current?.execution === "ended";
   const first = activity.turns[0];
   const running = activeTurn(activity);
-  const result = resultFor(activity, current);
+  // Both producers describe the same committed result; the log wins once it
+  // has replayed, because the row is a projection that can lag it by a
+  // publication. A row can carry a result with nothing reported yet.
+  const reported = latestResult(activity) ?? current?.result;
+  const result = reported?.stage === "none" ? undefined : reported;
   const failureMessages = new Set(activity.turns.map((turn) => turn.failure?.message).filter(Boolean));
   const connectionError = error && !failureMessages.has(error) ? error : undefined;
   const actorLogin = current?.actor.login || "you";
@@ -223,7 +201,7 @@ export function TaskPage({ id }: { id: string }) {
           </section>
           <div className="order-2">
             {result ? (
-              <ResultCard {...result} repo={current?.repo} baseRef={current?.ref} />
+              <ResultCard result={result} repo={current?.repo} baseRef={current?.ref} />
             ) : isReplaying || task.isPending ? null : (
               <section aria-label="Result" className="grid gap-3">
                 <h3 className="text-sm font-medium text-muted-foreground">Result</h3>
