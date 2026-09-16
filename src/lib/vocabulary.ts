@@ -117,6 +117,8 @@ export const FAILURE_COPY: Record<string, string> = {
   model_rejected:
     "The model provider rejected the request. Check the account's credentials, rate limit or quota, then send a follow-up.",
   insufficient_credits: "The workspace is out of credits. Add credits before starting or continuing a task.",
+  model_stream_failed:
+    "The model call failed twice in a row and the turn stopped. Send a follow-up to continue where it left off.",
   context_too_long:
     "This conversation exceeds the model's context window. Start a fresh task and name this one as its predecessor.",
   interrupted: "The turn was stopped before it finished.",
