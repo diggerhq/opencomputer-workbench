@@ -10,7 +10,7 @@ This example is a **stateless web app** and a TypeScript worker agent.
 runs the work and keeps its state, so you can close the browser—or redeploy
 the app—while tasks continue.
 
-![A task with its branch, draft pull request, reported checks and command activity. Shown with sample data.](design/screens/app/task-completed-1440-light.png)
+![A task with its branch, draft pull request, reported checks and command activity. Shown with sample data.](dev/design/screens/app/task-completed-1440-light.png)
 
 ## How it works
 

@@ -1,4 +1,4 @@
-/* The application stylesheet. Every visual value comes from design/tokens.css;
+/* The application stylesheet. Every visual value comes from tokens.css beside it;
    this file only maps those tokens into Tailwind names so components use
    `bg-status-working-bg` or `text-muted-foreground` and never a literal. */
 @import "tailwindcss";
@@ -6,7 +6,7 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/geist-mono";
-@import "../../design/tokens.css";
+@import "./tokens.css";
 
 @custom-variant dark (&:is(.dark *));
 

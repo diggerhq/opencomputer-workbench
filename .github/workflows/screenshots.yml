@@ -1,7 +1,7 @@
 # The screenshot loop on every pull request: the real application rendering
 # every state from the recordings, captured at both viewports in both themes.
 # A state that does not render fails the job; the captures are the artifact
-# reviewers read against design/review-checklist.md. The live acceptance
+# reviewers read against dev/design/review-checklist.md. The live acceptance
 # spec does not run here: it needs a live target, which CI never has.
 name: Screenshots
 
@@ -19,11 +19,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test
+      - run: npm run test:e2e
       - if: always()
         uses: actions/upload-artifact@v4
         with:
           name: screens
-          path: design/screens/app
+          path: dev/design/screens/app
           retention-days: 14
           if-no-files-found: error

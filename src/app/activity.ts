@@ -265,7 +265,7 @@ export interface CommandOutcome {
  * A tool's output as the runtime records it. The computer's commands come
  * back as one JSON string encoding `{ stdout, stderr, exitCode, signal,
  * timedOut, terminated, truncated, durationMs }` (recorded on Development,
- * fixtures/logs/recorded); an object is read as is, any other string is the
+ * dev/fixtures/logs/recorded); an object is read as is, any other string is the
  * output itself.
  */
 export function parseOutput(output: unknown): unknown {
