@@ -5,18 +5,39 @@ and a starting revision. The agent clones it, makes the change, runs checks
 and opens a draft PR. Follow up in the task to continue on the same branch,
 or stop the current turn.
 
-Built with one [OpenComputer Serverless Agent](https://docs.opencomputer.dev/agents/overview)
-and a React web app. Each task is an OpenComputer session with its own
-conversation and computer. Close the browser or redeploy the app while work
-continues; reopen the session to see its commands and results.
+An example built on [OpenComputer Serverless Agents](https://docs.opencomputer.dev/agents/overview):
+a **stateless web app** and one worker agent defined in TypeScript.
 
 ![A task with its branch, draft pull request, reported checks and command activity. Shown with sample data.](design/screens/app/task-completed-1440-light.png)
 
-## The worker
+## How it fits together
 
-An agent is a TypeScript function: declare its capabilities and return its
-instructions. Here is the [worker](opencomputer/agents/worker/agent.ts), with
-imports omitted and task instructions shortened:
+The repository has two deployable parts: the web app and the worker agent.
+An [OpenComputer agent](https://docs.opencomputer.dev/agents/reactive-agents)
+is a TypeScript function that declares its model, tools and connections,
+and returns instructions. The same agent definition serves many **sessions**,
+one per coding task. OpenComputer runs the model/tool loop and provides each
+session with a computer when needed.
+
+```mermaid
+flowchart LR
+  App["Web app<br/>React UI + Hono routes<br/>stateless · Workers or Vercel"]
+  OC["OpenComputer<br/>Worker agent<br/>one session per task"]
+  GitHub["GitHub<br/>Repositories + pull requests"]
+  App <-->|API + session events| OC
+  OC <-->|git + gh| GitHub
+```
+
+OpenComputer stores the task metadata, conversation, activity and results;
+GitHub holds the branches and PRs. The **web server keeps no task state** between
+requests and needs no database, queue or background worker. You can restart
+or redeploy it without interrupting tasks running on OpenComputer.
+
+### Worker agent
+
+The [worker agent](opencomputer/agents/worker/agent.ts) uses React-style hooks
+to choose its model, connect GitHub and register a result tool. Imports are
+omitted and task instructions shortened here:
 
 ```ts
 const github = defineConnection({
@@ -41,21 +62,19 @@ export default function Worker() {
 }
 ```
 
-OpenComputer runs the coding harness and provisions the computer. The GitHub
-connection supplies credentials for `git` and `gh` on the repositories you
-select. The harness handles the model/tool loop, conversation history and
-coding tools.
+OpenComputer supplies the coding harness and tools. The declared GitHub
+connection supplies credentials for `git` and `gh` on the repositories you select.
 
 The custom [`report` tool](opencomputer/agents/worker/tools/report.ts) declares
 `result: true`: its output becomes the session's typed result. It verifies
 commit, branch and PR references against GitHub; check outcomes remain
 agent-reported. The UI renders those fields directly into the result card.
 
-## The web app
+### Web app
 
-Starting a task creates a session and sends its first turn. These are the
-[task route's](src/server/tasks.ts) OpenComputer calls, with validation and
-retry handling omitted:
+The app starts a task by creating a session of the deployed worker agent,
+then sending its first turn. These are the [task route's](src/server/tasks.ts)
+OpenComputer calls, with validation and retry handling omitted:
 
 ```ts
 const created = await oc.sessions.create(
@@ -73,7 +92,7 @@ await oc.sessions.turns.send(created.session.id, {
 
 The task list comes from `oc.sessions.list()`. Session labels hold the title,
 repository, requester and archive state; the session also carries its latest
-result. There is no separate task database to keep in sync.
+result. The task list and detail page both read from those sessions.
 
 In the browser, [`useAgent`](https://docs.opencomputer.dev/agents/react)
 attaches to that session:
@@ -89,8 +108,7 @@ The hook loads the conversation and follows new activity; follow-ups and Stop
 use the same session. [Authenticated Hono routes](src/server/session-proxy.ts)
 check access and keep the OpenComputer key on the server. The
 [Workers](src/hosts/workers.ts) and [Vercel](api/index.ts) adapters run that same
-handler. Neither deployment needs an application database, queue or background
-worker.
+handler.
 
 ## Run it
 
