@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!src/app/routeTree.gen.ts", "!dev/design/mockups", "!opencomputer/agents/*/.opencomputer"]
+    "includes": ["**", "!src/routeTree.gen.ts", "!dev/design/mockups", "!opencomputer/agents/*/.opencomputer"]
   },
   "formatter": {
     "enabled": true,
@@ -53,7 +53,7 @@
       }
     },
     {
-      "includes": ["src/app/components/ui/**"],
+      "includes": ["src/components/ui/**"],
       "linter": {
         "rules": {
           "correctness": {

@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { displayStateOf, needsAttention } from "../../src/app/lib/display";
+import { displayStateOf, needsAttention } from "../../src/lib/display";
 import type { Session, SessionSummary } from "../../src/server/client";
 import { boundLabels, LabelError, summarize, titleOf, toTask } from "../../src/server/task";
 import { T0 } from "./member";

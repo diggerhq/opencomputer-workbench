@@ -10,7 +10,7 @@ import {
   latestResult,
   noteEvent,
   noteEvents,
-} from "../../src/app/activity";
+} from "../../src/lib/activity";
 
 const LOGS = new URL("../fixtures/logs/", import.meta.url);
 const CONTEXT = {

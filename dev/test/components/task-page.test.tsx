@@ -2,10 +2,11 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { QueryClient } from "@tanstack/react-query";
 import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/react-router";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { routeTree } from "../../../src/app/routeTree.gen";
+import { routeTree } from "../../../src/routeTree.gen";
 import type { SessionSummary } from "../../../src/server/client";
 import { type Task, toTask } from "../../../src/server/task";
 import { load } from "./helpers";
@@ -71,7 +72,11 @@ function serve(served: Served) {
 }
 
 async function open(id: string) {
-  const router = createRouter({ routeTree, history: createMemoryHistory({ initialEntries: [`/tasks/${id}`] }) });
+  const router = createRouter({
+    routeTree,
+    history: createMemoryHistory({ initialEntries: [`/tasks/${id}`] }),
+    context: { queryClient: new QueryClient({ defaultOptions: { queries: { retry: false } } }) },
+  });
   await act(async () => {
     render(<RouterProvider router={router} />);
   });

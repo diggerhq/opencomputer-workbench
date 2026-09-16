@@ -218,3 +218,48 @@ export async function callback(req: Request, config: Config, deps: AuthDeps = de
     cookie(SESSION_COOKIE, await seal(claims, config), config, SESSION_LIFETIME_MS / 1000),
   ]);
 }
+
+function requestOrigin(req: Request): string | null {
+  const origin = req.headers.get("origin");
+  if (origin) return origin;
+  if (req.headers.get("sec-fetch-site") === "same-origin") return new URL(req.url).origin;
+  const referer = req.headers.get("referer");
+  if (referer) {
+    try {
+      return new URL(referer).origin;
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+/** Whether a state-changing request came from the app's own origin. Reads are always allowed. */
+export function originAllowed(req: Request, config: Config): boolean {
+  const method = req.method.toUpperCase();
+  if (method === "GET" || method === "HEAD" || method === "OPTIONS") return true;
+  return requestOrigin(req) === config.origin;
+}
+
+/**
+ * The headers the document is served with. The policy allows scripts only
+ * from the app itself and, for the framework's own inline bootstrap, the
+ * per-response nonce the router stamps on them; nothing else inline runs.
+ */
+export function securityHeaders(nonce: string): Record<string, string> {
+  return {
+    "content-security-policy": [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}'`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https://avatars.githubusercontent.com",
+      "font-src 'self'",
+      "connect-src 'self'",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self' https://github.com",
+    ].join("; "),
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "x-content-type-options": "nosniff",
+  };
+}

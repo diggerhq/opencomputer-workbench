@@ -16,7 +16,7 @@ the app—while tasks continue.
 
 ```mermaid
 flowchart LR
-  App["Web app<br/>React + Hono · stateless"]
+  App["Web app<br/>TanStack Start · stateless"]
   OC["OpenComputer<br/>Worker agent + task sessions"]
   GitHub["GitHub<br/>Branches + pull requests"]
   App <-->|API + session events| OC
@@ -93,11 +93,10 @@ npx playwright install chromium
 npm run dev:fixtures
 ```
 
-The same web app runs on Workers or Vercel. Complete
+The web app is one artifact that deploys to Cloudflare Workers. Complete
 [agent and access setup](docs/setup.md#host-the-web-app) before deploying:
 
 [![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/diggerhq/opencomputer-workbench)
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdiggerhq%2Fopencomputer-workbench&env=OPENCOMPUTER_API_KEY,OPENCOMPUTER_PROJECT_ID,OPENCOMPUTER_ENVIRONMENT,OPENCOMPUTER_AGENT_ID,GITHUB_CLIENT_ID,GITHUB_CLIENT_SECRET,WORKBENCH_COOKIE_KEY,WORKBENCH_MEMBERSHIP,WORKBENCH_ORIGIN)
 
 Use your own OpenComputer project and restrict sign-in to a GitHub user, team
 or organization. Admitted members share all tasks and connected repositories.
