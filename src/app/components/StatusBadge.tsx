@@ -46,9 +46,9 @@ export function StatusBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 whitespace-nowrap text-xs font-medium",
+        "inline-flex items-center gap-2 whitespace-nowrap text-xs",
         tone.text,
-        variant === "full" && cn("h-6 rounded-full px-2", tone.bg),
+        variant === "full" && cn("h-6 rounded-full px-2.5 font-medium", tone.bg),
         className,
       )}
       title={entry.description}
@@ -56,8 +56,11 @@ export function StatusBadge({
       {entry.dot !== "none" ? (
         <span
           aria-hidden="true"
-          className={cn("size-dot shrink-0 rounded-full", tone.dot, entry.dot === "pulse" && "status-dot-pulse")}
+          className={cn("size-2 shrink-0 rounded-full", tone.dot, entry.dot === "pulse" && "status-dot-pulse")}
         />
+      ) : variant === "inline" ? (
+        // Archived and Ended have no dot; in a row the space is kept so every label starts on the same edge.
+        <span aria-hidden="true" className="size-2 shrink-0" />
       ) : null}
       {label}
     </span>

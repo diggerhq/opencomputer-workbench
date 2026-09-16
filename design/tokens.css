@@ -4,8 +4,15 @@
  * serves the application (src/app/styles.css maps these into Tailwind) and
  * the static mockups under design/mockups. Light is the base palette on
  * :root; `.dark` overrides it. Every visual value in the product comes from
- * here: colors, spacing, radii, type, focus ring, layout measures and the
- * status palette. Nothing is typed at a call site.
+ * here or from Tailwind's own scale: colors, radii, type, focus ring, motion
+ * and the status palette live here; spacing, control heights and container
+ * widths are Tailwind's 4 px scale and shadcn's size variants (controls are
+ * h-8, h-7 or h-6; rows h-16; card inset p-5; gutters px-4 and px-8; one
+ * container, max-w-6xl). The spacing rhythm is three steps, written in
+ * design/screens.md: 8 within a group, 12 heading to panel, 16 between
+ * groups in a card, 32 to 40 between sections. There is one sizing system,
+ * not two, and e2e/measure.spec.ts proves it. Nothing is typed at a call
+ * site.
  *
  * Colors are OKLCH. `node design/contrast.mjs` recomputes the WCAG 2 ratios
  * from this file. Text pairs must stay at or above 4.5:1 in both themes and
@@ -55,54 +62,53 @@
   --text-xl: 1.375rem; /* 22px  page heading */
   --leading-xl: 1.75rem;
 
+  /* Two weights: regular everywhere, medium for one emphasis per context. */
   --weight-regular: 400;
   --weight-medium: 500;
-  --weight-semibold: 600;
 
-  /* Spacing: 4px base, 8px grid. Elements align to --space-2 multiples. */
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.25rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
-  --space-10: 2.5rem;
-  --space-12: 3rem;
-  --space-16: 4rem;
-
-  /* Radii */
-  --radius: 0.5rem;
-  --radius-sm: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-full: 9999px;
-
-  /* Layout measures */
-  --gutter: var(--space-4); /* 16px side gutter under 768px */
-  --gutter-wide: var(--space-8); /* 32px side gutter from 768px */
-  --content-max: 60rem; /* 960px: the task list column */
-  --page-max: 80rem; /* 1280px: the task page at two columns */
-  --row-height: 3.5rem; /* 56px: every task row, whatever it holds */
-  --row-height-compact: 3rem; /* 48px: timeline entries */
-  --control-height: 2.25rem; /* 36px: buttons, inputs, pickers */
-  --control-height-sm: 1.75rem; /* 28px: row-level controls */
-  --dot: 0.5rem; /* 8px status dot */
-  --avatar: 1.25rem; /* 20px actor avatar in rows */
+  /* Radii: shadcn's family. One base, four steps, the same on cards,
+     inputs, buttons and menus; a control is rounded-lg, a card rounded-xl. */
+  --radius: 0.625rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
   /* Focus ring: two pixels of the accent, offset by two, on every focusable. */
   --ring-width: 2px;
   --ring-offset: 2px;
 
-  /* Motion: streaming text and the working dot are the only animations. */
+  /* Motion. Two animations, the working dot and the streaming caret; state
+     transitions (hover, focus, expanders, dialogs) run at --duration-fast
+     on --ease-out and stop under prefers-reduced-motion. */
   --pulse-duration: 1.6s;
   --caret-duration: 1s;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Surfaces and ink */
-  --background: oklch(0.985 0.002 250);
+  /* Layers: dropdown < sticky < backdrop < modal < toast < tooltip. */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-backdrop: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+  --z-tooltip: 60;
+
+  /* Elevation: a card sits on the page by a hairline and a soft shadow; a
+     popover floats. */
+  --shadow-card: 0 1px 2px oklch(0.2 0.01 260 / 0.05), 0 1px 1px oklch(0.2 0.01 260 / 0.03);
+  --shadow-popover: 0 8px 24px oklch(0.2 0.01 260 / 0.12), 0 2px 6px oklch(0.2 0.01 260 / 0.08);
+
+  /* Surfaces and ink. Three neutral layers: the page, the card on it, and
+     the surface a toolbar or panel header sits on; hover is one step of ink
+     mixed into the card. */
+  --background: oklch(0.98 0.003 250);
   --foreground: oklch(0.2 0.01 260);
   --card: oklch(1 0 0);
+  --surface: oklch(0.97 0.004 250);
+  --hover: oklch(0.96 0.005 250);
+  --attention-row: oklch(0.985 0.014 85);
   --card-foreground: oklch(0.2 0.01 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.2 0.01 260);
@@ -117,8 +123,11 @@
   --accent-soft: oklch(0.95 0.025 260);
   --destructive: oklch(0.5 0.18 25);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.9 0.005 250);
-  --input: oklch(0.86 0.006 250);
+  /* One border: shadcn's hairline lightness with the neutral tint, the same
+     on cards, inputs and rows; the ring is the accent, not shadcn's gray,
+     because a focus indicator needs 3:1 against the page. */
+  --border: oklch(0.922 0.005 250);
+  --input: oklch(0.922 0.005 250);
   --ring: oklch(0.48 0.16 260);
 
   /* Commands and output */
@@ -186,7 +195,12 @@
 .dark {
   --background: oklch(0.17 0.008 260);
   --foreground: oklch(0.93 0.006 250);
-  --card: oklch(0.21 0.008 260);
+  --card: oklch(0.205 0.008 260);
+  --surface: oklch(0.19 0.008 260);
+  --hover: oklch(0.24 0.009 260);
+  --attention-row: oklch(0.225 0.018 80);
+  --shadow-card: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 1px oklch(0 0 0 / 0.2);
+  --shadow-popover: 0 8px 24px oklch(0 0 0 / 0.5), 0 2px 6px oklch(0 0 0 / 0.35);
   --card-foreground: oklch(0.93 0.006 250);
   --popover: oklch(0.22 0.008 260);
   --popover-foreground: oklch(0.93 0.006 250);
@@ -201,8 +215,8 @@
   --accent-soft: oklch(0.28 0.05 260);
   --destructive: oklch(0.7 0.17 25);
   --destructive-foreground: oklch(0.17 0.008 260);
-  --border: oklch(0.29 0.008 260);
-  --input: oklch(0.33 0.01 260);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.72 0.13 260);
 
   --code: oklch(0.14 0.008 260);

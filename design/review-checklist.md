@@ -1,21 +1,32 @@
 # UI review checklist
 
 Every pull request that touches `src/app/` is reviewed against this list, on
-the screenshots the end-to-end suite captures at 390 and 1440 pixels in both
-themes, worst finding first. The list does not change per review; a new rule
-is added here when a bug shows the list missed it.
+the captures the screenshot suite writes to `design/screens/app/` at 390 and
+1440 pixels in both themes, worst finding first. The list does not change per
+review; a new rule is added here when a bug shows the list missed it.
 
-1. **Alignment to the grid.** Every edge sits on a multiple of `--space-2`;
-   rows are exactly `--row-height`; controls are `--control-height`; text
-   baselines in a row share one line. Compare the row above and below.
+1. **One sizing system, one rhythm.** Every edge sits on Tailwind's 4 px
+   scale; rows are `h-16`; controls are shadcn's `h-8`, `h-7` or `h-6`;
+   gaps are one of the rhythm's steps (8 within a group, 12 heading to
+   panel, 16 between groups in a card, 32 to 40 between sections, 20 of
+   card inset) and weight is regular except one medium emphasis per
+   context; every visible border
+   is one hairline in `--border` (`--input` on fields); the header, the
+   composer and the list share a left edge and the task page's two columns
+   share a top edge. `npx playwright test e2e/measure.spec.ts` reads the
+   rendered page and fails on any of these; the review confirms what the
+   gate cannot see (text baselines in a row on one line, optical centering).
 2. **No layout shift between states.** Loading, empty, streaming, error and
    terminal renderings of a component occupy the same box. Space for the
    archive control, the result stage and the queued count is reserved on
-   every row whether or not the row has them. A panel appears once its data
-   is known, never mid-load.
+   every row whether or not the row has them; a badge without a dot keeps
+   the dot's space in a row. A panel appears once its data is known, never
+   mid-load.
 3. **Focus rings from tokens.** Tab through the screen: every focusable
    element shows the `--ring` outline at `--ring-width` and `--ring-offset`,
-   nothing shows a browser default, nothing hides it.
+   nothing shows a browser default, nothing hides it, and no primitive
+   carries a focus ring of its own (`src/app/components/ui/` has none; the
+   Card's hairline ring is its frame, not a focus state).
 4. **Contrast in both themes.** Text at or above 4.5:1, status dots at or
    above 3:1 against the page. `node design/contrast.mjs` checks the tokens;
    the review checks that components use them and nothing else.
@@ -31,30 +42,53 @@ is added here when a bug shows the list missed it.
 8. **Lists keyed by stable identity.** Rows by session id, timeline entries
    by call id or event sequence, messages by their log id. Expand a tool
    call, wait for new events, confirm it stays expanded.
-9. **Motion limited to streaming text and the working dot.** No other
-   transition, fade or spinner; `prefers-reduced-motion` stops both.
+9. **Motion conveys state.** Two animations exist: the streaming caret and
+   the working dot. State transitions (hover, focus, an expander's chevron,
+   a dialog or menu opening) run at `--duration-fast` on `--ease-out` and
+   never move layout; skeletons do not pulse, nothing spins, nothing
+   animates on page load. `prefers-reduced-motion` stops the two animations
+   and collapses every transition.
 10. **Both viewports, both themes.** The finding is reported with the
-    screenshot it was seen in; a fix is confirmed on all four captures.
+    capture it was seen in; a fix is confirmed on all four captures.
 
 ## Running the capture
 
-The static mockups under `design/mockups/` render from `design/tokens.css`
-alone. Recapture them after a token change:
+The suite starts the real application on port 3201 with fixture values in
+its environment and points it at a replay of the recordings under
+`fixtures/` (the fixture server in `e2e/fixture-server.ts` on port 3202).
+Nothing is configured in a file; nothing reaches OpenComputer or GitHub.
 
 ```sh
-npx --yes playwright@1.63.0 install chromium
-for screen in list task; do
-  for width in 390 1440; do
-    for theme in light dark; do
-      npx --yes playwright@1.63.0 screenshot --full-page --wait-for-timeout=1500 \
-        --viewport-size="$width,$([ "$width" = 390 ] && echo 844 || echo 900)" \
-        "file://$PWD/design/mockups/$screen.html?theme=$theme" \
-        "design/screens/$screen-$width-$theme.png"
-    done
-  done
-done
+npx playwright install chromium   # once
+npm run test:e2e                  # every state, both viewports, both themes
+npx playwright test --project=desktop        # one viewport
+npx playwright test -g "the task page"       # one group
 ```
 
-The application captures come from the Playwright suite under `e2e/`, which
-renders every state from the recorded fixtures at the same two viewports and
-writes to `test-results/screenshots/`.
+Captures land in `design/screens/app/<name>-<viewport>-<theme>.png`, 56
+files under 300 KB each, and `e2e/measure.spec.ts` runs beside the
+captures. `APP_PORT` and `FIXTURE_PORT` move the replay's ports when a
+walkthrough (`npm run dev:fixtures`) already holds the defaults.
+`.github/workflows/screenshots.yml` runs the same
+command on every pull request and uploads the folder as the `screens`
+artifact; a state that does not render fails the job.
+
+The same suite targets a deployed workbench when `BASE_URL` and
+`OPENCOMPUTER_API_URL` are set. The cookie is then minted from that
+environment's own `WORKBENCH_COOKIE_KEY`, `WORKBENCH_MEMBERSHIP`,
+`OPENCOMPUTER_PROJECT_ID` and `OPENCOMPUTER_ENVIRONMENT`, which must be the
+deployment's, and the live acceptance spec (`e2e/live.spec.ts`: sign in,
+list, open a task, follow up, stop) runs; the fixture-specific state
+captures are skipped. Never in CI.
+
+```sh
+BASE_URL=https://<workbench-host> OPENCOMPUTER_API_URL=https://app.opencomputer.dev \
+WORKBENCH_COOKIE_KEY=… WORKBENCH_MEMBERSHIP=team:<org id>/<team id> \
+OPENCOMPUTER_PROJECT_ID=… OPENCOMPUTER_ENVIRONMENT=development \
+E2E_LOGIN=<your login> E2E_USER_ID=<your numeric id> npm run test:e2e
+```
+
+The static mockups under `design/mockups/` predate the application and
+render from `design/tokens.css` alone; they are kept as the design's
+reference and are no longer captured. To look at one, open it in a browser
+(`?theme=dark` for the dark palette).

@@ -1,6 +1,5 @@
-import { ChevronRight } from "lucide-react";
+import { Check, ChevronRight, Clock, X } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 import { type CommandOutcome, commandOf, commandOutcome, type ToolCall } from "@/reducer";
 import { reportSchema } from "../../lib/report";
 import { formatDuration } from "./format";
@@ -9,6 +8,7 @@ import { ResultFields } from "./ResultCard";
 /** Lines shown before the expander asks; nothing is ever cut without saying so. */
 const PREVIEW_LINES = 40;
 
+/** What a call's row says on the right: the icon carries the outcome, the text the measure. */
 function Outcome({ outcome }: { outcome: CommandOutcome }) {
   const duration = formatDuration(outcome.durationMs);
   const lines = outcome.lines ? `${String(outcome.lines)} lines` : "";
@@ -16,25 +16,48 @@ function Outcome({ outcome }: { outcome: CommandOutcome }) {
     case "running":
       return (
         <span className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-          <span aria-hidden className="size-dot rounded-full bg-status-working-dot status-dot-pulse" />
+          <span aria-hidden="true" className="size-2 rounded-full bg-status-working-dot status-dot-pulse" />
           running
         </span>
       );
     case "ok":
       return (
-        <span className="text-xs text-status-ready-for-review">✓ {[duration, lines].filter(Boolean).join(" · ")}</span>
+        <span className="inline-flex items-center gap-1.5 text-xs text-status-ready-for-review">
+          <Check aria-label="passed" className="size-3.5" />
+          <span className="text-muted-foreground">{[duration, lines].filter(Boolean).join(" · ")}</span>
+        </span>
       );
     case "error":
       return (
-        <span className="text-xs text-status-failed">
-          ✗ exit {String(outcome.exitCode)}
-          {duration ? ` · ${duration}` : ""}
+        <span className="inline-flex items-center gap-1.5 text-xs text-status-failed">
+          <X aria-label="failed" className="size-3.5" />
+          <span>
+            exit {String(outcome.exitCode)}
+            {duration ? ` · ${duration}` : ""}
+          </span>
         </span>
       );
     case "timed_out":
-      return <span className="text-xs text-status-failed">timed out{duration ? ` after ${duration}` : ""}</span>;
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs text-status-failed">
+          <Clock aria-hidden="true" className="size-3.5" />
+          <span>timed out{duration ? ` after ${duration}` : ""}</span>
+        </span>
+      );
     case "failed":
-      return <span className="text-xs text-status-failed">✗ failed</span>;
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs text-status-failed">
+          <X aria-hidden="true" className="size-3.5" />
+          <span>failed</span>
+        </span>
+      );
+    case "cancelled":
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs text-status-stopping">
+          <X aria-hidden="true" className="size-3.5" />
+          <span>stopped{duration ? ` after ${duration}` : ""}</span>
+        </span>
+      );
   }
 }
 
@@ -44,12 +67,17 @@ function OutputBlock({ text }: { text: string }) {
   const hidden = showAll ? 0 : Math.max(0, lines.length - PREVIEW_LINES);
   const shown = hidden ? lines.slice(0, PREVIEW_LINES) : lines;
   return (
-    <pre className="mt-2 overflow-hidden rounded-md border border-code-border bg-code p-3 font-mono text-sm whitespace-pre-wrap text-code-foreground [overflow-wrap:anywhere]">
+    <pre className="my-2 overflow-hidden rounded-md bg-code px-3 py-2 font-mono text-xs leading-5 wrap-anywhere whitespace-pre-wrap text-code-foreground">
       {shown.join("\n")}
       {hidden ? (
-        <span className="mt-2 block text-muted-foreground">
+        <span className="mt-2 block pt-2 text-muted-foreground">
+          <span aria-hidden="true" className="mb-2 block h-px bg-code-border" />
           …and {String(hidden)} more lines ·{" "}
-          <button type="button" className="text-accent hover:underline" onClick={() => setShowAll(true)}>
+          <button
+            type="button"
+            className="rounded-sm text-code-foreground underline underline-offset-2 hover:text-accent-foreground"
+            onClick={() => setShowAll(true)}
+          >
             Show all
           </button>
         </span>
@@ -62,7 +90,7 @@ function ReportBody({ call }: { call: ToolCall }) {
   const parsed = reportSchema.safeParse(call.output ?? call.input);
   if (!parsed.success) return <OutputBlock text={JSON.stringify(call.output ?? call.input ?? {}, null, 2)} />;
   return (
-    <div className="mt-2">
+    <div className="my-2 rounded-md bg-surface p-3">
       <ResultFields report={parsed.data} />
     </div>
   );
@@ -74,31 +102,31 @@ export function ToolCallRow({ call, expanded, onToggle }: { call: ToolCall; expa
   const command = call.tool === "report" ? "" : commandOf(call);
   const hasBody = call.tool === "report" || outcome.text.length > 0;
   return (
-    <li data-call-id={call.callId} className="min-h-row-compact border-b border-border py-2 text-sm">
-      <div className="grid grid-cols-[1rem_auto_minmax(0,1fr)_auto] items-center gap-x-2">
-        <button
-          type="button"
-          aria-expanded={expanded}
-          aria-label={expanded ? "Hide output" : "Show output"}
-          onClick={onToggle}
-          className="grid size-4 place-items-center rounded-sm text-muted-foreground hover:text-foreground"
-        >
-          <ChevronRight aria-hidden className={cn("size-4", expanded && "rotate-90")} />
-        </button>
-        <span className="font-medium">{call.tool}</span>
-        <span className="truncate font-mono text-muted-foreground" title={command || undefined}>
+    <li data-call-id={call.callId} className="min-w-0 text-sm">
+      <button
+        type="button"
+        aria-expanded={expanded}
+        aria-label={expanded ? "Hide output" : "Show output"}
+        onClick={onToggle}
+        className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left hover:bg-hover"
+      >
+        <ChevronRight aria-hidden="true" className="chevron size-4 shrink-0 text-muted-foreground" />
+        <span className="w-14 shrink-0 truncate text-xs text-muted-foreground">{call.tool}</span>
+        <span className="min-w-0 flex-1 truncate font-mono text-xs text-foreground" title={command || undefined}>
           {command}
         </span>
-        <Outcome outcome={outcome} />
-      </div>
+        <span className="shrink-0">
+          <Outcome outcome={outcome} />
+        </span>
+      </button>
       {expanded ? (
-        <div className="pl-6">
+        <div className="pb-1 pl-8">
           {call.tool === "report" ? (
             <ReportBody call={call} />
           ) : hasBody ? (
             <OutputBlock text={outcome.text} />
           ) : (
-            <p className="mt-2 text-xs text-muted-foreground">
+            <p className="my-2 text-xs text-muted-foreground">
               {outcome.kind === "running" ? "No output yet." : "No output."}
             </p>
           )}

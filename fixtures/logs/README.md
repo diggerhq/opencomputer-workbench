@@ -29,3 +29,5 @@ change the platform.
 
 `design/screens.md` names these under `events/`; they live here under
 `fixtures/logs/` beside the row fixtures the list uses.
+
+Reconciled on 2026-09-16 with the events page as the OC integration branch documents it: the first `message.received` of a task carries the `payload` the app sends; a call still open when its turn ends is settled by a `tool.failed` with `settledBy` ahead of the terminal turn event; `turn.cancelled` carries `settledAfterMs`, `operationsSettled` and `computerTerminated`.

@@ -23,7 +23,7 @@ describe("ActivityTimeline", () => {
       "toolu_06report",
     ]);
     expect(container.querySelector("pre")).toBeNull();
-    expect(screen.getByText("✓ 38 s · 142 lines")).toBeTruthy();
+    expect(screen.getByText("38 s · 142 lines")).toBeTruthy();
     const ci = container.querySelector('li[data-call-id="toolu_02ci"]') as HTMLElement;
     fireEvent.click(within(ci).getByRole("button", { name: "Show output" }));
     const output = ci.querySelector("pre") as HTMLElement;
@@ -38,7 +38,7 @@ describe("ActivityTimeline", () => {
 
   it("shows a non-zero exit in the failed tone and the report call as its fields", () => {
     const { container } = render(<ActivityTimeline turns={reduce("completed").turns} isReplaying={false} />);
-    expect(screen.getByText("✗ exit 1 · 1.1 s").className).toContain("text-status-failed");
+    expect(screen.getByText("exit 1 · 1.1 s").parentElement?.className).toContain("text-status-failed");
     const report = container.querySelector('li[data-call-id="toolu_06report"]') as HTMLElement;
     fireEvent.click(within(report).getByRole("button", { name: "Show output" }));
     expect(within(report).getByText("#482 draft").closest("a")?.getAttribute("href")).toBe(
@@ -57,7 +57,7 @@ describe("ActivityTimeline", () => {
     expect(within(running).getByText("running")).toBeTruthy();
     unmount();
     render(<ActivityTimeline turns={reduce("tool-timed-out").turns} isReplaying={false} />);
-    expect(screen.getByText("timed out after 2 min").className).toContain("text-status-failed");
+    expect(screen.getByText("timed out after 2 min").parentElement?.className).toContain("text-status-failed");
   });
 
   it("renders a failed turn's copy and code under its entries", () => {

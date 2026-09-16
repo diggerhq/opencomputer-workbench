@@ -59,6 +59,29 @@ describe("the log reducer", () => {
     expect(applyEvents(whole, events.slice(0, 10))).toBe(whole);
   });
 
+  it("keeps the payload the first turn was sent with", () => {
+    const activity = reduce("working");
+    expect(activity.turns[0]?.payload).toEqual({
+      taskId: "01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+      repo: "acme/service",
+      ref: "main",
+      actor: { id: 1, login: "jdoe" },
+    });
+  });
+
+  it("settles a call still open at the turn's end itself when the log carries no record for it", () => {
+    const events = [
+      { seq: 1, type: "session.created", data: { agentId: "worker", deploymentId: "dep" } },
+      { seq: 2, turnId: "t1", type: "message.received", data: { input: "hi", mode: "queue" } },
+      { seq: 3, turnId: "t1", type: "turn.started", data: {} },
+      { seq: 4, turnId: "t1", type: "tool.started", data: { tool: "shell", callId: "c1", title: "sleep 100" } },
+      { seq: 5, turnId: "t1", type: "turn.cancelled", data: { reason: "interrupted" } },
+    ];
+    const activity = applyEvents(emptyActivity(), events);
+    expect(activity.turns[0]?.toolCalls[0]?.status).toBe("cancelled");
+    expect(activity.turns[0]?.settlement).toBeUndefined();
+  });
+
   it("shows a session with no turn as empty", () => {
     const activity = reduce("created-only");
     expect(activity.turns).toEqual([]);
@@ -110,7 +133,7 @@ describe("the log reducer", () => {
       code: "runtime_lost",
       message: "The runtime stopped responding and the turn was abandoned",
     });
-    expect(turn?.toolCalls.at(-1)).toMatchObject({ callId: "toolu_02ci", status: "failed" });
+    expect(turn?.toolCalls.at(-1)).toMatchObject({ callId: "toolu_02ci", status: "failed", settledBy: "turn.failed" });
     expect(activeTurn(activity)).toBeUndefined();
   });
 
@@ -120,7 +143,8 @@ describe("the log reducer", () => {
       ["cancelled", "interrupted"],
       ["completed", undefined],
     ]);
-    expect(activity.turns[0]?.toolCalls.at(-1)?.status).toBe("failed");
+    expect(activity.turns[0]?.toolCalls.at(-1)).toMatchObject({ status: "cancelled", settledBy: "turn.cancelled" });
+    expect(activity.turns[0]?.settlement).toEqual({ afterMs: 1180, operations: 1, computerTerminated: false });
     expect(activity.turns[0]?.messages.at(-1)?.streaming).toBe(false);
   });
 

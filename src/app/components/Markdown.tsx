@@ -12,8 +12,8 @@ const PROSE = cn(
   "[&_h1]:text-md [&_h1]:font-medium [&_h2]:text-md [&_h2]:font-medium [&_h3]:font-medium",
   "[&_code]:font-mono [&_code]:text-sm",
   "[&_:not(pre)>code]:rounded-sm [&_:not(pre)>code]:bg-muted [&_:not(pre)>code]:px-1",
-  "[&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:border [&_pre]:border-code-border [&_pre]:bg-code [&_pre]:p-3 [&_pre]:text-code-foreground",
-  "[&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground",
+  "[&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-code [&_pre]:p-3 [&_pre]:text-code-foreground",
+  "[&_blockquote]:border-l [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground",
   "[&_table]:text-sm [&_th]:text-left [&_th]:font-medium [&_td]:pr-3 [&_th]:pr-3",
   "[&_a]:text-accent [&_a:hover]:underline",
 );

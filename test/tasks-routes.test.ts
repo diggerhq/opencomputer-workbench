@@ -114,10 +114,33 @@ describe("GET /api/tasks/:id", () => {
 });
 
 describe("POST /api/tasks", () => {
+  /** The session as `GET /sessions/<id>` returns it once the first turn is admitted: the labels the create call sent, one queued turn. */
+  function createdSession(over: Partial<Session> = {}): Session {
+    return session({
+      id: "ses_new",
+      projectId: "proj_1",
+      status: "idle",
+      labels: {
+        request: TASK_ID,
+        title: "Add a health endpoint",
+        repo: "acme/service",
+        ref: "main",
+        actor_id: "1",
+        actor_login: "octocat",
+        archived: "false",
+      },
+      turns: [{ id: "turn_1", status: "queued", createdAt: "2026-09-15T20:46:01Z", updatedAt: "2026-09-15T20:46:01Z" }],
+      createdAt: "2026-09-15T20:46:00Z",
+      updatedAt: "2026-09-15T20:46:01Z",
+      ...over,
+    });
+  }
+
   function creating(overrides: Record<string, (url: URL, init?: RequestInit) => Response> = {}) {
     return fakeFetch({
       ...deployment,
       [`${OC}/sessions/ses_new/turns`]: () => json({ turnId: "turn_1", status: "queued", duplicate: false }, 202),
+      [`${OC}/sessions/ses_new`]: () => json(createdSession()),
       [`${OC}/sessions`]: () =>
         json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" }, deployment: {} }, 201),
       ...overrides,
@@ -147,7 +170,8 @@ describe("POST /api/tasks", () => {
       actor: { id: 1, login: "octocat" },
       archived: false,
     });
-    const [, create, turn] = fetch.calls;
+    const [, create, turn, readBack] = fetch.calls;
+    expect(readBack?.url).toBe(`${OC}/sessions/ses_new`);
     expect(create?.init?.headers).toMatchObject({ "idempotency-key": TASK_ID });
     expect(JSON.parse(String(create?.init?.body))).toEqual({
       deploymentId: "dep_dev",
@@ -208,6 +232,81 @@ describe("POST /api/tasks", () => {
     );
     expect(response.status).toBe(201);
     expect((await response.json()).receipt.duplicate).toBe(true);
+  });
+
+  it("reads the task back for a duplicate receipt whose turn has already settled", async () => {
+    const fetch = creating({
+      [`${OC}/sessions/ses_new/turns`]: () => json({ turnId: "turn_1", status: "completed", duplicate: true }, 200),
+      [`${OC}/sessions/ses_new`]: () =>
+        json(
+          createdSession({
+            turns: [
+              {
+                id: "turn_1",
+                status: "completed",
+                createdAt: "2026-09-15T20:46:01Z",
+                updatedAt: "2026-09-15T20:50:00Z",
+              },
+            ],
+          }),
+        ),
+    });
+    const app = createApp(cfg, { fetch, now: () => T0 });
+    const response = await app.fetch(
+      new Request("https://workbench.example/api/tasks", {
+        method: "POST",
+        headers: await memberPost(cfg),
+        body: JSON.stringify(envelope),
+      }),
+    );
+    expect(response.status).toBe(201);
+    const body = await response.json();
+    expect(body.receipt).toEqual({ turnId: "turn_1", status: "completed", duplicate: true });
+    expect(body.task).toMatchObject({ id: "ses_new", execution: "idle", queued: 0 });
+  });
+
+  it("repeats a create whose row was not confirmed in the list, then forwards the problem", async () => {
+    let creates = 0;
+    const fetch = creating({
+      [`${OC}/sessions`]: () => {
+        creates += 1;
+        if (creates === 1) {
+          return json(
+            { error: { code: "session_publication_unconfirmed", message: "Not confirmed.", sessionId: "ses_new" } },
+            503,
+          );
+        }
+        return json({ session: { id: "ses_new", status: "new", createdAt: "2026-09-15T20:46:00Z" } }, 200);
+      },
+    });
+    const app = createApp(cfg, { fetch, now: () => T0 });
+    const response = await app.fetch(
+      new Request("https://workbench.example/api/tasks", {
+        method: "POST",
+        headers: await memberPost(cfg),
+        body: JSON.stringify(envelope),
+      }),
+    );
+    expect(response.status).toBe(201);
+    expect(creates).toBe(2);
+
+    const always = creating({
+      [`${OC}/sessions`]: () =>
+        json(
+          { error: { code: "session_publication_unconfirmed", message: "Not confirmed.", sessionId: "ses_new" } },
+          503,
+        ),
+    });
+    const stuck = await createApp(cfg, { fetch: always, now: () => T0 }).fetch(
+      new Request("https://workbench.example/api/tasks", {
+        method: "POST",
+        headers: await memberPost(cfg),
+        body: JSON.stringify(envelope),
+      }),
+    );
+    expect(stuck.status).toBe(503);
+    expect((await stuck.json()).error.code).toBe("session_publication_unconfirmed");
+    expect(always.calls.filter((call) => call.url === `${OC}/sessions`)).toHaveLength(3);
   });
 
   it("ends with one session and one turn when the envelope is retried after a lost reply", async () => {
@@ -402,6 +501,18 @@ describe("GET /api/repos", () => {
     );
     expect(response.status).toBe(502);
     expect((await response.json()).error.code).toBe("not_found");
+  });
+
+  it("forwards an environment without a GitHub installation as the API answers it", async () => {
+    const fetch = fakeFetch({
+      [`${OC}/projects/proj_1/github/repositories`]: () =>
+        json({ error: { code: "github_connection_not_found", message: "No installation." } }, 404),
+    });
+    const response = await createApp(cfg, { fetch, now: () => T0 }).fetch(
+      new Request("https://workbench.example/api/repos", { headers: await memberHeaders(cfg) }),
+    );
+    expect(response.status).toBe(404);
+    expect((await response.json()).error.code).toBe("github_connection_not_found");
   });
 
   it("serves the configured list only under the development stub", async () => {

@@ -1,7 +1,7 @@
 // STOPGAP(C5): a thin typed fetch wrapper over the documented management API
 // (docs/agents/api.mdx) and the C1, C2 and C3 seams of the workbench design.
-// Deleted, with no behavior change, when `@opencomputer/sdk/managed-agents`
-// ships a portable client; until then this is the only module that knows the
+// Deleted, with no behavior change, when `@opencomputer/sdk/agents`, the
+// portable client, is published; until then this is the only module that knows the
 // API's paths and shapes. Every response is parsed at this boundary and the
 // types are inferred from the schemas; unknown extra fields pass through.
 import { z } from "zod";
@@ -105,10 +105,11 @@ const labelsSchema = z.record(z.string(), z.string());
 /** One row of `GET /sessions` (C1). */
 const sessionSummarySchema = z.object({
   id: z.string(),
-  projectId: z.string(),
+  projectId: z.string().optional(),
   agentId: z.string(),
   deploymentId: z.string(),
-  environment: environmentSchema,
+  /** `null` when the session has no environment (api.mdx, the row). */
+  environment: environmentSchema.nullable().default(null),
   source: z.string().optional(),
   status: sessionStatus,
   labels: labelsSchema.default({}),
@@ -143,6 +144,8 @@ const sessionSchema = z.object({
   status: sessionStatus,
   turns: z.array(turnSchema).default([]),
   labels: labelsSchema.default({}),
+  labelsUpdatedAt: z.string().optional(),
+  executionMode: z.string().optional(),
   revision: z.number().int().nonnegative().optional(),
   activity: activitySchema.optional(),
   result: resultSchema.nullable().default(null),
@@ -160,9 +163,13 @@ const createdSessionSchema = z.object({
   }),
 });
 
+/**
+ * The turn's persisted status: `queued` or `running` for a new turn, and for
+ * a repeated key whatever the existing turn has reached.
+ */
 const turnReceiptSchema = z.object({
   turnId: z.string(),
-  status: z.enum(["queued", "running"]),
+  status: z.enum(["queued", "running", "completed", "failed", "cancelled"]),
   duplicate: z.boolean().default(false),
 });
 
@@ -255,6 +262,27 @@ export interface OC {
   forward(path: string, init: RequestInit): Promise<Response>;
 }
 
+const PUBLICATION_ATTEMPTS = 3;
+
+/**
+ * A `503 session_publication_unconfirmed` means the session or its labels are
+ * recorded but the row was not confirmed in the list in time; the same call
+ * is safe to repeat (the key and last-write-wins labels see to that), so it
+ * is repeated a bounded number of times within this request before the
+ * problem is forwarded.
+ */
+async function untilPublished<T>(call: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await call();
+    } catch (cause) {
+      const unconfirmed = cause instanceof OCError && cause.code === "session_publication_unconfirmed";
+      if (!unconfirmed || attempt >= PUBLICATION_ATTEMPTS) throw cause;
+      await new Promise((resolve) => setTimeout(resolve, 250 * attempt));
+    }
+  }
+}
+
 export function createOC(config: Config, fetchImpl: typeof globalThis.fetch): OC {
   const base = `${config.oc.origin}/api/managed-agents`;
 
@@ -339,12 +367,14 @@ export function createOC(config: Config, fetchImpl: typeof globalThis.fetch): OC
         );
       },
       create: (body, idempotencyKey) =>
-        request("/sessions", createdSessionSchema, { method: "POST", body: JSON.stringify(body) }, idempotencyKey).then(
-          (created) => created.session,
-        ),
+        untilPublished(() =>
+          request("/sessions", createdSessionSchema, { method: "POST", body: JSON.stringify(body) }, idempotencyKey),
+        ).then((created) => created.session),
       get: (id) => request(session(id), sessionSchema),
       setLabels: (id, change) =>
-        request(`${session(id)}/labels`, sessionSchema, { method: "PATCH", body: JSON.stringify(change) }),
+        untilPublished(() =>
+          request(`${session(id)}/labels`, sessionSchema, { method: "PATCH", body: JSON.stringify(change) }),
+        ),
       end: (id) => request(`${session(id)}/end`, sessionSchema, { method: "POST" }),
       interrupt: (id) => request(`${session(id)}/interrupt`, sessionSchema, { method: "POST" }),
     },

@@ -3,7 +3,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Composer } from "@/components/Composer";
 import { TaskList, useTasks } from "@/components/TaskList";
-import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { workspaceQuery } from "./__root";
 
 export const Route = createFileRoute("/")({
@@ -12,8 +13,8 @@ export const Route = createFileRoute("/")({
 
 type Filter = "active" | "archived";
 
-// The list is the root: the composer, the two filter tabs, the rows and the
-// page loader, one column.
+// The list is the root: the composer, then one panel holding the filter
+// tabs, the rows and the page loader, one column.
 function TasksPage() {
   const workspace = useQuery(workspaceQuery).data ?? undefined;
   const client = useQueryClient();
@@ -23,34 +24,30 @@ function TasksPage() {
   const loaded = query.data?.pages.reduce((count, page) => count + page.tasks.length, 0) ?? 0;
 
   return (
-    <main className="flex flex-1 flex-col pb-12">
-      <div className="pt-4">
-        <Composer
-          workspace={workspace}
-          onCreated={(task) => {
-            void client.invalidateQueries({ queryKey: ["tasks"] });
-            void navigate({ to: "/tasks/$id", params: { id: task.id } });
-          }}
-        />
-      </div>
-      <nav aria-label="Filter" className="mt-6 flex h-control items-end gap-6 border-b border-border">
-        {(["active", "archived"] as const).map((entry) => (
-          <button
-            key={entry}
-            type="button"
-            aria-pressed={filter === entry}
-            title={filter === entry ? `${String(loaded)} loaded` : undefined}
-            onClick={() => setFilter(entry)}
-            className={cn(
-              "-mb-px border-b-2 pb-2 text-sm font-medium",
-              filter === entry ? "border-accent text-foreground" : "border-transparent text-muted-foreground",
-            )}
-          >
-            {entry === "active" ? `Active${query.isSuccess ? ` (${String(loaded)})` : ""}` : "Archived"}
-          </button>
-        ))}
-      </nav>
-      <TaskList query={query} archived={filter === "archived"} />
+    <main className="flex flex-1 flex-col gap-10 pt-8 pb-24">
+      <h1 className="sr-only">Tasks</h1>
+      <Composer
+        workspace={workspace}
+        onCreated={(task) => {
+          void client.invalidateQueries({ queryKey: ["tasks"] });
+          void navigate({ to: "/tasks/$id", params: { id: task.id } });
+        }}
+      />
+      <Card data-slot="task-list" role="region" aria-label="Tasks" className="gap-0 py-0">
+        <Tabs value={filter} onValueChange={(value) => setFilter(value as Filter)} className="gap-0">
+          <div className="flex h-12 items-center bg-surface px-5">
+            <TabsList variant="line" aria-label="Filter">
+              <TabsTrigger value="active" title={filter === "active" ? `${String(loaded)} loaded` : undefined}>
+                Active{query.isSuccess && filter === "active" ? ` (${String(loaded)})` : ""}
+              </TabsTrigger>
+              <TabsTrigger value="archived">Archived</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value={filter}>
+            <TaskList query={query} archived={filter === "archived"} />
+          </TabsContent>
+        </Tabs>
+      </Card>
     </main>
   );
 }

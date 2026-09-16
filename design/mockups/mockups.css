@@ -1,3 +1,30 @@
+/* The mockups predate the application and keep the measures they were drawn
+   with. The application itself uses Tailwind's scale and shadcn's sizes
+   (design/tokens.css says so), so these live here, for the mockups only. */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --radius-full: 9999px;
+  --gutter: var(--space-4);
+  --gutter-wide: var(--space-8);
+  --content-max: 60rem;
+  --page-max: 80rem;
+  --row-height: 3.5rem;
+  --row-height-compact: 3rem;
+  --control-height: 2.25rem;
+  --control-height-sm: 1.75rem;
+  --dot: 0.5rem;
+  --avatar: 1.25rem;
+}
+
 /* Static mockups of the two screens. Every color, size, radius and space is a
    token from ../tokens.css; this file only arranges them. The application's
    components reproduce these boxes with Tailwind names mapped to the same
@@ -99,7 +126,7 @@ button {
   margin: 0;
   font-size: var(--text-xl);
   line-height: var(--leading-xl);
-  font-weight: var(--weight-semibold);
+  font-weight: var(--weight-medium);
 }
 
 .identity {

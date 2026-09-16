@@ -24,7 +24,7 @@ describe("toTask over the row fixtures", () => {
     ["idle-old-result", { execution: "idle", display: "idle" }],
     ["ready-changes", { execution: "idle", display: "ready_for_review" }],
     ["ready-published", { execution: "idle", display: "ready_for_review" }],
-    ["failed", { execution: "failed", failure: { code: "runtime_lost" }, display: "failed", attention: true }],
+    ["failed", { execution: "failed", display: "failed", attention: true }],
     ["archived", { execution: "working", archived: true, display: "archived" }],
     ["ended", { execution: "ended", display: "ended" }],
   ];
