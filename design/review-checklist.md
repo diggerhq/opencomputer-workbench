@@ -5,8 +5,12 @@ the captures the screenshot suite writes to `design/screens/app/` at 390 and
 1440 pixels in both themes, worst finding first. The list does not change per
 review; a new rule is added here when a bug shows the list missed it.
 
-1. **One sizing system.** Every edge sits on Tailwind's 4 px scale; rows are
-   `h-14`; controls are shadcn's `h-8`, `h-7` or `h-6`; every visible border
+1. **One sizing system, one rhythm.** Every edge sits on Tailwind's 4 px
+   scale; rows are `h-16`; controls are shadcn's `h-8`, `h-7` or `h-6`;
+   gaps are one of the rhythm's steps (8 within a group, 12 heading to
+   panel, 16 between groups in a card, 32 to 40 between sections, 20 of
+   card inset) and weight is regular except one medium emphasis per
+   context; every visible border
    is one hairline in `--border` (`--input` on fields); the header, the
    composer and the list share a left edge and the task page's two columns
    share a top edge. `npx playwright test e2e/measure.spec.ts` reads the

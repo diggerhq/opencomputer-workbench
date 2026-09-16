@@ -19,17 +19,27 @@ small `h-6`). A value that is neither does not go into a component;
 
 ## Shared rules
 
-- **Grid.** Tailwind's 4 px scale, one system with the shadcn primitives:
-  `gap-2` (8 px) within a control group, `gap-4` (16 px) between groups,
-  `gap-6` (24 px) between sections. Side gutter `px-4` (16 px) below 768 px,
-  `px-8` (32 px) from 768 px. One container, `max-w-6xl` (1152 px), shared
-  by the header, the list and the task page, so their left edges coincide.
+- **Grid and rhythm.** Tailwind's 4 px scale, one system with the shadcn
+  primitives, in three deliberate steps so tight and generous intervals read
+  as a cadence: `gap-2` (8 px) within a control group or between a title and
+  its meta line, `gap-3` (12 px) between a heading and the panel it names,
+  `gap-4` (16 px) between groups inside a card, `gap-8` to `gap-10` (32 to
+  40 px) between sections of a page. A card's inset is `p-5` (20 px); rows
+  inside the list panel share it (`px-5`). Pages start `pt-8` (32 px) under
+  the header. Side gutter `px-4` (16 px) below 768 px, `px-8` (32 px) from
+  768 px. One container, `max-w-6xl` (1152 px), shared by the header, the
+  list and the task page, so their left edges coincide.
 - **Type.** Inter everywhere; Geist Mono only for commands, output, commit
   SHAs and branch names. The scale is `--text-xs` through `--text-xl`; body
-  is `--text-base` (14 px). Weights: regular for prose, medium for titles and
-  labels, semibold for the page heading only.
-- **Rows and controls.** A task row is exactly `h-14` (56 px) whatever it
-  holds; a timeline entry is `h-8` (32 px) collapsed. Controls are shadcn's
+  is `--text-base` (14 px). Two weights: regular for everything, medium for
+  the one emphasis in each context (a row's title, the page title, a panel's
+  name, the selected tab, "Turn n", a button). Status labels, section
+  headings, speakers, tool names, keycaps and chips are regular; a heading
+  outside a card is `--text-sm` medium in `--muted-foreground` so it names
+  the section without competing with it. Semibold is not used.
+- **Rows and controls.** A task row is exactly `h-16` (64 px) whatever it
+  holds, with no divider between rows: the title-and-meta cadence and the
+  hover tint separate them. A timeline entry is `h-8` (32 px) collapsed. Controls are shadcn's
   default `h-8` (32 px), row-level controls `size="sm"` (28 px), icon
   buttons `size-8` and `size-7`. Corners are shadcn's family from
   `--radius` (10 px): controls `rounded-lg`, cards `rounded-xl`. Borders are
@@ -65,10 +75,12 @@ small `h-6`). A value that is neither does not go into a component;
   at `script-src 'self'`; both themes use the same token names.
 - **Surfaces.** Three neutral layers: the page (`--background`), a card on it
   (shadcn Card: `--card`, the library's hairline ring, `rounded-xl`) and the
-  surface a toolbar or panel header sits on (`--surface`). A hovered row or
+  surface a panel header sits on (`--surface`). A panel header is separated
+  from the panel's body by that tone alone, never by a line; the only lines
+  inside a panel are between turn groups in the timeline. A hovered row or
   menu item takes `--hover`. Section headings are `--text-sm` medium in
-  `--foreground`, sentence case, with the section's meta at `--text-xs` in
-  `--muted-foreground` on the same line.
+  `--muted-foreground`, sentence case, with the section's meta at
+  `--text-xs` on the same line.
 
 ## Task list
 
@@ -124,33 +136,33 @@ the page loader.
   `--status-failed-bg` block between the textarea and the footer.
 - **The list panel.** The tabs, the rows and the page loader share one
   card (shadcn Card, `rounded-xl`). The tab bar is `h-12` on `--surface`
-  with a bottom border: shadcn Tabs in the line variant, two
-  buttons, "Active (n)" and "Archived", `--text-sm` medium,
-  the library's trigger height, the selected one underlined with
-  the library's ring, the other in `--muted-foreground` taking `--hover` on
-  hover. The count comes from the loaded rows and says so on hover ("12
-  loaded"). The page loader is a `h-14` (56 px) band on `--surface` under
-  the rows.
-- **Row.** `h-14` (56 px), bottom border `--border`, three columns on a
-  fixed template: status `w-32` (128 px), title and actor flexible, result
-  stage and archive `w-32` (128 px), `gap-4` between them. Line one: the badge (dot and
-  label) in the first column; the title at `--text-base` medium, ellipsized
-  at one line, with the repository and ref at `--text-sm` mono in
-  `--muted-foreground` right of it. Line two, under the title: the actor's
-  avatar (`size-5`, 20 px) and login, then the relative age, at `--text-xs` in
+  with no line under it: shadcn Tabs in the line variant, two buttons,
+  "Active (n)" and "Archived", `--text-sm`, the selected one medium and
+  underlined, the other regular in `--muted-foreground`. The count comes
+  from the loaded rows and says so on hover ("12 loaded"). The rows sit in
+  `py-2` (8 px) of air under the bar; the page loader is a `h-14` (56 px)
+  line under them on the card itself.
+- **Row.** `h-16` (64 px), no border, `px-5` so its text shares the
+  composer's content edge, three columns on a fixed template: status `w-32`
+  (128 px), title and meta flexible, result stage and archive `w-32`
+  (128 px), `gap-4` between them. Line one: the badge (dot and label,
+  regular weight in the tone's color) in the first column and the title at
+  `--text-base` medium, ellipsized at one line. Line two, `gap-1` under the
+  title: the actor's avatar (`size-4`, 16 px) and login, the repository and
+  ref in mono, and the relative age, all at `--text-xs` in
   `--muted-foreground`. The third column, vertically centered across both
-  lines: the result stage word ("base", "changes", "published") at
-  `--text-xs` when present, then the archive control (`size="sm"` (28 px),
-  icon button, lucide `archive`, or `archive-restore` on an archived row)
-  which exists on every row and is visible on hover and focus, with a
-  tooltip naming it. The result stage is a `--muted` pill at `--text-xs`.
+  lines: the result stage word ("base", "changes", "published") as plain
+  `--text-xs` muted text when present, then the archive control
+  (`size="sm"` (28 px), icon button, lucide `archive`, or `archive-restore`
+  on an archived row) which exists on every row and is visible on hover and
+  focus, with a tooltip naming it.
   A Working row with queued turns reads "Working, 2 queued". A hovered or
   focused row takes `--hover`. A row that needs attention (failed or not
   started) is tinted `--attention-row` across its whole surface; nothing
   is signalled by a side stripe. The whole row is a link to the task page;
   the archive control stops propagation.
-- **Page loader.** A `h-14` (56 px) row holding a secondary "Load more"
-  button while `nextCursor` is present; a `--text-sm` muted "That's every
+- **Page loader.** A `h-14` (56 px) line holding a secondary "Load more"
+  button while `nextCursor` is present; a `--text-xs` muted "That's every
   task" line when it is null; three skeleton rows while a page loads.
 
 ### At 390
@@ -158,13 +170,12 @@ the page loader.
 Same order, one column, gutter `px-4`. The header keeps the title and
 the avatar; the display name moves to the avatar's hover. The composer
 stacks: picker, ref, textarea, button full width. The row keeps its
-`h-14` (56 px) on a three-column template (status auto, title flexible,
-archive `size="sm"` (28 px)): line one is the badge and the title; the
-result stage is not shown below 768 px, the badge carries the state and the
-task page the stage; line two spans the first two columns with the actor,
-the repository and ref in mono, and the age at `--text-xs`; the archive
-control stays reserved at the right edge, centered across both lines, and is
-always visible, since there is no hover.
+`h-16` (64 px) on a three-column template (status auto, title flexible,
+archive `size="sm"` (28 px)): line one is the title; the result stage is not
+shown below 768 px, the badge carries the state and the task page the stage;
+line two holds the badge, the actor, the repository and ref in mono, and the
+age at `--text-xs`; the archive control stays reserved at the right edge,
+centered across both lines, and is always visible, since there is no hover.
 
 ## Task page
 
@@ -214,14 +225,16 @@ the timeline takes the right.
 
 - **Header.** The app header as on the list. Below it a "← Tasks" link
   with the arrow icon, `--text-sm` medium in `--muted-foreground`.
-- **Title row.** The title at `--text-xl` semibold (the first line of the
-  request), the full badge right. Below at `--text-sm` in
+- **Title row.** The title at `--text-xl` medium (the first line of the
+  request), the full badge right, `gap-3` (12 px) to the meta line. Below at `--text-sm` in
   `--muted-foreground`, each item with its icon: repository and ref (mono,
   the repository icon), the actor with the avatar, started age, the task id
   (mono, eight characters, the full id on hover) and "continues <id>" as a
   link when set.
-- **Columns.** From 1024 px: left 5/12, right 7/12, gap `gap-8` (32 px). The
-  left column is the request, then the result card, then the conversation;
+- **Columns.** From 1024 px: left 5/12, right 7/12, `gap-10` (40 px) between
+  them and between the left column's sections; below 1024 px the sections
+  stack `gap-10` apart. The left column is the request, then the result
+  card, then the conversation;
   the right column is the timeline, sticky to the viewport with its own
   scroll so a long timeline never pushes the conversation off screen.
 - **Request.** A card with the request text at `--text-md`, rendered as
@@ -239,16 +252,17 @@ the timeline takes the right.
   and the compare link from base to commit. Absent fields are absent rows,
   not dashes; without a result the heading stays and a dashed `--border`
   box says "No result reported yet".
-- **Timeline.** A panel (`--card`, `--border`, the library's ring,
-  shadcn Card) whose `h-12` header on `--surface` reads
-  "Activity" with "n turns · n calls" right. Turn groups are separated by
-  `--border`; each starts with a `--text-xs` rule: a dot in the turn's
-  outcome tone (completed neutral, failed red, stopped amber, running
-  working), "Turn n" in `--foreground`, the age, a hairline, and the
-  outcome word right ("completed", "in progress", "queued", "failed",
-  "stopped"). Each tool call is a `h-8` (32 px) button row that
-  takes `--hover`: the chevron (turning when expanded), the tool name at
-  `--text-xs` medium muted in a fixed column, the command at `--text-xs`
+- **Timeline.** A panel (`--card`, the library's ring, shadcn Card) whose
+  `h-12` header on `--surface` reads "Activity" with "n turns · n calls"
+  right, no line under it. Turn groups have `p-3` (12 px) of air and are
+  separated by `--border`; each starts with a `--text-xs` rule: a dot in
+  the turn's outcome tone (completed neutral, failed red, stopped amber,
+  running working), "Turn n" medium in `--foreground`, the age, a
+  hairline, and the outcome word right ("completed", "in progress",
+  "queued", "failed", "stopped"). Each tool call is a `h-8` (32 px) button
+  row that takes `--hover`, `gap-0.5` (2 px) apart: the chevron (turning
+  when expanded), the tool name at `--text-xs` regular muted in a fixed
+  column, the command at `--text-xs`
   mono ellipsized, and on the right the outcome: the check icon in the
   ready tone with the duration and line count muted, the cross icon with
   "exit n" in the failed tone, a pulsing dot with "running", the clock
@@ -258,11 +272,12 @@ the timeline takes the right.
   lines" line with "Show all". A `report` call shows its input as the
   definition list the result card uses, on `--surface`. Message deltas are
   not in the timeline; they are the conversation.
-- **Conversation.** Heading "Conversation". Messages alternate: the actor's
-  avatar and login as the speaker for user turns, the agent mark and
-  "agent" for the assistant, `--text-xs` medium in `--muted-foreground`
-  above the message; a user message sits on a `--surface` block, the
-  assistant's Markdown is rendered as prose; a streaming message ends with
+- **Conversation.** Heading "Conversation". Messages `gap-6` (24 px)
+  apart, alternating: the actor's avatar and login as the speaker for user
+  turns, the agent mark and "agent" for the assistant, `--text-xs` regular
+  in `--muted-foreground` `gap-2` above the message; a user message sits on
+  a `--surface` block (`rounded-xl`, `px-4 py-3`), the assistant's Markdown
+  is rendered as prose; a streaming message ends with
   the caret. A failed turn renders the failure copy in the failed tone as a
   message-shaped block with the code in mono after it; a cancelled turn a
   muted "Stopped" line with the stopping dot. Then the follow-up composer:
@@ -297,7 +312,7 @@ the timeline agree on every task-page capture.
 
 | Component | State | Shows | Fixture |
 | --- | --- | --- | --- |
-| TaskList | loading | Three skeleton rows of `h-14` (56 px), no text | (none: rendered before data) |
+| TaskList | loading | Three skeleton rows of `h-16` (64 px), no text | (none: rendered before data) |
 | TaskList | empty | "No tasks yet. Describe one above to start." in `--muted-foreground`, centered in a 64 px tall box | `rows/empty.json` |
 | TaskList | empty, archived filter | "Nothing archived." | `rows/empty.json` |
 | TaskList | page | Rows, then "Load more" while `nextCursor` | `rows/page-1.json`, `rows/page-2.json` |
@@ -382,4 +397,18 @@ Recorded after the first screenshot suite ran over the application (`design/scre
 - **Composer.** The repository picker starts empty with "Repository" as its placeholder and the base-ref input shows the chosen repository's default branch as its placeholder; the button is disabled until both a repository and a request exist.
 - **Skeletons and dialogs do not move.** Loading rows are still blocks and the End dialog opens without a fade or zoom, so streaming text and the working dot remain the only motion.
 - **One focus ring.** The shadcn primitives' own translucent ring was removed; every focusable element shows the `--ring` outline from `design/tokens.css`.
+- **Air, rhythm and weight.** The first captures on one system still read
+  dense and heavy: one interval (8 px inside, 24 px between everything)
+  repeated until nothing had more weight than anything else, medium weight
+  on nearly every text role, and lines everywhere (a divider under each
+  row, a hairline under each surface band, chips behind stage words). The
+  rhythm above replaced the one interval: 8 within a group, 12 from a
+  heading to its panel, 16 between groups in a card, 32 to 40 between
+  sections, 20 of inset in every card and row, rows `h-16`. Weight went
+  down to two: regular everywhere, medium for one emphasis per context.
+  Row dividers, the hairlines under surface bands and the stage chips went;
+  tone and cadence separate what lines used to. The repository and ref
+  moved to the row's meta line so the title stands alone. Nothing about
+  size, border color or control height changed, and the measurement gate
+  passed unchanged apart from the row height it measures for equality.
 - **One sizing system.** The measures the specification first named as its own tokens (a row height, two control heights, gutters, two container widths, a dot and an avatar size, a spacing scale, a radius family) were a second system beside the shadcn primitives' own; wherever the two met, heights, corners and border weights disagreed and the interface read rough. They are gone: the application is on Tailwind's 4 px scale and shadcn's sizes, radii and border lightness (`--border` at shadcn's default with the neutral tint; `--ring` stays the accent because a focus indicator needs 3:1). Cards are shadcn's Card, the filter is Tabs, the composer, the request, the result and the timeline are Cards, task rows are three fixed columns so their edges align down the list, and `e2e/measure.spec.ts` asserts all of it on the rendered page. The mockups keep the old measures in their own stylesheet.
