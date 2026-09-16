@@ -54,14 +54,14 @@ export const REPORT_JSON_SCHEMA = {
     },
     checks: {
       type: "array",
-      maxItems: 20,
+      maxItems: 10,
       description: "The checks the repository defines, as run and reported by the agent",
       items: {
         type: "object",
         properties: {
-          command: { type: "string", minLength: 1, maxLength: 500, description: "The command that was run" },
+          command: { type: "string", minLength: 1, maxLength: 200, description: "The command that was run" },
           passed: { type: "boolean", description: "Whether it passed" },
-          summary: { type: "string", maxLength: 500, description: "One line on the outcome" },
+          summary: { type: "string", maxLength: 200, description: "One line on the outcome" },
         },
         required: ["command", "passed", "summary"],
         additionalProperties: false,
@@ -152,7 +152,7 @@ export function parseReport(input: unknown): Report {
     report.pr = { number: pr.number, url: pr.url, draft: pr.draft };
   }
   if (value.checks !== undefined) {
-    if (!Array.isArray(value.checks) || value.checks.length > 20) {
+    if (!Array.isArray(value.checks) || value.checks.length > 10) {
       throw new ReportRejected("checks", "must be an array of at most 20 checks");
     }
     report.checks = value.checks.map((entry) => {
@@ -161,10 +161,10 @@ export function parseReport(input: unknown): Report {
         !check ||
         typeof check.command !== "string" ||
         !check.command ||
-        check.command.length > 500 ||
+        check.command.length > 200 ||
         typeof check.passed !== "boolean" ||
         typeof check.summary !== "string" ||
-        check.summary.length > 500 ||
+        check.summary.length > 200 ||
         Object.keys(check).some((key) => !["command", "passed", "summary"].includes(key))
       ) {
         throw new ReportRejected("checks", "each check must be { command, passed, summary }");

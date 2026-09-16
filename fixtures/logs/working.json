@@ -30,7 +30,16 @@
     "type": "message.received",
     "data": {
       "input": "Rename billing to invoicing across the service. Keep the public API paths stable and add a deprecation note for the old module name.\n\nRun the full test suite before you report.",
-      "mode": "queue"
+      "mode": "queue",
+      "payload": {
+        "taskId": "01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+        "repo": "acme/service",
+        "ref": "main",
+        "actor": {
+          "id": 1,
+          "login": "jdoe"
+        }
+      }
     }
   },
   {
@@ -204,7 +213,7 @@
       "title": "npm run lint",
       "output": {
         "stdout": "\n> service@2.1.0 lint\n> eslint .\n\n",
-        "stderr": "src/invoicing/index.ts:12:3\n  error  'legacyFormat' is defined but never used  no-unused-vars\n\n✖ 1 problem (1 error, 0 warnings)\n\nnpm error Lifecycle script `lint` failed with error:\nnpm error code 1\nnpm error command sh -c eslint .\n",
+        "stderr": "src/invoicing/index.ts:12:3\n  error  'legacyFormat' is defined but never used  no-unused-vars\n\n\u2716 1 problem (1 error, 0 warnings)\n\nnpm error Lifecycle script `lint` failed with error:\nnpm error code 1\nnpm error command sh -c eslint .\n",
         "exitCode": 1,
         "durationMs": 1100
       }

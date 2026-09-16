@@ -113,26 +113,10 @@ export function taskRoutes(config: Config, oc: OC, clock: Clock): Hono<{ Variabl
       idempotencyKey: `${taskId}/start`,
       mode: "queue",
     });
-    const row: SessionSummary = {
-      id: created.id,
-      projectId: config.oc.projectId,
-      agentId: config.oc.agentId,
-      deploymentId,
-      environment: config.oc.environment,
-      source: "api",
-      status: created.status,
-      labels,
-      createdAt: created.createdAt,
-      updatedAt: created.createdAt,
-      revision: 0,
-      activity: {
-        activeTurnId: receipt.status === "running" ? receipt.turnId : null,
-        queued: receipt.status === "queued" ? 1 : 0,
-        lastSettledTurn: null,
-      },
-      result: null,
-    };
-    return c.json({ task: task(row), receipt }, 201);
+    // The session is read back rather than assembled here: its row is
+    // published before the create call returns (C1), and a duplicate receipt
+    // may name a turn that has already settled.
+    return c.json({ task: await fromSession(created.id), receipt }, 201);
   });
 
   app.patch("/api/tasks/:id", async (c) => {

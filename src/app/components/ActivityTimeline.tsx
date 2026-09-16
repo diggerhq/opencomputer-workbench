@@ -23,6 +23,17 @@ const RULE_WORD: Record<TurnStatus, { word: string; tone: string }> = {
   cancelled: { word: "stopped", tone: "text-status-stopping" },
 };
 
+/** "after 1.2 s, 2 commands stopped, computer replaced": what `turn.cancelled` recorded about the stop. */
+function settlementWords(settlement: NonNullable<Turn["settlement"]>): string {
+  const parts: string[] = [];
+  if (settlement.afterMs !== undefined) parts.push(`after ${(settlement.afterMs / 1000).toFixed(1)} s`);
+  if (settlement.operations) {
+    parts.push(`${String(settlement.operations)} command${settlement.operations === 1 ? "" : "s"} stopped`);
+  }
+  if (settlement.computerTerminated) parts.push("computer replaced");
+  return parts.length ? `(${parts.join(", ")})` : "";
+}
+
 function TurnGroup({
   turn,
   number,
@@ -43,7 +54,10 @@ function TurnGroup({
         <span aria-hidden="true">·</span>
         <RelativeTime iso={turn.createdAt} />
         <span aria-hidden="true" className="h-px flex-1 bg-border" />
-        <span className={rule.tone}>{rule.word}</span>
+        <span className={rule.tone}>
+          {rule.word}
+          {turn.settlement ? ` ${settlementWords(turn.settlement)}` : ""}
+        </span>
       </h4>
       {turn.toolCalls.length ? (
         <ul>

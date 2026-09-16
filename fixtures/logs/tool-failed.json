@@ -30,7 +30,16 @@
     "type": "message.received",
     "data": {
       "input": "Rename billing to invoicing across the service. Keep the public API paths stable and add a deprecation note for the old module name.\n\nRun the full test suite before you report.",
-      "mode": "queue"
+      "mode": "queue",
+      "payload": {
+        "taskId": "01J9Y0C6R4V3M2K7Q8N5P1H9ZT",
+        "repo": "acme/service",
+        "ref": "main",
+        "actor": {
+          "id": 1,
+          "login": "jdoe"
+        }
+      }
     }
   },
   {

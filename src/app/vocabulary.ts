@@ -121,6 +121,11 @@ export const FAILURE_COPY: Record<string, string> = {
     "This conversation exceeds the model's context window. Start a fresh task and name this one as its predecessor.",
   interrupted: "The turn was stopped before it finished.",
   session_ended: "The session ended while the turn ran.",
+  deployment_invalid: "The agent's deployment could not be loaded. Redeploy the worker, then start a fresh task.",
+  model_unavailable: "The requested model is not available to this agent. Check the model in the agent's code.",
+  sandbox_timeout: "A command on the task's computer did not finish in time. Send a follow-up to continue.",
+  tool_failed: "A tool failed while the agent worked. Send a follow-up to continue.",
+  agent_failed: "The agent failed. Send a follow-up to continue.",
 };
 
 export function failureCopy(code: string): string {

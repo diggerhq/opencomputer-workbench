@@ -33,3 +33,5 @@ result contracts ship, keeping the same file names.
 
 Timestamps are relative to `2026-09-15T20:45:00Z`; tests read them with a
 clock one minute later.
+
+Reconciled on 2026-09-16 with the management API as the OC integration branch documents it: `activity.lastSettledTurn` is `{ id, status, at }` and carries no failure code (the workbench's ask for `code` on failed rows is open in the build ledger), and a row's `environment` may be `null`.

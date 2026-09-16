@@ -18,7 +18,7 @@ export interface ActivityEvent {
 }
 
 export type TurnStatus = "queued" | "running" | "completed" | "failed" | "cancelled";
-export type CallStatus = "running" | "completed" | "failed";
+export type CallStatus = "running" | "completed" | "failed" | "cancelled";
 export type TurnMode = "queue" | "steer" | "interrupt";
 
 export interface ActivityMessage {
@@ -39,6 +39,8 @@ export interface ToolCall {
   readonly status: CallStatus;
   /** The failure message of a `tool.failed` call, or why an unsettled call ended with its turn. */
   readonly message?: string;
+  /** The terminal turn event that settled a call still open when the turn ended (`tool.failed.data.settledBy`). */
+  readonly settledBy?: string;
   readonly startedAt?: string;
   readonly settledAt?: string;
   /** The result tool's call: its output became the session's result. */
@@ -58,6 +60,8 @@ export interface Turn {
   readonly status: TurnStatus;
   readonly input: string;
   readonly mode: TurnMode;
+  /** The structured value the turn was sent with, as `message.received` records it. */
+  readonly payload?: unknown;
   readonly createdAt?: string;
   readonly startedAt?: string;
   readonly settledAt?: string;
@@ -68,6 +72,12 @@ export interface Turn {
   readonly failure?: TurnFailure;
   /** `interrupted` on a stopped turn; `session_ended` when the session ended under it. */
   readonly cancelReason?: string;
+  /** How a stop settled, from `turn.cancelled`: the wait, the commands stopped, and whether the computer was replaced. */
+  readonly settlement?: {
+    readonly afterMs?: number;
+    readonly operations?: number;
+    readonly computerTerminated?: boolean;
+  };
 }
 
 export interface Activity {
@@ -159,10 +169,21 @@ function findCall(turn: Turn, data: Record<string, unknown>): ToolCall | undefin
   return undefined;
 }
 
-function settleOpenCalls(turn: Turn, message: string, at: string | undefined): readonly ToolCall[] {
+/**
+ * A call still running when its turn ends. The log records a `tool.failed`
+ * with `settledBy` for it ahead of the terminal event, so this is a rule of
+ * last resort for logs recorded before that; a stop settles the call as
+ * `cancelled`, any other end as `failed`.
+ */
+function settleOpenCalls(
+  turn: Turn,
+  message: string,
+  at: string | undefined,
+  status: "failed" | "cancelled" = "failed",
+): readonly ToolCall[] {
   if (!turn.toolCalls.some((call) => call.status === "running")) return turn.toolCalls;
   return turn.toolCalls.map((call) =>
-    call.status === "running" ? { ...call, status: "failed", message, ...(at ? { settledAt: at } : {}) } : call,
+    call.status === "running" ? { ...call, status, message, ...(at ? { settledAt: at } : {}) } : call,
   );
 }
 
@@ -199,7 +220,7 @@ export function applyEvent(activity: Activity, event: ActivityEvent): Activity {
                 status: "cancelled",
                 cancelReason: "session_ended",
                 ...(at ? { settledAt: at } : {}),
-                toolCalls: settleOpenCalls(turn, "The task ended before this call returned.", at),
+                toolCalls: settleOpenCalls(turn, "The task ended before this call returned.", at, "cancelled"),
                 messages: settleMessages(turn.messages),
               }
             : turn,
@@ -217,6 +238,7 @@ export function applyEvent(activity: Activity, event: ActivityEvent): Activity {
         ...turn,
         input,
         mode,
+        ...(data.payload !== undefined ? { payload: data.payload } : {}),
         ...(at && !turn.createdAt ? { createdAt: at } : {}),
         messages: upsertMessage(turn.messages, {
           id: inputMessageId(turn.id),
@@ -266,12 +288,18 @@ export function applyEvent(activity: Activity, event: ActivityEvent): Activity {
     case "turn.cancelled": {
       const turn = ensureTurn(next, event);
       if (!turn) return next;
+      const settlement = {
+        ...(typeof data.settledAfterMs === "number" ? { afterMs: data.settledAfterMs } : {}),
+        ...(typeof data.operationsSettled === "number" ? { operations: data.operationsSettled } : {}),
+        ...(typeof data.computerTerminated === "boolean" ? { computerTerminated: data.computerTerminated } : {}),
+      };
       return withTurn(next, {
         ...turn,
         status: "cancelled",
         cancelReason: text(data.reason) || "interrupted",
+        ...(Object.keys(settlement).length ? { settlement } : {}),
         ...(at ? { settledAt: at } : {}),
-        toolCalls: settleOpenCalls(turn, "Stopped before this call returned.", at),
+        toolCalls: settleOpenCalls(turn, "Stopped before this call returned.", at, "cancelled"),
         messages: settleMessages(turn.messages),
       });
     }
@@ -327,13 +355,17 @@ export function applyEvent(activity: Activity, event: ActivityEvent): Activity {
       const turn = ensureTurn(next, event);
       if (!turn) return next;
       const existing = findCall(turn, data);
+      // A call its turn ended before it completed is recorded by the session
+      // with `settledBy`; a stop settles it as cancelled, any other end as failed.
+      const settledBy = text(data.settledBy);
       const call: ToolCall = {
         callId: existing?.callId ?? (text(data.callId) || `tool:${String(event.seq)}`),
         tool: existing?.tool || text(data.tool),
         title: text(data.title) || existing?.title || "",
         ...(existing?.input !== undefined ? { input: existing.input } : {}),
-        status: "failed",
+        status: settledBy === "turn.cancelled" ? "cancelled" : "failed",
         message: text(data.message),
+        ...(settledBy ? { settledBy } : {}),
         ...(existing?.startedAt ? { startedAt: existing.startedAt } : {}),
         ...(at ? { settledAt: at } : {}),
         result: false,
@@ -424,7 +456,7 @@ export function latestResult(activity: Activity): LatestResult | undefined {
   return undefined;
 }
 
-export type OutcomeKind = "running" | "ok" | "error" | "timed_out" | "failed";
+export type OutcomeKind = "running" | "ok" | "error" | "timed_out" | "failed" | "cancelled";
 
 export interface CommandOutcome {
   readonly kind: OutcomeKind;
@@ -455,10 +487,10 @@ export function commandOutcome(call: ToolCall): CommandOutcome {
   const elapsed =
     call.startedAt && call.settledAt ? Date.parse(call.settledAt) - Date.parse(call.startedAt) : undefined;
   if (call.status === "running") return { kind: "running", text: "", lines: 0 };
-  if (call.status === "failed") {
+  if (call.status === "failed" || call.status === "cancelled") {
     const message = call.message ?? "";
     return {
-      kind: "failed",
+      kind: call.status,
       text: message,
       lines: countLines(message),
       ...(elapsed !== undefined ? { durationMs: elapsed } : {}),
