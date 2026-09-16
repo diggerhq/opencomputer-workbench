@@ -80,7 +80,7 @@ export function isUncertain(state: Submission): boolean {
   return state.status === "submitting" || (state.status === "failed" && state.problem.retryable);
 }
 
-export function problemOf(cause: unknown): Problem {
+function problemOf(cause: unknown): Problem {
   const error = cause as Partial<ApiError> | undefined;
   if (error && typeof error.status === "number" && typeof error.code === "string") {
     return {

@@ -2,13 +2,10 @@
 // same envelope the OpenComputer management API uses, so the browser handles
 // one kind of failure whether it came from the app or was forwarded. `handle`
 // wraps a route handler so every failure leaves through this shape.
+import type { Problem } from "../shared/problem";
 import { OpenComputerError } from "./client";
 import { ScopeError } from "./scope";
 import { LabelError } from "./task";
-
-export interface Problem {
-  readonly error: { readonly code: string; readonly message: string };
-}
 
 export function problem(status: number, code: string, message: string, headers?: HeadersInit): Response {
   return Response.json({ error: { code, message } } satisfies Problem, { status, headers });

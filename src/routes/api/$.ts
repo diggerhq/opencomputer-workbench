@@ -2,7 +2,7 @@
 // the one error shape, a non-member the same 401 as every other route.
 import { createFileRoute } from "@tanstack/react-router";
 import { problem } from "@/server/problem";
-import { member } from "../-middleware";
+import { member } from "../-guards";
 
 const notFound = () => problem(404, "not_found", "No such route.");
 

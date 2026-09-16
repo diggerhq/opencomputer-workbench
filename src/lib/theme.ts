@@ -1,8 +1,8 @@
 // The theme: light, dark or the system's, kept in the browser and applied as
-// the `dark` class on <html>. The class is set from main.tsx before React
-// mounts, so the first paint is already themed; this is a single-page app,
-// nothing renders before its script runs, and no inline script is needed,
-// which keeps the Content-Security-Policy at `script-src 'self'`.
+// the `dark` class on <html>. The root route calls `initTheme` as soon as
+// the app mounts; the document before that is the light default, and no
+// inline script is used, which keeps the Content-Security-Policy at
+// `script-src 'self'`.
 import { useSyncExternalStore } from "react";
 
 export type Theme = "light" | "dark" | "system";

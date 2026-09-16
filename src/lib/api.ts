@@ -1,6 +1,7 @@
 // The browser's view of the app's own routes. One problem shape, one place
 // that turns it into an Error; 401 on the workspace route means "signed out".
-import type { Task } from "../server/task";
+import type { Problem } from "@/shared/problem";
+import type { Task } from "@/shared/task";
 import type { Envelope, Receipt } from "./submission";
 
 export type { Task };
@@ -34,9 +35,7 @@ export class ApiError extends Error {
 }
 
 async function fail(response: Response): Promise<never> {
-  const body = (await response.json().catch(() => undefined)) as
-    | { error?: { code?: string; message?: string } | string }
-    | undefined;
+  const body = (await response.json().catch(() => undefined)) as Partial<Problem> | { error?: string } | undefined;
   const error = body?.error;
   if (typeof error === "object" && error && typeof error.code === "string") {
     throw new ApiError(response.status, error.code, error.message ?? error.code);

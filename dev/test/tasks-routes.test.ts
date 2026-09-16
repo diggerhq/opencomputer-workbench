@@ -391,7 +391,8 @@ describe("PATCH /api/tasks/:id and end", () => {
   });
 
   it("refuses a title over the label bound and an empty change", async () => {
-    configure({ config: cfg, fetch: fakeFetch({}), now: () => T0 });
+    // The guard checks the session's scope before the handler reads the body.
+    configure({ config: cfg, fetch: fakeFetch({ [`${OC}/sessions/ses_1`]: () => json(session()) }), now: () => T0 });
     const long = await serve(
       new Request("https://workbench.example/api/tasks/ses_1", {
         method: "PATCH",

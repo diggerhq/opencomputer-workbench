@@ -1,8 +1,9 @@
 import { Check, ChevronRight, Clock, X } from "lucide-react";
 import { useState } from "react";
-import { type CommandOutcome, commandOf, commandOutcome, parseOutput, type ToolCall } from "@/lib/activity";
+import type { ToolCall } from "@/lib/activity";
+import { type CommandOutcome, commandOf, commandOutcome, parseOutput } from "@/lib/command-output";
 import { formatDuration } from "@/lib/format";
-import { reportSchema } from "@/lib/report";
+import { reportSchema } from "@/shared/report";
 import { ResultFields } from "./ResultCard";
 
 /** Lines shown before the expander asks; nothing is ever cut without saying so. */

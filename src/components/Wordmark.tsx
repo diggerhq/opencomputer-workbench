@@ -2,7 +2,7 @@
 import { Hammer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function Mark({ className }: { className?: string }) {
+function Mark({ className }: { className?: string }) {
   return (
     <span
       aria-hidden="true"

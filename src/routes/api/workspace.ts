@@ -3,16 +3,15 @@
 // agent is the server's job when a task starts, and choosing the deployment
 // is the platform's.
 import { createFileRoute } from "@tanstack/react-router";
-import { config } from "@/server/env";
 import { handle } from "@/server/problem";
-import { type Handled, member } from "../-middleware";
+import { type Handled, member } from "../-guards";
 
 export const Route = createFileRoute("/api/workspace")({
   server: {
     middleware: [member],
     handlers: {
       GET: handle(async ({ context }: Handled) => {
-        const settings = config();
+        const { config: settings } = context;
         return Response.json({
           identity: context.member.identity,
           environment: settings.oc.environment,
