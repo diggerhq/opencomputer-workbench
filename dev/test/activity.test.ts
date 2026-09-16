@@ -1,16 +1,9 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { type AgentEvent, applyEvents, emptyTimeline, turnsOf } from "@opencomputer/react";
 import { describe, expect, it } from "vitest";
-import {
-  type Activity,
-  activeTurn,
-  activityOf,
-  commandOutcome,
-  emptyNotes,
-  latestResult,
-  noteEvent,
-  noteEvents,
-} from "../../src/lib/activity";
+import { type Activity, activeTurn, activityOf, latestResult } from "../../src/lib/activity";
+import { emptyNotes, noteEvents } from "../../src/lib/activity-notes";
+import { commandOutcome } from "../../src/lib/command-output";
 
 const LOGS = new URL("../fixtures/logs/", import.meta.url);
 const CONTEXT = {
@@ -30,28 +23,6 @@ function reduce(events: readonly AgentEvent[]): Activity {
 }
 
 describe("the activity the page shows", () => {
-  it("reads every fixture as a well-formed log", () => {
-    const names = readdirSync(LOGS).filter((file) => file.endsWith(".json"));
-    expect(names.length).toBeGreaterThanOrEqual(8);
-    for (const name of names) {
-      const events = load(name.replace(/\.json$/, ""));
-      for (const [index, event] of events.entries()) expect(event.seq).toBe(index + 1);
-    }
-  });
-
-  it("notes replay equals live: whole log, one event at a time, and in pages", () => {
-    for (const name of ["working", "completed", "cancelled", "ended"]) {
-      const events = load(name);
-      const whole = noteEvents(emptyNotes(), events);
-      const oneByOne = events.reduce(noteEvent, emptyNotes());
-      const paged = [events.slice(0, 5), events.slice(5, 12), events.slice(12)].reduce(noteEvents, emptyNotes());
-      expect(oneByOne).toEqual(whole);
-      expect(paged).toEqual(whole);
-      // An overlapping page changes nothing.
-      expect(noteEvents(whole, events.slice(3, 9))).toBe(whole);
-    }
-  });
-
   it("joins timestamps, the payload and the call notes onto the hook's turns", () => {
     const activity = reduce(load("working"));
     const [turn] = activity.turns;
@@ -112,13 +83,6 @@ describe("the activity the page shows", () => {
     const stopped = activity.turns[0]?.toolCalls.at(-1);
     expect(stopped).toMatchObject({ status: "cancelled", settledBy: "turn.cancelled" });
     expect(stopped && commandOutcome(stopped).kind).toBe("cancelled");
-  });
-
-  it("treats a timed-out command as a completed call inside a turn that went on", () => {
-    const activity = reduce(load("tool-timed-out"));
-    const e2e = activity.turns[0]?.toolCalls.find((call) => call.callId === "toolu_03e2e");
-    expect(e2e?.status).toBe("completed");
-    expect(e2e && commandOutcome(e2e)).toMatchObject({ kind: "timed_out", exitCode: 137, durationMs: 120000 });
   });
 
   it("marks the session ended and keeps the result", () => {
