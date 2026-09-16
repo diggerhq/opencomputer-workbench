@@ -1,6 +1,6 @@
 import { Check, ChevronRight, Clock, X } from "lucide-react";
 import { useState } from "react";
-import { type CommandOutcome, commandOf, commandOutcome, type ToolCall } from "@/reducer";
+import { type CommandOutcome, commandOf, commandOutcome, type ToolCall } from "@/activity";
 import { reportSchema } from "../../lib/report";
 import { formatDuration } from "./format";
 import { ResultFields } from "./ResultCard";

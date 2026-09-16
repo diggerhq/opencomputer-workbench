@@ -61,7 +61,13 @@ export const PROJECT = {
           { name: "production", agentId: "worker" },
         ],
         agents: [{ id: "worker", name: "worker" }],
+        createdAt: "2026-09-15T18:00:00Z",
+        updatedAt: "2026-09-15T18:00:00Z",
       },
       deployments: [],
+      sessions: [],
+      connections: [],
+      channels: [],
+      schedules: [],
     }),
 };

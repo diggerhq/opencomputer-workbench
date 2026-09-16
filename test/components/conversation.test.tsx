@@ -42,13 +42,17 @@ describe("Conversation", () => {
     await act(async () => {
       fireEvent.click(button);
     });
-    expect(send).toHaveBeenCalledWith("Also update the docs");
+    expect(send).toHaveBeenCalledWith("Also update the docs", {
+      idempotencyKey: expect.stringMatching(/^[0-9A-HJKMNP-TV-Z]{26}$/),
+    });
     expect(box.value).toBe("Also update the docs");
     expect(error).toHaveBeenCalled();
     await act(async () => {
       fireEvent.click(button);
     });
     expect(send).toHaveBeenCalledTimes(2);
+    // The retry of the same draft carries the same key, so it is the same submission.
+    expect(send.mock.calls[1]?.[1]).toEqual(send.mock.calls[0]?.[1]);
     expect(box.value).toBe("");
     error.mockRestore();
   });

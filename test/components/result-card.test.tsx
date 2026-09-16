@@ -1,8 +1,8 @@
 // @vitest-environment happy-dom
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { latestResult } from "../../src/app/activity";
 import { ResultCard } from "../../src/app/components/ResultCard";
-import { latestResult } from "../../src/app/reducer";
 import { reduce } from "./helpers";
 
 afterEach(cleanup);

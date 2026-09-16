@@ -23,12 +23,6 @@ describe("readConfig", () => {
     expect(() => config({ OPENCOMPUTER_API_URL: "not a url" })).toThrow("OPENCOMPUTER_API_URL");
   });
 
-  it("enables development stubs only with the literal 1", () => {
-    expect(config().devStubs).toBe(false);
-    expect(config({ WORKBENCH_DEV_STUBS: "true" }).devStubs).toBe(false);
-    expect(config({ WORKBENCH_DEV_STUBS: "1" }).devStubs).toBe(true);
-  });
-
   it("parses the membership policy", () => {
     expect(config().membership).toEqual({ kind: "team", orgId: 100, teamId: 200 });
     expect(config({ WORKBENCH_MEMBERSHIP: "org:5" }).membership).toEqual({ kind: "org", orgId: 5 });

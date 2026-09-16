@@ -20,49 +20,6 @@ export interface Config {
   readonly membership: Policy;
   /** The app's public origin: the OAuth callback and the origin check. */
   readonly origin: string;
-  /** Development stubs are enabled only by the literal "1". */
-  readonly devStubs: boolean;
-  /** DEV STUB (C3): the configured repository list; present only when devStubs is on. */
-  readonly devRepos?: readonly DevRepository[];
-}
-
-export interface DevRepository {
-  readonly fullName: string;
-  readonly defaultBranch: string;
-}
-
-const REPO = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/[A-Za-z0-9._-]{1,100}$/;
-
-// DEV STUB (C3): parsed only when WORKBENCH_DEV_STUBS=1 and the key is set;
-// without the key the repositories route is the live one, so the gate can
-// serve the C2 stub alone. Deleted with the stub when
-// GET /projects/<p>/github/repositories ships.
-function devRepositories(source: ConfigSource): readonly DevRepository[] | undefined {
-  const raw = source.WORKBENCH_DEV_REPOS?.trim();
-  if (!raw) return undefined;
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    throw new Error("WORKBENCH_DEV_REPOS must be JSON");
-  }
-  if (!Array.isArray(parsed) || parsed.length === 0) {
-    throw new Error("WORKBENCH_DEV_REPOS must be a non-empty array of { fullName, defaultBranch }");
-  }
-  return Object.freeze(
-    parsed.map((entry: unknown) => {
-      const record = entry as { fullName?: unknown; defaultBranch?: unknown };
-      if (
-        typeof record?.fullName !== "string" ||
-        !REPO.test(record.fullName) ||
-        typeof record.defaultBranch !== "string" ||
-        !record.defaultBranch.trim()
-      ) {
-        throw new Error("WORKBENCH_DEV_REPOS entries must be { fullName: owner/name, defaultBranch }");
-      }
-      return Object.freeze({ fullName: record.fullName, defaultBranch: record.defaultBranch.trim() });
-    }),
-  );
 }
 
 export type ConfigSource = Readonly<Record<string, string | undefined>>;
@@ -116,8 +73,6 @@ export function readConfig(source: ConfigSource): Config {
     throw new Error("WORKBENCH_COOKIE_KEY must be base64");
   }
   if (cookieKey.length !== 32) throw new Error("WORKBENCH_COOKIE_KEY must be base64 of 32 bytes");
-  const devStubs = source.WORKBENCH_DEV_STUBS === "1";
-  const devRepos = devStubs ? devRepositories(source) : undefined;
   return Object.freeze({
     oc: Object.freeze({
       apiKey: required(source, "OPENCOMPUTER_API_KEY"),
@@ -133,7 +88,5 @@ export function readConfig(source: ConfigSource): Config {
     cookieKey,
     membership: parsePolicy(required(source, "WORKBENCH_MEMBERSHIP")),
     origin: origin("WORKBENCH_ORIGIN", required(source, "WORKBENCH_ORIGIN")),
-    devStubs,
-    ...(devRepos ? { devRepos } : {}),
   });
 }

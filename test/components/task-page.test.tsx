@@ -6,7 +6,7 @@ import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/rea
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { routeTree } from "../../src/app/routeTree.gen";
-import type { SessionSummary } from "../../src/server/oc";
+import type { SessionSummary } from "../../src/server/client";
 import { type Task, toTask } from "../../src/server/task";
 import { load } from "./helpers";
 

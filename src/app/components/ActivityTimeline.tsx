@@ -1,8 +1,8 @@
 import { useState } from "react";
+import type { Turn, TurnStatus } from "@/activity";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { Turn, TurnStatus } from "@/reducer";
 import { failureCopy } from "@/vocabulary";
 import { RelativeTime } from "./RelativeTime";
 import { ToolCallRow } from "./ToolCall";
