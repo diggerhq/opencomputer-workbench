@@ -3,7 +3,9 @@
 // receipt arrives, retries a lost reply with the same envelope, and keeps
 // the draft with the problem shown on a conflict or a refusal. While an
 // outcome is uncertain the primary action is that retry, so a second click
-// never mints a second task. Disabled until the workspace has answered.
+// never mints a second task; the submission hook keeps one retry chain, so
+// a click during the automatic backoff never leaves a second one behind.
+// Disabled until the workspace has answered.
 import { useQuery } from "@tanstack/react-query";
 import { FolderGit2, GitCommitHorizontal } from "lucide-react";
 import { useState } from "react";
@@ -13,20 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createTask, listRepos, type Workspace } from "@/lib/api";
-import {
-  begin,
-  compose,
-  fail,
-  IDLE,
-  isUncertain,
-  type Problem,
-  retry,
-  type Submission,
-  shouldRetry,
-  succeed,
-} from "@/lib/submission";
+import { listRepos, type Workspace } from "@/lib/api";
+import { compose, isUncertain, type Problem, shouldRetry } from "@/lib/submission";
 import { FAILURE_COPY, failureCopy } from "@/lib/vocabulary";
+import { useSubmission } from "./use-submission";
 
 const CONFLICT_COPY = "A task with this id already exists with a different request. Keep editing or start over.";
 
@@ -41,7 +33,12 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
   const [repo, setRepo] = useState("");
   const [ref, setRef] = useState("");
   const [text, setText] = useState("");
-  const [submission, setSubmission] = useState<Submission>(IDLE);
+  const { submission, start, retryNow, reset } = useSubmission({
+    onCreated: (id) => {
+      setText("");
+      onCreated(id);
+    },
+  });
 
   const repositories = repos.data?.repositories ?? [];
   const selected = repositories.find((entry) => entry.fullName === repo);
@@ -53,36 +50,13 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
   const canSubmit = ready && !submitting && repo !== "" && text.trim() !== "";
   const none = repos.isSuccess && repositories.length === 0;
 
-  async function send(state: Submission) {
-    if (state.status !== "submitting") return;
-    setSubmission(state);
-    let next: Submission;
-    try {
-      next = succeed(state, await createTask(state.envelope));
-    } catch (cause) {
-      next = fail(state, cause);
-    }
-    if (next.status === "done") {
-      setText("");
-      setSubmission(IDLE);
-      onCreated(next.id);
-      return;
-    }
-    setSubmission(next);
-    if (shouldRetry(next)) {
-      const attempt = next.status === "failed" ? next.attempt : 1;
-      await new Promise((resolve) => setTimeout(resolve, 1000 * attempt));
-      await send(retry(next));
-    }
-  }
-
   function submit() {
     if (!workspace || !canSubmit) return;
     if (submission.status === "failed" && submission.problem.retryable) {
-      void send(retry(submission));
+      retryNow();
       return;
     }
-    void send(begin(compose({ repo, ref: ref || selected?.defaultBranch || "", text })));
+    start(compose({ repo, ref: ref || selected?.defaultBranch || "", text }));
   }
 
   const problem = submission.status === "failed" && !shouldRetry(submission) ? submission : undefined;
@@ -151,7 +125,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
                 variant="link"
                 size="sm"
                 className="ml-2 h-auto p-0 text-status-failed underline"
-                onClick={() => void send(retry(problem))}
+                onClick={retryNow}
               >
                 Retry
               </Button>
@@ -161,7 +135,7 @@ export function Composer({ workspace, onCreated }: { workspace?: Workspace; onCr
                 variant="link"
                 size="sm"
                 className="ml-2 h-auto p-0 text-status-failed underline"
-                onClick={() => setSubmission(IDLE)}
+                onClick={reset}
               >
                 Start over
               </Button>
