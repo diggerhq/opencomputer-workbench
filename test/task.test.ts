@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { displayStateOf, needsAttention } from "../src/app/lib/display";
-import type { Session, SessionSummary } from "../src/server/oc";
+import type { Session, SessionSummary } from "../src/server/client";
 import { boundLabels, LabelError, summarize, titleOf, toTask } from "../src/server/task";
 import { T0 } from "./member";
 
@@ -89,19 +89,48 @@ describe("summarize", () => {
     deploymentId: "dep_dev",
     environment: "development",
     status: "running",
+    source: "api",
     labels: { title: "T" },
     result: null,
     turns: [
-      { id: "t1", status: "completed", createdAt: "2026-09-15T20:00:00Z", updatedAt: "2026-09-15T20:05:00Z" },
-      { id: "t2", status: "failed", createdAt: "2026-09-15T20:06:00Z", updatedAt: "2026-09-15T20:07:00Z" },
-      { id: "t3", status: "running", createdAt: "2026-09-15T20:08:00Z", updatedAt: "2026-09-15T20:08:00Z" },
-      { id: "t4", status: "queued", createdAt: "2026-09-15T20:09:00Z", updatedAt: "2026-09-15T20:09:00Z" },
+      {
+        id: "t1",
+        input: "a",
+        mode: "queue",
+        status: "completed",
+        createdAt: "2026-09-15T20:00:00Z",
+        updatedAt: "2026-09-15T20:05:00Z",
+      },
+      {
+        id: "t2",
+        input: "b",
+        mode: "queue",
+        status: "failed",
+        createdAt: "2026-09-15T20:06:00Z",
+        updatedAt: "2026-09-15T20:07:00Z",
+      },
+      {
+        id: "t3",
+        input: "c",
+        mode: "queue",
+        status: "running",
+        createdAt: "2026-09-15T20:08:00Z",
+        updatedAt: "2026-09-15T20:08:00Z",
+      },
+      {
+        id: "t4",
+        input: "d",
+        mode: "queue",
+        status: "queued",
+        createdAt: "2026-09-15T20:09:00Z",
+        updatedAt: "2026-09-15T20:09:00Z",
+      },
     ],
     createdAt: "2026-09-15T20:00:00Z",
     updatedAt: "2026-09-15T20:09:00Z",
   };
 
-  it("derives activity from turns when the session carries none", () => {
+  it("derives the row's activity from the session's turns", () => {
     const row = summarize(session, "proj_1");
     expect(row.projectId).toBe("proj_1");
     expect(row.activity).toEqual({
@@ -112,10 +141,8 @@ describe("summarize", () => {
     expect(toTask(row, T0)).toMatchObject({ execution: "working", queued: 1 });
   });
 
-  it("prefers the activity the session carries", () => {
-    const activity = { activeTurnId: null, queued: 0, lastSettledTurn: null };
-    expect(summarize({ ...session, activity, projectId: "proj_9" }, "proj_1").activity).toBe(activity);
-    expect(summarize({ ...session, activity, projectId: "proj_9" }, "proj_1").projectId).toBe("proj_9");
+  it("keeps the project the session names", () => {
+    expect(summarize({ ...session, projectId: "proj_9" }, "proj_1").projectId).toBe("proj_9");
   });
 });
 

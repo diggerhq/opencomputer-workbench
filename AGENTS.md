@@ -9,23 +9,23 @@ agents. The design that decides what is built lives outside this repository.
 - `src/server/app.ts` `createApp(config)`: the one Fetch handler every host runs; `routes.ts` the route table and the error mapping; `problem.ts` the one error shape
 - `src/server/env.ts` typed configuration from a host's own source; a missing key names itself
 - `src/server/auth.ts` GitHub sign-in and the cookie; `membership.ts` the org, team or user rule with pinned numeric ids
-- `src/server/oc.ts` the management API wrapper, marked `STOPGAP(C5)`; the only module that knows OpenComputer's paths and shapes
+- `src/server/client.ts` the management client from `@opencomputer/sdk/agents`, plus the bounded repeat of an unconfirmed publication and the agent's active deployment
 - `src/server/task.ts` `toTask`: the only place OpenComputer facts become app facets (execution, archived, result); `scope.ts` the session check every session-scoped route runs first
 - `src/server/tasks.ts` the task routes (list, get, create with the submission envelope, title and archive labels, end, repositories); `session-proxy.ts` the three routes the React hook needs; `request.ts` what the first turn carries
 - `src/lib/report.ts` the app's parser for the report, built from the schema the report tool declares
 - `opencomputer/project.ts` the project and its one agent; `opencomputer/agents/worker/agent.ts` the worker: the GitHub connection, one model, one tool and its instructions; `read-task.ts` what the agent knows about its task
-- `opencomputer/agents/worker/tools/report.ts` the report tool: the one source of the result type, the schema it declares to the model, and the GitHub verification of every field it is given
+- `opencomputer/agents/worker/tools/report.ts` the report tool: the one source of the result type, the schema it declares to the model, and the verification of commit, branch and PR references against GitHub
 - `.opencomputer/project.json` the linked project and agent ids the CLI wrote
 - `src/hosts/workers.ts` Cloudflare Workers entry; `api/index.ts` Vercel entry; `src/hosts/dev.ts` the Vite dev server entry
 - `src/app/routes/` the two screens (TanStack Router, file based): `index.tsx` the list, `tasks.$id.tsx` the task page
 - `src/app/components/` the list (`Composer`, `TaskList`, `TaskRow`, `StatusBadge`), the page (`TaskPage`, `ActivityTimeline`, `ToolCall`, `ResultCard`, `Conversation`, `Controls`, `Markdown`, `RelativeTime`, `format.ts`), `SignIn`, and the shadcn primitives under `ui/`
-- `src/app/reducer.ts` the event log reduced into turns, tool calls and results, marked `STOPGAP(C5)`; `hooks/use-activity.ts` feeds it from `useAgent`
+- `src/app/activity.ts` combines the hook's turns with event notes, marked `STOPGAP(C5)`; `hooks/use-activity.ts` feeds it from `useAgent`
 - `src/app/lib/api.ts` the browser's view of the app's routes; `lib/submission.ts` the envelope held until the admission receipt; `lib/display.ts` the display state from the three facets; `lib/ulid.ts`
 - `src/app/vocabulary.ts` the words and the failure copy; `styles.css` maps `design/tokens.css` into Tailwind; `design/` the tokens, the two screens, the mockups, the captures and the review checklist
 - `fixtures/rows/` one session row per task state; `fixtures/logs/` one event log per scenario; each README says which are authored and which are recorded
 - `wrangler.jsonc`, `vercel.json` host configuration: static assets and the handler, nothing that keeps state
 - `scripts/membership-id.mjs` resolves the membership rule to pinned ids once, at setup
-- `test/` Vitest over the server, the pure client modules and the components: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, the reducer over every log fixture, the page through the route tree, both host entries, statelessness
+- `test/` Vitest over the server, the pure client modules and the components: configuration, cookie, membership, routes, the projection over every row fixture, create and retry, the proxy, the submission envelope, the activity view over log fixtures, the page through the route tree, both host entries, statelessness
 
 ## Commands
 

@@ -8,6 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, FolderGit2, Hash, Link2, SearchX } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { type Activity, activeTurn, isSettled, latestResult } from "@/activity";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { ActorAvatar } from "@/components/ActorAvatar";
 import { Controls } from "@/components/Controls";
@@ -21,7 +22,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useActivity } from "@/hooks/use-activity";
 import { ApiError, endTask, getTask, patchTask, type Task } from "@/lib/api";
-import { type Activity, activeTurn, isSettled, latestResult } from "@/reducer";
 import { type Report, type ReportStage, reportStage } from "../../lib/report";
 
 export const taskQueryKey = (id: string) => ["task", id] as const;
@@ -249,7 +249,14 @@ export function TaskPage({ id }: { id: string }) {
                   activeTurnId={running?.id}
                   ended={ended}
                   archived={current?.archived ?? false}
-                  onStop={stop}
+                  onStop={() =>
+                    // The published hook rejects when the interrupt request was
+                    // not answered with success; settlement itself arrives in turns.
+                    stop().catch((cause: unknown) => {
+                      console.error(cause);
+                      toast.error(cause instanceof Error ? cause.message : "The stop was not requested.");
+                    })
+                  }
                   onArchive={current && !archive.isPending ? () => archive.mutate(!current.archived) : undefined}
                   onEnd={current && !end.isPending ? () => end.mutate() : undefined}
                 />
