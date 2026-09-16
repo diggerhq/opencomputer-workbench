@@ -11,6 +11,10 @@ import { sessionProxy } from "./session-proxy";
 import { LabelError } from "./task";
 import { taskRoutes } from "./tasks";
 
+const FORWARDED_STATUSES = new Set([400, 402, 409, 429, 503]);
+/** A 404 that describes the member's situation rather than the workbench's configuration. */
+const FORWARDED_NOT_FOUND = new Set(["github_connection_not_found"]);
+
 export interface Variables {
   identity: Identity;
   membership: { kind: string; display: string };
@@ -99,10 +103,15 @@ export function routes(config: Config, deps: AuthDeps = defaultDeps): App {
     if (cause instanceof ScopeError) return problem(c, 404, "not_found", cause.message);
     if (cause instanceof LabelError) return problem(c, 400, "invalid_labels", cause.message);
     if (cause instanceof OCError) {
-      // Admission refusals and conflicts keep their status; anything else
-      // from upstream is a bad gateway carrying the upstream code.
-      const status = cause.status === 402 || cause.status === 409 ? cause.status : 502;
-      return problem(c, status, cause.code, cause.message);
+      // The API's own answer about this request keeps its status and code:
+      // refusals, conflicts, an unconfirmed publication, the environment
+      // without a GitHub installation. A 401, a 403 or a missing project or
+      // route is the workbench's configuration, not the member's, and any
+      // other failure is a bad gateway, both carrying the upstream code.
+      const forwarded =
+        FORWARDED_STATUSES.has(cause.status) || (cause.status === 404 && FORWARDED_NOT_FOUND.has(cause.code));
+      const status = forwarded ? cause.status : 502;
+      return problem(c, status as Parameters<typeof problem>[1], cause.code, cause.message);
     }
     console.error(cause);
     return problem(c, 500, "internal_error", "Something went wrong.");

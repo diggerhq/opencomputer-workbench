@@ -51,6 +51,13 @@ function Outcome({ outcome }: { outcome: CommandOutcome }) {
           <span>failed</span>
         </span>
       );
+    case "cancelled":
+      return (
+        <span className="inline-flex items-center gap-1.5 text-xs text-status-stopping">
+          <X aria-hidden="true" className="size-3.5" />
+          <span>stopped{duration ? ` after ${duration}` : ""}</span>
+        </span>
+      );
   }
 }
 
