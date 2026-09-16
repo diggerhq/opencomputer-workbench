@@ -24,7 +24,7 @@ function TasksPage() {
   const loaded = query.data?.pages.reduce((count, page) => count + page.tasks.length, 0) ?? 0;
 
   return (
-    <main className="flex flex-1 flex-col gap-6 py-6 pb-16">
+    <main className="flex flex-1 flex-col gap-10 pt-8 pb-24">
       <h1 className="sr-only">Tasks</h1>
       <Composer
         workspace={workspace}
@@ -35,7 +35,7 @@ function TasksPage() {
       />
       <Card data-slot="task-list" role="region" aria-label="Tasks" className="gap-0 py-0">
         <Tabs value={filter} onValueChange={(value) => setFilter(value as Filter)} className="gap-0">
-          <div className="flex h-12 items-center border-b bg-surface px-4">
+          <div className="flex h-12 items-center bg-surface px-5">
             <TabsList variant="line" aria-label="Filter">
               <TabsTrigger value="active" title={filter === "active" ? `${String(loaded)} loaded` : undefined}>
                 Active{query.isSuccess && filter === "active" ? ` (${String(loaded)})` : ""}

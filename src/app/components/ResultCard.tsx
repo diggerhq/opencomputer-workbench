@@ -45,7 +45,7 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
 export function ResultFields({ report, repo, baseRef }: { report: Report; repo?: string; baseRef?: string }) {
   const compare = repo && report.baseSha && report.commit;
   return (
-    <dl className="grid gap-2 text-sm">
+    <dl className="grid gap-3 text-sm">
       {report.baseSha ? (
         <Row term="base">
           <Sha value={report.baseSha} />
@@ -120,17 +120,20 @@ export interface ResultCardProps {
 /** The session's result with its provenance. Rendered only when there is one; the page says "No result reported yet" otherwise. */
 export function ResultCard({ report, stage, reportedBy, fromLastTurn, repo, baseRef }: ResultCardProps) {
   return (
-    <section aria-label="Result" className="grid gap-2">
+    <section aria-label="Result" className="grid gap-3">
       <div className="flex h-5 items-baseline justify-between gap-2">
-        <h3 className="text-sm font-medium">Result</h3>
+        <h3 className="text-sm font-medium text-muted-foreground">Result</h3>
         <span className="text-xs text-muted-foreground">reported by {reportedBy}</span>
       </div>
       <Card>
-        <CardContent className="grid gap-3">
+        <CardContent className="grid gap-4">
           <div className="flex flex-wrap items-center gap-2">
             <Badge
               variant="secondary"
-              className={cn(fromLastTurn && "bg-status-ready-for-review-bg text-status-ready-for-review")}
+              className={cn(
+                "font-normal",
+                fromLastTurn && "bg-status-ready-for-review-bg text-status-ready-for-review",
+              )}
             >
               {stage}
             </Badge>
